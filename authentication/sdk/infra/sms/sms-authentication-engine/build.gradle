@@ -1,0 +1,5 @@
+dependencies {
+    api "${group}:sms-authentication-core"
+    api "org.springframework.boot:spring-boot-autoconfigure"
+    compileOnly "${fragrans.group}:data-cache-core"
+}

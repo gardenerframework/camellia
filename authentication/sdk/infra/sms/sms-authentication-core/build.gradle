@@ -1,0 +1,4 @@
+dependencies {
+    api "org.apache.tomcat.embed:tomcat-embed-core"
+    api "org.springframework:spring-core"
+}
