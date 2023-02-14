@@ -1,0 +1,7 @@
+//制品库声明
+ext {
+    //声明只用京东的仓库
+    def repository = "http://maven.gardenerframework.io/artifactory"
+    snapshotsArtifactory = "${repository}/libs-snapshot-local" as String
+    releasesArtifactory = "${repository}/libs-release-local" as String
+}

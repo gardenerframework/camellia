@@ -1,0 +1,325 @@
+import java.util.concurrent.TimeUnit
+
+/**
+ * 代码编译文件，适配gradle 7版本
+ */
+/**
+ * buildscript是给gradle用的，
+ * 和项目的依赖等设定无关
+ */
+buildscript {
+    /**
+     * 注意，buildscript内也需要引入依赖定义文件，
+     * 否则会报说找不到变量定义
+     */
+    apply from: "build-scripts/gradle/declare-dependencies-version.gradle"
+    repositories {
+        //gradle官方 plugin 仓库，这个国内有时候可能访问不了
+        maven { url "https://plugins.gradle.org/m2/" }
+    }
+    //声明引入spring boot插件和sonar的扫描插件
+    dependencies {
+        classpath "org.springframework.boot:spring-boot-gradle-plugin:${spring.boot}"
+        classpath "org.sonarsource.scanner.gradle:sonarqube-gradle-plugin:${sonar}"
+    }
+}
+/**
+ * 根工程与子工程的编译脚本定义开始，
+ * 需要明确一下
+ * 1. 直接写在build.gradle中的内容是根工程用的
+ * 2. 如果要定义所有子工程都要遵守的脚本，则写在subprojects闭包中
+ * 3. 如果要定义根工程和所有子工程都要遵守的脚本，则写在'allprojects'闭包中
+ */
+apply plugin: 'idea' //gradle帮助idea生成一些项目管理文件用的，根项目使用就行了
+apply plugin: 'java-library'
+/**
+ * 依赖库自动下载源代码
+ */
+idea {
+    module {
+        downloadSources = true
+    }
+}
+/**
+ * 根项目和所有子项目的编译脚本
+ */
+allprojects {
+    /**
+     * 引入依赖库版本和当前工程版本
+     */
+    apply from: "${rootDir}/build-scripts/gradle/declare-dependencies-version.gradle"
+    apply from: "${rootDir}/build-scripts/gradle/read-version.gradle"
+    apply from: "${rootDir}/build-scripts/gradle/fragrans.gradle"
+    apply from: "${rootDir}/build-scripts/gradle/jdcloud.gradle"
+    /**
+     * 定义所有制品的所属组和版本
+     */
+    group "com.jdcloud.gardener.${rootProject.name}"
+    version currentVersion
+    /**
+     * 使用插件
+     */
+    apply plugin: 'java-library' //用来为项目生成java所需的编译任务(并支持gradle的api语法)，这个插件每个子项目都要引用
+    apply plugin: 'org.springframework.boot' //spring boot的gradle插件，统一化spring boot的版本依赖
+    apply plugin: 'io.spring.dependency-management' //spring的依赖管理插件
+    apply plugin: 'maven-publish' //maven发布插件
+    apply plugin: 'org.sonarqube' //sonar的扫描插件
+    /**
+     * 声明jdk兼容版本
+     */
+    sourceCompatibility = 1.8
+    targetCompatibility = 1.8
+
+    /*对所有工程的依赖配置进行限制*/
+    configurations.all {
+        //去掉 logback
+        exclude module: 'spring-boot-starter-logging'
+        //动态依赖不缓存
+        resolutionStrategy.cacheChangingModulesFor 0, TimeUnit.SECONDS
+        /**
+         * 配置解析策略
+         */
+        resolutionStrategy {
+            eachDependency {
+                    /**
+                     * 限制引用的组件是整个工程限制的
+                     */
+                DependencyResolveDetails details ->
+                    /**
+                     * 当前工程内部的组件互相引用的，默认使用当前工程的版本号
+                     */
+                    if (details.requested.group == project.group) {
+                        details.useVersion project.version.toString()
+                    } else if (details.requested.group == fragrans.group) {
+                        details.useVersion fragrans.version.toString()
+                    } else if (details.requested.group == jdcloud.group) {
+                        details.useVersion jdcloud.version.toString()
+                    } else {
+                        /**
+                         * 整体的组版本强制设置
+                         */
+                        for (Properties item : (groupConstraints as List<Properties>)) {
+                            if (details.requested.group == item.group) {
+                                details.useVersion item.version.toString()
+                                details.because item.because.toString()
+                            }
+                        }
+                        /**
+                         * 查看是否明确了强制使用的组件版本，
+                         * 是的话要求服从强制设置
+                         */
+                        for (Properties item : (constraints as List<Properties>)) {
+                            if (details.requested.group == item.group && details.requested.name == item.name) {
+                                details.useVersion item.version.toString()
+                                details.because item.because.toString()
+                            }
+                        }
+                    }
+            }
+        }
+    }
+    /**
+     * 声明使用spring cloud的版本
+     */
+    dependencyManagement {
+        imports {
+            mavenBom "org.springframework.cloud:spring-cloud-dependencies:${spring.cloud}"
+        }
+    }
+    /**
+     * 配置所有工程都必须具备的依赖项
+     */
+    dependencies {
+        // 使用log4j2
+        api group: "org.springframework.boot", name: "spring-boot-starter-log4j2"
+        //全部工程自动依赖lombok
+        compileOnly group: 'org.projectlombok', name: 'lombok'
+        //注解处理器
+        annotationProcessor group: 'org.projectlombok', name: 'lombok'
+        //spring配置文件
+        annotationProcessor group: 'org.springframework.boot', name: 'spring-boot-configuration-processor'
+        //必须使用测试组件
+        testImplementation group: 'org.springframework.boot', name: 'spring-boot-starter-test'
+        testImplementation group: 'org.projectlombok', name: 'lombok'
+        testAnnotationProcessor group: 'org.projectlombok', name: 'lombok'
+    }
+    /**
+     * 开始配置和改造编译任务
+     */
+    /**
+     * 使用了spring boot的插件后，
+     * 原来的jar打包任务就不能用，
+     * 需要显式的配置为开启
+     */
+    jar {
+        enabled = true
+        //fix 修复打包默认带着plain classifier的问题
+        archiveClassifier = ""
+    }
+    /**
+     * 配置一个发布源码包的任务，
+     * 任务的类型是打包
+     */
+    task sourceJar(type: Jar) {
+        from sourceSets.main.allJava //从每个工程的main目录中拷贝所有java代码
+        archiveClassifier = "sources" //为打出来的包增加一个源代码的分类符号
+    }
+    /**
+     * 配置发布任务
+     */
+    publishing {
+        //获取maven仓库地址
+        apply from: "${rootDir}/build-scripts/gradle/repositories/declare-artifactory-urls.gradle"
+        //获取仓库凭据
+        apply from: "${rootDir}/build-scripts/gradle/credentials/artifactory-credentials.gradle"
+        /**
+         * 配置发布
+         */
+        publications {
+            /**
+             * 制品发布的名称和子项目名称一致
+             */
+            "${project.name}"(MavenPublication) {
+                /**
+                 * 定义构件名称和版本与当前正在执行的项目一致
+                 */
+                groupId = project.group
+                artifactId = project.name
+                version = project.version
+                /**
+                 * 这段来自官网，是指使用当前编译脚本声明的动态依赖(declare-dependencies-version.gradle)
+                 * 来最终自动解析发布的版本
+                 * 不要去掉这段，否则可能会有发布错误
+                 */
+                versionMapping {
+                    usage('java-api') {
+                        fromResolutionOf('runtimeClasspath')
+                    }
+                    usage('java-runtime') {
+                        fromResolutionResult()
+                    }
+                }
+                /**
+                 * 在编译打包的基础上，
+                 * 执行源代码打包任务
+                 */
+                artifact sourceJar
+                /**
+                 * java插件会声明一个组件类型叫java
+                 */
+                from components.java
+            }
+        }
+        /**
+         * 定义制品库地址
+         */
+        repositories {
+            maven {
+                /**
+                 * 制品库的名称，不喜欢可以换一个，
+                 * 这时任务publish{制品发布任务值}PublicationsTo{制品库名称}Repository的名字也会跟着换
+                 */
+                name "artifactory"
+                def SNAPSHOT_KEYWORD = "SNAPSHOT"
+                //基于版本号末尾是否有SNAPSHOT标记来判断仓库地址
+                url project.version.endsWith(SNAPSHOT_KEYWORD) ? snapshotsArtifactory : releasesArtifactory
+                //允许使用非https协议，启用这个选项否则会报错
+                allowInsecureProtocol true
+                mavenContent {
+                    //仅搜索非快照版本
+                    project.version.endsWith(SNAPSHOT_KEYWORD) ? snapshotsOnly() : releasesOnly()
+                }
+                credentials {
+                    username "${mavenRepositoryCredentials.user}"
+                    password "${mavenRepositoryCredentials.key}"
+                }
+            }
+        }
+    }
+    /*令javadoc支持中文*/
+    tasks.withType(Javadoc) {
+        options.encoding = "UTF-8"
+    }
+    /**
+     * 启用junit5测试，
+     * 否则单元测试跑不了
+     */
+    test {
+        useJUnitPlatform()
+    }
+    /**
+     * 设置每个项目的注解处理器为项目内自己声明的依赖，
+     * 这样spring的什么配置自动完成生成注解就能生效了
+     */
+    compileJava {
+        options.annotationProcessorPath = configurations.annotationProcessor
+    }
+    /**
+     * 配置代码扫描，
+     * 其实配完了只有主项目有sonarQube的任务
+     */
+    sonarqube {
+        apply from: "${rootDir}/build-scripts/gradle/credentials/sonarqube-credentials.gradle"
+        properties {
+            property "sonar.sourceEncoding", "UTF-8"
+            property "sonar.projectKey", "${rootProject.name}"
+            property "sonar.projectName", "${project.name}"
+            property "sonar.projectVersion", "${project.version}"
+            property "sonar.java.source", "1.8"
+            property "sonar.host.url", "http://sonar.internal.csd-sa.jdcloud.com"
+            property "sonar.login", "${sonarQube.token}"
+        }
+    }
+    //如果已经发布过，就不要再重新发了
+    tasks.configureEach(task -> {
+        if (task.path.startsWith(project.path) && task.name.startsWith("publish")) {
+            task.doFirst({
+                Properties published = new Properties()
+                published.load(new FileReader(new File("${rootDir}/published.log")))
+                //当且仅当当前项目已经发布且版本号一致
+                if (project.version == published.get(project.path)) {
+                    System.out.println(project.path + ":" + project.version + " already published")
+                    throw new StopExecutionException(project.path + " already published");
+                }
+            })
+        }
+    })
+    //配置发布完成后写记录的功能
+    tasks.getByPath(project.path + ":publish").configure(task -> {
+        task.doLast({
+            Properties published = new Properties()
+            published.load(new FileReader(new File("${rootDir}/published.log")))
+            published.put(project.path, project.version)
+            published.list(System.out)
+            published.store(new FileWriter(new File("${rootDir}/published.log")), null)
+        })
+    })
+}
+
+String previousProjectName = null
+for (String subprojectName : gradle.ext.subprojectNames) {
+    if (previousProjectName != null) {
+        tasks.getByPath(subprojectName + ":compileJava").mustRunAfter(
+                tasks.getByPath(previousProjectName + ":publish")
+        )
+    }
+    String projectShortName = project(subprojectName).name
+    tasks.getByPath(subprojectName + ":generatePomFileFor" + projectShortName.substring(0, 1).toUpperCase() + projectShortName.substring(1) + "Publication").dependsOn(
+            tasks.getByPath(subprojectName + ":test")
+    )
+    previousProjectName = subprojectName
+}
+/**
+ * 配置一个发布所有的任务
+ */
+tasks.register('publishAll') { task ->
+    if (String.valueOf(rootProject.version).endsWith("SNAPSHOT")) {
+        //对快照版本清空日志文件
+        Properties published = new Properties()
+        published.store(new FileWriter(new File("${rootDir}/published.log")), null)
+        System.out.println("published.log cleared")
+    }
+    for (String name : gradle.ext.subprojectNames) {
+        task.dependsOn(tasks.getByPath(name + ":publish"))
+    }
+}
