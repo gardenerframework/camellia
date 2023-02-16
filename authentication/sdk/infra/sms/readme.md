@@ -243,3 +243,52 @@ public interface SmsAuthenticationClient {
 * `SmsAuthenticationSentEvent`和`SmsAuthenticationFailToSendEvent`: 分别表达发送成功和失败，可以用来实现比如和短信渠道的对账，监控失败率等记录功能
 
 <font color=red>注意</font>: 这些事件反馈的是短信渠道的相关通知，即即将向短信渠道投递，投递完成和投递失败
+
+# 已经完成的认证客户端
+
+[clients](./clients)目录中实现了部分常见的短信下发渠道客户端
+
+* [sms-authentication-client-jdcloud](./clients/sms-authentication-client-jdcloud)实现了京东云的短信对接
+
+```java
+public class JdCloudSmsAuthenticationClientSecurityOption {
+    /**
+     * key id
+     */
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    @NotBlank
+    private String accessKeyId;
+    /**
+     * key
+     */
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    @NotBlank
+    private String accessKey;
+}
+```
+
+`JdCloudSmsAuthenticationClientSecurityOption`定义了对接所需的ak/sk，开发人员可以通过api选项托管能力设置这两个数据，可以编写配置类来在运行时修改选项的值。
+
+```java
+public interface JdCloudSmsTemplateProvider {
+    /**
+     * 返回签名id
+     *
+     * @param applicationId 应用id
+     * @param scenario      场景
+     * @return 签名id
+     */
+    String getSignId(String applicationId, Class<? extends Scenario> scenario);
+
+    /**
+     * 返回模板id
+     *
+     * @param applicationId 应用id
+     * @param scenario      场景
+     * @return 模板id
+     */
+    String getTemplateId(String applicationId, Class<? extends Scenario> scenario);
+}
+```
+
+`JdCloudSmsTemplateProvider`使用应用id和场景作为输入，开发人员可以决策使用哪种签名和消息模板
