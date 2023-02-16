@@ -1,0 +1,12 @@
+dependencies {
+    api "${group}:sms-authentication-core"
+    api "com.jdcloud.sdk:sms"
+    api "jakarta.validation:jakarta.validation-api"
+    api "${fragrans.group}:api-options-common"
+    api "${fragrans.group}:log-generic"
+    api "${fragrans.group}:log-common-words"
+    api "com.fasterxml.jackson.core:jackson-annotations"
+    testImplementation "${fragrans.group}:data-cache-spring-redis"
+    testImplementation "${fragrans.group}:api-options-engine"
+    testImplementation "${fragrans.group}:api-options-persistence-readonly"
+}

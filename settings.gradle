@@ -46,7 +46,8 @@ dependencyResolutionManagement {
 rootProject.name = 'camellia'
 String[] subprojectNames = [
         'authentication:sdk:infra:sms:sms-authentication-core',
-        'authentication:sdk:infra:sms:sms-authentication-engine'
+        'authentication:sdk:infra:sms:sms-authentication-engine',
+        'authentication:sdk:infra:sms:clients:sms-authentication-client-jdcloud'
 //        'sms-authentication:sdk:sms-authentication-core',
 //        'sms-authentication:clients:sms-authentication-client-jdcloud',
 //        //uac数据定义
