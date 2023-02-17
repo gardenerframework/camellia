@@ -8,7 +8,7 @@ import org.springframework.security.core.AuthenticationException;
  * @author zhanghan30
  * @date 2022/8/26 4:19 下午
  */
-public interface AuthorizationServerAuthenticationExceptions {
+public interface AuthenticationServerAuthenticationExceptions {
     /**
      * 基准错误
      */

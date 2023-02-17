@@ -332,3 +332,91 @@ public class UserAuthenticatedAuthentication extends AbstractAuthenticationToken
 
 经过验证后的信息中显著保存了被认证的用户，此外因为用户已经认证完成因此不会再给出任何登录凭据。最后，依照Spring Security的约定，将用户的id作为识别符号返回
 
+## AbstractUserAuthenticationService
+
+```java
+public abstract class AbstractUserAuthenticationService<P extends AuthenticationRequestParameter>
+        implements UserAuthenticationService {
+    /**
+     * 验证器
+     */
+    @NonNull
+    @Getter(AccessLevel.PROTECTED)
+    private final Validator validator;
+
+    /**
+     * 从请求中获取认证请求参数
+     *
+     * @param request 请求
+     * @return 参数
+     */
+    protected abstract P getAuthenticationParameter(HttpServletRequest request);
+
+    /**
+     * 从转换的参数中进行转换
+     *
+     * @param authenticationParameter 认证参数
+     * @return 认证请求
+     */
+    protected abstract UserAuthenticationRequestToken doConvert(P authenticationParameter);
+
+    @Override
+    public UserAuthenticationRequestToken convert(HttpServletRequest request) throws AuthenticationException {
+        P authenticationParameter = Objects.requireNonNull(getAuthenticationParameter(request));
+        Set<ConstraintViolation<Object>> violations = validator.validate(authenticationParameter);
+        if (!CollectionUtils.isEmpty(violations)) {
+            //执行检查参数合法性
+            throw new BadAuthenticationRequestParameterException(violations);
+        }
+        return Objects.requireNonNull(doConvert(authenticationParameter));
+    }
+}
+```
+
+`AbstractUserAuthenticationService`为用户的认证服务提供了与`AuthenticationRequestParameter`的串联逻辑支持。 它要求子类去创建参数对象，然后利用`Validator`
+进行校验。因此，`AuthenticationRequestParameter`的子类可以使用类似`@NotBlank`
+等验证注解而不需要自行在逻辑中进行判断。验证失败抛出`BadAuthenticationRequestParameterException`，它是`AuthenticationException`的一个子类。会被Spring
+Security框架处理。
+
+## UserService
+
+```java
+public interface UserService {
+
+    /**
+     * 向统一用户数据访问接口发起认证请求
+     * <p>
+     * 如果密码有错则抛出{@link BadCredentialsException}
+     *
+     * @param principal   登录凭据名
+     * @param credentials 密码
+     * @param context     认证上下文中的共享属性，
+     *                    新加了{@link Nullable}注解，如果发现上下文是null，说明当前用户服务正用于其它用途。
+     *                    比如用于密码找回场景，或者其他非认证场景
+     * @return 认证完毕的用户信息，如果不存在则返回{@code null}
+     * @throws AuthenticationException 认证有问题
+     */
+    @Nullable
+    User authenticate(Principal principal, PasswordCredentials credentials, @Nullable Map<String, Object> context) throws AuthenticationException;
+
+    /**
+     * 基于请求凭据去读取而不是认证用户，其余错误按需转为{@link AuthenticationException}
+     * <p>
+     *
+     * @param principal 登录凭据
+     * @param context   认证上下文中的共享属性，
+     *                  新加了{@link Nullable}注解，如果发现上下文是null，说明当前用户服务正用于其它用途。
+     *                  比如用于密码找回场景，或者其他非认证场景
+     * @return 用户信息，如果不存在则返回{@code null}
+     * @throws AuthenticationException       认证有问题
+     * @throws UnsupportedOperationException 如果当前服务对接的用户存储根本不支持直接通过登录名查找用户
+     */
+    @Nullable
+    User load(Principal principal, @Nullable Map<String, Object> context) throws AuthenticationException, UnsupportedOperationException;
+}
+```
+
+`UserServvice`利用`UserAuthenticationService`输出的`UserAuthenticationRequestToken`中的`principal`读取用户信息，它可以直接读数据库，也可以调用远程接口。
+特别是，如果对接的接口要求必须提交用户名密码才能完成认证那么`UserAuthenticationRequestToken`中也包含了`credentials`。
+在引擎的逻辑上，如果发现`credentials`是`PasswordCredentials`，则优先调用`authenticate`，如果不是`PasswordCredentials`，则调用`load`
+

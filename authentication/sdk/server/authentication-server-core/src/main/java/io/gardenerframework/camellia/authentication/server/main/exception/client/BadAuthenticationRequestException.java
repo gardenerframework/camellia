@@ -1,10 +1,7 @@
 package io.gardenerframework.camellia.authentication.server.main.exception.client;
 
-import com.jdcloud.gardener.camellia.authorization.authentication.main.event.schema.AuthenticationFailedEvent;
-import com.jdcloud.gardener.camellia.authorization.authentication.main.exception.AuthorizationServerAuthenticationExceptions;
-import com.jdcloud.gardener.camellia.authorization.authentication.main.exception.OAuth2ErrorCodes;
-import com.jdcloud.gardener.camellia.authorization.authentication.main.exception.annotation.OAuth2ErrorCode;
-import io.gardenerframework.camellia.authentication.server.main.exception.AuthorizationServerAuthenticationExceptions;
+import io.gardenerframework.camellia.authentication.server.main.event.schema.AuthenticationFailedEvent;
+import io.gardenerframework.camellia.authentication.server.main.exception.AuthenticationServerAuthenticationExceptions;
 import io.gardenerframework.camellia.authentication.server.main.exception.OAuth2ErrorCodes;
 import io.gardenerframework.camellia.authentication.server.main.exception.annotation.OAuth2ErrorCode;
 import org.springframework.http.HttpStatus;
@@ -25,12 +22,12 @@ import org.springframework.web.bind.annotation.ResponseStatus;
  */
 @OAuth2ErrorCode(OAuth2ErrorCodes.INVALID_REQUEST)
 @ResponseStatus(HttpStatus.BAD_REQUEST)
-public abstract class BadAuthenticationRequestException extends AuthorizationServerAuthenticationExceptions.ClientSideException {
-    public BadAuthenticationRequestException(String msg, Throwable cause) {
+public abstract class BadAuthenticationRequestException extends AuthenticationServerAuthenticationExceptions.ClientSideException {
+    protected BadAuthenticationRequestException(String msg, Throwable cause) {
         super(msg, cause);
     }
 
-    public BadAuthenticationRequestException(String msg) {
+    protected BadAuthenticationRequestException(String msg) {
         super(msg);
     }
 }
