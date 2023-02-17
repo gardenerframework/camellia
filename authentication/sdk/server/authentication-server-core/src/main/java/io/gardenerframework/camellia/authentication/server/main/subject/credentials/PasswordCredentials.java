@@ -1,10 +1,7 @@
 package io.gardenerframework.camellia.authentication.server.main.subject.credentials;
 
 import io.gardenerframework.fragrans.data.trait.security.SecurityTraits;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.NonNull;
-import lombok.Setter;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
 
 /**
@@ -17,6 +14,7 @@ import lombok.experimental.SuperBuilder;
 @Setter
 @EqualsAndHashCode(callSuper = true)
 @SuperBuilder
+@NoArgsConstructor
 public class PasswordCredentials extends Credentials implements SecurityTraits.SecretTraits.Password {
     /**
      * 密码

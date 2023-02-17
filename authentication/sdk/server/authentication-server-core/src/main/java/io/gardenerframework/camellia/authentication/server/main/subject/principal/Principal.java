@@ -4,6 +4,7 @@ import io.gardenerframework.camellia.authentication.server.common.Version;
 import io.gardenerframework.fragrans.data.trait.generic.GenericTraits;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
@@ -29,6 +30,7 @@ import java.io.Serializable;
 @Setter
 @SuperBuilder
 @EqualsAndHashCode
+@NoArgsConstructor
 public abstract class Principal implements java.security.Principal, Serializable, GenericTraits.LiteralTraits.Name {
     private static final long serialVersionUID = Version.current;
     /**

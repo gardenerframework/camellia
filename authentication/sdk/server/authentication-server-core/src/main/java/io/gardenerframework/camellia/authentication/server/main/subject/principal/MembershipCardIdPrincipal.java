@@ -2,6 +2,7 @@ package io.gardenerframework.camellia.authentication.server.main.subject.princip
 
 import io.gardenerframework.camellia.authentication.server.common.Version;
 import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
 /**
@@ -10,6 +11,7 @@ import lombok.experimental.SuperBuilder;
  */
 @SuperBuilder
 @EqualsAndHashCode(callSuper = true)
+@NoArgsConstructor
 public class MembershipCardIdPrincipal extends Principal {
     private static final long serialVersionUID = Version.current;
 }

@@ -1,6 +1,7 @@
 package io.gardenerframework.camellia.authentication.server.main.subject.credentials;
 
 import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
 /**
@@ -11,5 +12,6 @@ import lombok.experimental.SuperBuilder;
  */
 @EqualsAndHashCode
 @SuperBuilder
+@NoArgsConstructor
 public abstract class Credentials {
 }

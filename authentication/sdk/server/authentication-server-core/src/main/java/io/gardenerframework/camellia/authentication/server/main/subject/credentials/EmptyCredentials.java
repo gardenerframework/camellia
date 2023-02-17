@@ -1,5 +1,6 @@
 package io.gardenerframework.camellia.authentication.server.main.subject.credentials;
 
+import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
 /**
@@ -9,5 +10,6 @@ import lombok.experimental.SuperBuilder;
  * @date 2022/9/5 5:18 下午
  */
 @SuperBuilder
+@NoArgsConstructor
 public class EmptyCredentials extends Credentials {
 }

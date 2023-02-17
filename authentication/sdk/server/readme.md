@@ -178,3 +178,7 @@ public abstract class Subject implements Serializable,
 ```
 
 主体完整代表一个登录的对象，可能是个人，可能是个代码，其具有id作为自己的唯一标识。包含一组登录名称(至少具有一个登录名)和一个登录凭据
+
+## 用户
+
+用户是主体的一个类型
