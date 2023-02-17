@@ -1,4 +1,4 @@
-package io.gardenerframework.camellia.authentication.server.main.subject.principal;
+package io.gardenerframework.camellia.authentication.server.main.schema.subject.principal;
 
 import io.gardenerframework.camellia.authentication.server.common.Version;
 import io.gardenerframework.fragrans.data.trait.generic.GenericTraits;

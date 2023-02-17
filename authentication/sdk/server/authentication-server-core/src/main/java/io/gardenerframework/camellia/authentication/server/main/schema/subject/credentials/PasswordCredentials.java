@@ -1,4 +1,4 @@
-package io.gardenerframework.camellia.authentication.server.main.subject.credentials;
+package io.gardenerframework.camellia.authentication.server.main.schema.subject.credentials;
 
 import io.gardenerframework.fragrans.data.trait.security.SecurityTraits;
 import lombok.*;

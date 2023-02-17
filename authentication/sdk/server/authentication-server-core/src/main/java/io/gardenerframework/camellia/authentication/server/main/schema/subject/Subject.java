@@ -1,8 +1,8 @@
-package io.gardenerframework.camellia.authentication.server.main.subject;
+package io.gardenerframework.camellia.authentication.server.main.schema.subject;
 
 import io.gardenerframework.camellia.authentication.server.common.Version;
-import io.gardenerframework.camellia.authentication.server.main.subject.credentials.Credentials;
-import io.gardenerframework.camellia.authentication.server.main.subject.principal.Principal;
+import io.gardenerframework.camellia.authentication.server.main.schema.subject.credentials.Credentials;
+import io.gardenerframework.camellia.authentication.server.main.schema.subject.principal.Principal;
 import io.gardenerframework.fragrans.data.trait.generic.GenericTraits;
 import lombok.*;
 import lombok.experimental.SuperBuilder;

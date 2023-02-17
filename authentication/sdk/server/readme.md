@@ -182,3 +182,153 @@ public abstract class Subject implements Serializable,
 ## 用户
 
 用户是主体的一个类型
+
+```java
+public class User extends Subject implements
+        GenericTraits.LiteralTraits.Name,
+        AccountTraits.VisualTraits.Avatar {
+    private static final long serialVersionUID = Version.current;
+    /**
+     * 任何形式的展示名称
+     * <p>
+     * 昵称，姓名随便
+     */
+    @Nullable
+    private String name;
+    /**
+     * 任何形式的显示图标
+     */
+    @Nullable
+    private String avatar;
+}
+```
+
+除去主体的基本属性外，额外扩展了名字和头像
+
+## 认证请求
+
+```java
+public abstract class AuthenticationRequestParameter {
+    protected AuthenticationRequestParameter(HttpServletRequest request) {
+    }
+}
+```
+
+`AuthenticationRequestParameter`为登录认证请求提供了参数的基本型，其构造函数要求输入`HttpServletRequest`，意思是告诉各个认证组件的开发人员从请求中直接解析参数
+
+## UserAuthenticationService
+
+```java
+public interface UserAuthenticationService {
+    /**
+     * 将http请求转为登录请求对象
+     * <p>
+     * 如果开发人员认为应当让登录页导向错误页面并定义错误的内容，抛出{@link AuthenticationException}
+     * <p>
+     * 其它类型的异常都将被解释为认证服务内部错误
+     *
+     * @param request http 请求
+     * @return 登录请求对象
+     * @throws AuthenticationException 如果认为当前认证过程应当中断，则抛出异常，
+     *                                 比如{@link BadAuthenticationRequestParameterException}来表示参数有问题
+     */
+    UserAuthenticationRequestToken convert(HttpServletRequest request) throws AuthenticationException;
+
+    /**
+     * 执行认证
+     *
+     * @param authenticationRequest 页面发来的认证请求
+     * @param user                  用户详情
+     * @throws AuthenticationException 有问题抛异常
+     */
+    void authenticate(UserAuthenticationRequestToken authenticationRequest, User user) throws AuthenticationException;
+}
+```
+
+用户认证服务是IAM认证系统的核心接口，它表达两个意图
+
+* 将http请求转为用户认证请求
+* 执行认证，如果没有抛出任何异常则认为认证通过
+
+## UserAuthenticationRequestToken
+
+```java
+public class UserAuthenticationRequestToken {
+    /**
+     * 用户登录的凭据
+     * 可以是用户名
+     * 可以是手机号
+     * 或人脸id
+     * 或别的什么东西
+     */
+    @NonNull
+    private final Principal principal;
+    /**
+     * 提交的密码或其它登录信息
+     * <p>
+     * 密码等是不会被序列化的
+     */
+    @NonNull
+    private final Credentials credentials;
+
+    public UserAuthenticationRequestToken(@NonNull Principal principal) {
+        this.principal = principal;
+        //登录凭据设置为空
+        this.credentials = new EmptyCredentials();
+    }
+}
+```
+
+在用户认证请求中可见需要给定登录名以及登录凭据
+
+## UserAuthenticatedAuthentication
+
+```java
+public class UserAuthenticatedAuthentication extends AbstractAuthenticationToken {
+    /**
+     * 完成认证的用户
+     */
+    @Getter
+    private final User user;
+
+    public UserAuthenticatedAuthentication(User user) {
+        super(Collections.emptyList());
+        super.setAuthenticated(true);
+        this.user = user;
+    }
+
+    /**
+     * 永远不会返回密码
+     *
+     * @return {@literal null}
+     */
+    @Override
+    @Nullable
+    public final Object getCredentials() {
+        return null;
+    }
+
+    /**
+     * 当前认证过的用户作为主体
+     *
+     * @return 用户主体
+     */
+    @Override
+    public User getPrincipal() {
+        return user;
+    }
+
+    /**
+     * 当前登录用户的名称
+     *
+     * @return 当前认证用户的id
+     */
+    @Override
+    public String getName() {
+        return this.user.getId();
+    }
+}
+```
+
+经过验证后的信息中显著保存了被认证的用户，此外因为用户已经认证完成因此不会再给出任何登录凭据。最后，依照Spring Security的约定，将用户的id作为识别符号返回
+

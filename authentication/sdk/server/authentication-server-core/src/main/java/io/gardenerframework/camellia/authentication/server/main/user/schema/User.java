@@ -1,7 +1,7 @@
 package io.gardenerframework.camellia.authentication.server.main.user.schema;
 
 import io.gardenerframework.camellia.authentication.server.common.Version;
-import io.gardenerframework.camellia.authentication.server.main.subject.Subject;
+import io.gardenerframework.camellia.authentication.server.main.schema.subject.Subject;
 import io.gardenerframework.fragrans.data.trait.account.AccountTraits;
 import io.gardenerframework.fragrans.data.trait.generic.GenericTraits;
 import lombok.Getter;

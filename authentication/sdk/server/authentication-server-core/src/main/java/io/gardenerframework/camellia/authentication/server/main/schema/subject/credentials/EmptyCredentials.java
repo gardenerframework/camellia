@@ -1,4 +1,4 @@
-package io.gardenerframework.camellia.authentication.server.main.subject.credentials;
+package io.gardenerframework.camellia.authentication.server.main.schema.subject.credentials;
 
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;

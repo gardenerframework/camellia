@@ -3,4 +3,10 @@ dependencies {
     api "${fragrans.group}:data-traits-security"
     api "${fragrans.group}:data-traits-generic"
     api "${fragrans.group}:data-traits-account"
+    api "${fragrans.group}:enhance-message-source-core"
+    api "org.apache.tomcat.embed:tomcat-embed-core"
+    api "org.springframework.security:spring-security-core"
+    api "org.springframework.security:spring-security-oauth2-core"
+    api "org.springframework:spring-web"
+    api "jakarta.validation:jakarta.validation-api"
 }
