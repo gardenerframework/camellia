@@ -50,5 +50,4 @@ public abstract class AuthenticationEvent {
      */
     @NonNull
     private final Map<String, Object> context;
-
 }

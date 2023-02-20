@@ -1,0 +1,8 @@
+io:
+  gardenerframework:
+    fragrans:
+      messages:
+        basenames:
+          - authentication-server-core/errors/spring/security
+          - authentication-server-core/errors/client
+          - authentication-server-core/options

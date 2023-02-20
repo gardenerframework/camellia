@@ -1,6 +1,6 @@
 package io.gardenerframework.camellia.authentication.infra.sms.core.event.schema;
 
-import io.gardenerframework.camellia.authentication.infra.sms.core.Scenario;
+import io.gardenerframework.camellia.authentication.infra.common.Scenario;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
 

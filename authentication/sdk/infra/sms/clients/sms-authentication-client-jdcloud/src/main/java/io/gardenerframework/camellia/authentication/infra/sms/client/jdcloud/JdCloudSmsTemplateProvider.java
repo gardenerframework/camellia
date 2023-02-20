@@ -1,6 +1,6 @@
 package io.gardenerframework.camellia.authentication.infra.sms.client.jdcloud;
 
-import io.gardenerframework.camellia.authentication.infra.sms.core.Scenario;
+import io.gardenerframework.camellia.authentication.infra.common.Scenario;
 
 /**
  * @author zhanghan30

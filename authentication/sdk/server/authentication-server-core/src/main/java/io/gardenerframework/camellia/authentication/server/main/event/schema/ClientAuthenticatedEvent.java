@@ -7,7 +7,7 @@ import lombok.experimental.SuperBuilder;
 import javax.servlet.http.HttpServletRequest;
 
 /**
- * 认证当前客户端的事件
+ * 客户端已经通过Spring Security的认证
  * <p>
  * 开发人员自行完成认证逻辑
  * <p>
@@ -20,7 +20,7 @@ import javax.servlet.http.HttpServletRequest;
  */
 @Getter
 @SuperBuilder
-public class AuthenticateClientEvent extends AuthenticationEvent {
+public class ClientAuthenticatedEvent extends AuthenticationEvent {
     /**
      * http请求
      */

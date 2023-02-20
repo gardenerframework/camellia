@@ -1,5 +1,7 @@
 package io.gardenerframework.camellia.authentication.infra.sms.core;
 
+import io.gardenerframework.camellia.authentication.infra.common.Scenario;
+
 /**
  * @author zhanghan30
  * @date 2023/2/14 18:19
@@ -10,8 +12,8 @@ public interface SmsAuthenticationClient {
      *
      * @param applicationId     应用组
      * @param mobilePhoneNumber 发给哪个手机
-     * @param code              验证码
      * @param scenario          当前发送使用的场景
+     * @param code              验证码
      * @throws Exception 透传产生的问题
      */
     void sendCode(

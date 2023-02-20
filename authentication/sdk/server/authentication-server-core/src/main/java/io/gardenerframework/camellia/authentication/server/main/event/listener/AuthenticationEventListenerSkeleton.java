@@ -24,7 +24,7 @@ public interface AuthenticationEventListenerSkeleton {
      *                                 这里的{@link AuthenticationException}会被引擎转为{@link OAuth2AuthenticationException}
      *                                 开发人员需要做的是标记好{@link ResponseStatus}和{@link OAuth2ErrorCode}
      */
-    default void onAuthenticateClient(AuthenticateClientEvent event) throws AuthenticationException {
+    default void onClientAuthenticated(ClientAuthenticatedEvent event) throws AuthenticationException {
 
     }
 
@@ -34,7 +34,7 @@ public interface AuthenticationEventListenerSkeleton {
      * @param event 事件
      * @throws AuthenticationException 认证过程需要中断
      */
-    default void onBeforeLoadingUser(BeforeLoadingUserEvent event) throws AuthenticationException {
+    default void onAboutToLoadUser(UserAboutToLoadEvent event) throws AuthenticationException {
 
     }
 
@@ -67,7 +67,6 @@ public interface AuthenticationEventListenerSkeleton {
     default void onAuthenticationFailed(AuthenticationFailedEvent event) throws AuthenticationException {
 
     }
-
 
     /**
      * 认证成功

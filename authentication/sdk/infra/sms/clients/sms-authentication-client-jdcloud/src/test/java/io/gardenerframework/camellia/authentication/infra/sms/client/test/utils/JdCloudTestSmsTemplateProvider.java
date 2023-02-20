@@ -1,7 +1,7 @@
 package io.gardenerframework.camellia.authentication.infra.sms.client.test.utils;
 
+import io.gardenerframework.camellia.authentication.infra.common.Scenario;
 import io.gardenerframework.camellia.authentication.infra.sms.client.jdcloud.JdCloudSmsTemplateProvider;
-import io.gardenerframework.camellia.authentication.infra.sms.core.Scenario;
 import org.springframework.stereotype.Component;
 
 /**

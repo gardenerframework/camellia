@@ -1,6 +1,6 @@
 package io.gardenerframework.camellia.authentication.infra.sms.engine.service;
 
-import io.gardenerframework.camellia.authentication.infra.sms.core.Scenario;
+import io.gardenerframework.camellia.authentication.infra.common.Scenario;
 import io.gardenerframework.camellia.authentication.infra.sms.core.SmsAuthenticationClient;
 import io.gardenerframework.camellia.authentication.infra.sms.core.SmsAuthenticationCodeStore;
 import io.gardenerframework.camellia.authentication.infra.sms.core.event.schema.SmsAuthenticationAboutToSendEvent;

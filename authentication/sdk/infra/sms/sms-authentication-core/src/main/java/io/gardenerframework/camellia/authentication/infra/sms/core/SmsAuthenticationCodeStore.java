@@ -1,5 +1,6 @@
 package io.gardenerframework.camellia.authentication.infra.sms.core;
 
+import io.gardenerframework.camellia.authentication.infra.common.Scenario;
 import org.springframework.lang.Nullable;
 
 import java.time.Duration;

@@ -1,0 +1,5 @@
+dependencies {
+    api "${group}:authentication-infra-common"
+    api "${fragrans.group}:data-traits-generic"
+    api "org.springframework:spring-core"
+}

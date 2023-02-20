@@ -1,6 +1,6 @@
 package io.gardenerframework.camellia.authentication.infra.sms.engine.test.cases;
 
-import io.gardenerframework.camellia.authentication.infra.sms.core.Scenario;
+import io.gardenerframework.camellia.authentication.infra.common.Scenario;
 import io.gardenerframework.camellia.authentication.infra.sms.engine.exceptions.SmsAuthenticationInCooldownException;
 import io.gardenerframework.camellia.authentication.infra.sms.engine.service.SmsAuthenticationService;
 import io.gardenerframework.camellia.authentication.infra.sms.engine.test.SmsAuthenticationEngineTestApplication;

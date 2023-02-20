@@ -57,7 +57,7 @@ System(企业员工数据库, 企业员工数据库, 身份源) #green
 企业内部的C端用户、企业员工都需要进行身份认证。对于不同的使用场景一般架设不同的认证服务实例。尽管实例不同，但都可以使用"authentication-server-engine"作为引擎进行开发。
 并配合引擎定义和抽象的认证组件来完成多种多样的认证方法接入
 
-# IAM
+# IAM引擎
 
 认证服务器引擎本质上提供的就是基于oauth2标准的集中身份认证能力
 
@@ -378,6 +378,46 @@ public abstract class AbstractUserAuthenticationService<P extends Authentication
 等验证注解而不需要自行在逻辑中进行判断。验证失败抛出`BadAuthenticationRequestParameterException`，它是`AuthenticationException`的一个子类。会被Spring
 Security框架处理。
 
+## AuthenticationType & AuthenticationEndpoint
+
+认证服务需要声明它的类型`AuthenticationType`注解，其是一个字符串，建议使用一个单词简单的表达当前认证的方法，比如"username"、"sms"、"qrcode"等。 不同类型的认证服务器将通过提交的参数重的"
+authentication_type"
+属性来进行请求路由。引擎将确保调用类型对应的认证服务。目前类型与服务是1:1对应关系
+
+`AuthenticationEndpoint`注解则使得认证服务能够声明自己支持的认证端点。认证服务器引擎有2个端点，如下图所示
+
+```plantuml
+@startuml
+!include https://plantuml.s3.cn-north-1.jdcloud-oss.com/C4_Container.puml
+
+System(浏览器, 浏览器)
+System(app, app)
+
+System(网页认证端点, 网页认证端点, "/login")
+System(app认证端点, app认证端点, "/oauth2/token")
+System(认证服务, 认证服务)
+
+浏览器 --> 网页认证端点
+app --> app认证端点
+
+网页认证端点 --> 认证服务
+app认证端点 --> 认证服务
+
+@enduml
+```
+
+2个端点在Spring Security中对应着不同的Filter，在Filter中则调用相同的认证服务。那么，为了使得认证服务器能够声明自己支持的端点，可以标记上`AuthenticationEndpoint`
+
+比如需求上人脸识别仅仅支持app端，那么就可以如下声明
+
+```java
+
+@AuthenticationEndpoint(Endpoint.OAUTH2)
+public class FaceAuthenticationService implements UserAuthenticationService {
+    //...
+}
+```
+
 ## UserService
 
 ```java
@@ -417,6 +457,66 @@ public interface UserService {
 ```
 
 `UserServvice`利用`UserAuthenticationService`输出的`UserAuthenticationRequestToken`中的`principal`读取用户信息，它可以直接读数据库，也可以调用远程接口。
-特别是，如果对接的接口要求必须提交用户名密码才能完成认证那么`UserAuthenticationRequestToken`中也包含了`credentials`。
-在引擎的逻辑上，如果发现`credentials`是`PasswordCredentials`，则优先调用`authenticate`，如果不是`PasswordCredentials`，则调用`load`
+特别是，如果对接的接口要求必须提交用户名密码才能完成认证那么`UserAuthenticationRequestToken`中也包含了`credentials`。 在引擎的逻辑上，如果发现`credentials`
+是`PasswordCredentials`，则优先调用`authenticate`，如果不是`PasswordCredentials`，则调用`load`
+
+## 事件
+
+在认证过程中为了开发人员能够插入自己的逻辑来中断认证过程或记录一些日志，引擎提供了以下事件:
+
+```java
+public abstract class AuthenticationEvent {
+    /**
+     * http请求头
+     * <p>
+     * 其中Authorization头已经被去掉，因为其中包含了access token或认证信息
+     * <p>
+     * http头用于给实现类一些基本的请求判断逻辑，特别是检查UserAgent判断是不是手机端，以及来源ip等
+     */
+    @NonNull
+    private final MultiValueMap<String, String> headers;
+    /**
+     * 认证方式
+     */
+    @NonNull
+    private final String authenticationType;
+    /**
+     * 登录请求的用户名以及类型
+     */
+    @NonNull
+    private final Principal principal;
+    /**
+     * 但前准备要访问系统的客户端
+     * <p>
+     * 不是token endpoint 没有客户端
+     */
+    @Nullable
+    private final Client client;
+    /**
+     * 贯穿登录认证过程的上下文
+     * <p>
+     * 可以用来存取一些属性
+     */
+    @NonNull
+    private final Map<String, Object> context;
+}
+```
+
+`AuthenticationEvent`是认证事件的基类，包含了大量认证过程中的属性和上下文。
+
+`ClientAuthenticatedEvent`是认证过程的开始事件，如果客户端使用oauth2提供的接口进行认证(授权接口或token接口)则一定会有客户端信息，这个客户端信息通过了Spring Security的认证后就会发送该事件
+
+`UserAboutToLoadEvent`是即将调用`UserService`进行用户数据加载的事件，在加载前可以检查用户名是否已经在黑名单中或者密码错误次数过多还在封锁
+
+`UserLoadedEvent`是用户信息加载成功的事件，加载完毕后即将使用`UserAuthenticationService.authenticate`方法进行登录凭据的校验
+
+`UserAuthenticatedEvent`显然是校验通过后的事件，可以进一步检查用户的数据是否合法，比如是否封锁，比如是否被冻结
+
+`AuthenticationSuccessEvent`是认证过程成功的标志
+
+`AuthenticationFailedEvent`是认证过程中捕捉到任何异常导致中断的标志
+
+## CareForAuthorizationEnginePreservedPrincipal & CareForAuthorizationEnginePreservedException
+
+部分登录名和异常的类型是引擎内部使用的，通常来说开发人员不需要关注。当需要关注时，在事件监听上添加以上注解
 

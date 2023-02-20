@@ -1,6 +1,6 @@
 package io.gardenerframework.camellia.authentication.infra.sms.engine.support;
 
-import io.gardenerframework.camellia.authentication.infra.sms.core.Scenario;
+import io.gardenerframework.camellia.authentication.infra.common.Scenario;
 import io.gardenerframework.camellia.authentication.infra.sms.core.SmsAuthenticationCodeStore;
 import io.gardenerframework.fragrans.data.cache.client.CacheClient;
 import io.gardenerframework.fragrans.data.cache.manager.BasicCacheManager;
@@ -33,9 +33,9 @@ public class CachedSmsAuthenticationCodeStore implements SmsAuthenticationCodeSt
     private String[] buildNamespaces(String applicationId) {
         return new String[]{
                 "camellia",
-                "sms",
                 "authentication",
-                "core",
+                "infra",
+                "sms",
                 applicationId
         };
     }

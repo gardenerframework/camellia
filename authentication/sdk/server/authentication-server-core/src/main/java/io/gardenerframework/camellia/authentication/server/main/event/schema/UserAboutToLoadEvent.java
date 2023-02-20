@@ -19,5 +19,5 @@ import org.springframework.security.core.AuthenticationException;
 @Getter
 @EqualsAndHashCode(callSuper = true)
 @SuperBuilder
-public class BeforeLoadingUserEvent extends AuthenticationEvent {
+public class UserAboutToLoadEvent extends AuthenticationEvent {
 }

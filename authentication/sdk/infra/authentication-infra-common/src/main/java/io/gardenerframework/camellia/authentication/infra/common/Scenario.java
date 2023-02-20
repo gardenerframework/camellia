@@ -1,4 +1,4 @@
-package io.gardenerframework.camellia.authentication.infra.sms.core;
+package io.gardenerframework.camellia.authentication.infra.common;
 
 /**
  * 场景标记接口
