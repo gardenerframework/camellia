@@ -10,7 +10,7 @@ import java.time.Duration;
  * @author zhanghan30
  * @date 2023/2/20 17:04
  */
-public interface ChallengeResponseContextStore {
+public interface ChallengeContextStore {
     /**
      * 保存上下文
      *

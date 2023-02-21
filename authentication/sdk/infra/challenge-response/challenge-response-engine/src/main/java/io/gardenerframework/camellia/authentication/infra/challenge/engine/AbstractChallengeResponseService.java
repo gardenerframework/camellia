@@ -31,10 +31,10 @@ public abstract class AbstractChallengeResponseService implements ChallengeRespo
     private final ChallengeStore challengeStore;
     @NonNull
     @Getter(AccessLevel.PROTECTED)
-    private final ChallengeResponseCooldownManager challengeResponseCooldownManager;
+    private final ChallengeCooldownManager challengeCooldownManager;
     @NonNull
     @Getter(AccessLevel.PROTECTED)
-    private final ChallengeResponseContextStore challengeResponseContextStore;
+    private final ChallengeContextStore challengeContextStore;
 
     /**
      * 请求在应用和场景下是否应当重放
@@ -183,19 +183,19 @@ public abstract class AbstractChallengeResponseService implements ChallengeRespo
         try {
             if (hasCooldown(applicationId, scenario, request)) {
                 String timerId = getCooldownTimerId(applicationId, scenario, request);
-                Duration timeRemaining = challengeResponseCooldownManager.getTimeRemaining(applicationId, scenario, timerId);
+                Duration timeRemaining = challengeCooldownManager.getTimeRemaining(applicationId, scenario, timerId);
                 if (timeRemaining != null) {
                     throw new ChallengeInCooldownException(timeRemaining);
                 }
                 //cd已经消失
                 //启动cd
-                boolean started = challengeResponseCooldownManager.startCooldown(
+                boolean started = challengeCooldownManager.startCooldown(
                         applicationId, scenario, timerId,
                         Duration.ofSeconds(getCooldownTime(applicationId, scenario, request))
                 );
                 if (!started) {
                     //当前调用没有启动cd成功
-                    timeRemaining = challengeResponseCooldownManager.getTimeRemaining(applicationId, scenario, timerId);
+                    timeRemaining = challengeCooldownManager.getTimeRemaining(applicationId, scenario, timerId);
                     throw new ChallengeInCooldownException(timeRemaining);
                 }
             }
@@ -238,7 +238,7 @@ public abstract class AbstractChallengeResponseService implements ChallengeRespo
                     scenario,
                     challengeId
             );
-            ChallengeContext context = challengeResponseContextStore.loadContext(
+            ChallengeContext context = challengeContextStore.loadContext(
                     applicationId,
                     scenario,
                     challengeId
@@ -310,7 +310,7 @@ public abstract class AbstractChallengeResponseService implements ChallengeRespo
     ) throws ChallengeResponseServiceException {
         try {
             challengeStore.removeChallenge(applicationId, scenario, challengeId);
-            challengeResponseContextStore.removeContext(applicationId, scenario, challengeId);
+            challengeContextStore.removeContext(applicationId, scenario, challengeId);
         } catch (Exception e) {
             throw new ChallengeResponseServiceException(e);
         }
@@ -395,7 +395,7 @@ public abstract class AbstractChallengeResponseService implements ChallengeRespo
     ) throws ChallengeResponseServiceException {
         try {
             ChallengeContext context = createContext(applicationId, scenario, request, challenge);
-            challengeResponseContextStore.saveContext(
+            challengeContextStore.saveContext(
                     applicationId,
                     scenario,
                     challenge.getId(),

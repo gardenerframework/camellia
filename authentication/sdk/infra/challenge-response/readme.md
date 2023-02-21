@@ -67,25 +67,11 @@ public class Challenge implements
 
 ```java
 
-@NoArgsConstructor
-@Getter
-@Setter
-@SuperBuilder
-public class ChallengeContext implements Serializable {
-    private static final long serialVersionUID = Version.current;
-    /**
-     * 过期时间
-     */
-    private Date expiryTime;
-    /**
-     * 是否通过了验证
-     */
-    @Builder.Default
-    private boolean verified = false;
+public interface ChallengeContext extends Serializable {
 }
 ```
 
-挑战上下文，主要是挑战是否应答完成的标记
+挑战上下文，用来存储挑战的一些基本数据从而当需要验证响应时使用
 
 ## 小结
 

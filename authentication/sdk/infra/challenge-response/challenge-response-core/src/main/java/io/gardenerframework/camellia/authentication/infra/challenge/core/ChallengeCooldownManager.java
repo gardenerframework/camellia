@@ -9,7 +9,7 @@ import java.time.Duration;
  * @author zhanghan30
  * @date 2023/2/20 17:20
  */
-public interface ChallengeResponseCooldownManager {
+public interface ChallengeCooldownManager {
     /**
      * 获取冷却的剩余时间
      *
