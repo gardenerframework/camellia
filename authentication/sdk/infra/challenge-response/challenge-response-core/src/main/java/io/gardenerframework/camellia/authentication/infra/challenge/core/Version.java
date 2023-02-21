@@ -1,4 +1,4 @@
-package io.gardenerframework.camellia.authentication.infra.common;
+package io.gardenerframework.camellia.authentication.infra.challenge.core;
 
 /**
  * @author zhanghan30

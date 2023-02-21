@@ -1,4 +1,4 @@
-package io.gardenerframework.camellia.authentication.infra.common;
+package io.gardenerframework.camellia.authentication.infra.challenge.core;
 
 /**
  * 场景标记接口

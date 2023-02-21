@@ -6,7 +6,7 @@ package io.gardenerframework.camellia.authentication.infra.challenge.core.except
  * @author zhanghan30
  * @date 2023/2/20 17:29
  */
-public class ChallengeResponseServiceException extends RuntimeException {
+public class ChallengeResponseServiceException extends ChallengeResponseException {
     public ChallengeResponseServiceException(Throwable cause) {
         super(cause);
     }

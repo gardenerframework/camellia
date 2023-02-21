@@ -1,6 +1,6 @@
 package io.gardenerframework.camellia.authentication.infra.challenge.core.schema;
 
-import io.gardenerframework.camellia.authentication.infra.common.Version;
+import io.gardenerframework.camellia.authentication.infra.challenge.core.Version;
 import io.gardenerframework.fragrans.data.trait.generic.GenericTraits;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -11,7 +11,6 @@ import org.springframework.lang.Nullable;
 
 import java.io.Serializable;
 import java.util.Date;
-import java.util.Map;
 
 /**
  * 基准的挑战
@@ -39,13 +38,13 @@ public class Challenge implements
     @NonNull
     private String type;
     /**
+     * 挑战的cd时间剩余
+     */
+    @Nullable
+    private Date cooldownCompletionTime;
+    /**
      * 挑战的过期时间，超过这个时间即认为挑战无效
      */
     @NonNull
     private Date expiryTime;
-    /**
-     * 元数据，也就是额外信息
-     */
-    @Nullable
-    private Map<String, String> metadata;
 }

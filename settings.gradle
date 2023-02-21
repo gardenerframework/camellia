@@ -45,7 +45,6 @@ dependencyResolutionManagement {
 
 rootProject.name = 'camellia'
 String[] subprojectNames = [
-        'authentication:sdk:infra:authentication-infra-common',
         'authentication:sdk:infra:challenge-response:challenge-response-core',
         'authentication:sdk:infra:challenge-response:challenge-response-engine',
         'authentication:sdk:infra:sms:sms-authentication-core',

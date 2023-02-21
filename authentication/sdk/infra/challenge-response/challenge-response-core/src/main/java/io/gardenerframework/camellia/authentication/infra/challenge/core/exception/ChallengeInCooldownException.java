@@ -14,7 +14,7 @@ import java.time.Duration;
  */
 @AllArgsConstructor
 @Getter
-public class ChallengeInCooldownException extends RuntimeException {
+public class ChallengeInCooldownException extends ChallengeResponseException {
     @NonNull
     private final Duration timeRemaining;
 }
