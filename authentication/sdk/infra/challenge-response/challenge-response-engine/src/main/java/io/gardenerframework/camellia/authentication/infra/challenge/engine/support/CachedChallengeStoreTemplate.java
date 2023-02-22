@@ -15,12 +15,12 @@ import java.time.Duration;
  * @date 2023/2/21 16:25
  */
 @AllArgsConstructor
-public class CachedChallengeStore implements ChallengeStore {
+public class CachedChallengeStoreTemplate<C extends Challenge> implements ChallengeStore<C> {
     private static final String REQUEST_SIGNATURE_SUFFIX = "requestSignature";
     private static final String CHALLENGE_SUFFIX = "challenge";
     private static final String CHALLENGE_VERIFIED_FLAG_SUFFIX = "flag";
     @NonNull
-    private final BasicCacheManager<Challenge> challengeCacheManager;
+    private final BasicCacheManager<C> challengeCacheManager;
     @NonNull
     private final BasicCacheManager<String> challengeIdCacheManager;
     @NonNull
@@ -48,7 +48,7 @@ public class CachedChallengeStore implements ChallengeStore {
             @NonNull String applicationId,
             @NonNull Class<? extends Scenario> scenario,
             @NonNull String requestSignature,
-            @NonNull Challenge challenge, @NonNull Duration ttl
+            @NonNull C challenge, @NonNull Duration ttl
     ) throws Exception {
         //获取挑战id
         String challengeId = challenge.getId();
@@ -86,7 +86,7 @@ public class CachedChallengeStore implements ChallengeStore {
 
     @Nullable
     @Override
-    public Challenge loadChallenge(
+    public C loadChallenge(
             @NonNull String applicationId,
             @NonNull Class<? extends Scenario> scenario,
             @NonNull String challengeId

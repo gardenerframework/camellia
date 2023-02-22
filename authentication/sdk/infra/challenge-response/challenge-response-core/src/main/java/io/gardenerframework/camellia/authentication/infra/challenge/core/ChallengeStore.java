@@ -10,7 +10,7 @@ import java.time.Duration;
  * @author zhanghan30
  * @date 2023/2/20 18:07
  */
-public interface ChallengeStore {
+public interface ChallengeStore<C extends Challenge> {
     /**
      * 存储挑战
      *
@@ -25,7 +25,7 @@ public interface ChallengeStore {
             @NonNull String applicationId,
             @NonNull Class<? extends Scenario> scenario,
             @NonNull String requestSignature,
-            @NonNull Challenge challenge,
+            @NonNull C challenge,
             @NonNull Duration ttl
     ) throws Exception;
 
@@ -54,7 +54,7 @@ public interface ChallengeStore {
      * @throws Exception 读取异常
      */
     @Nullable
-    Challenge loadChallenge(
+    C loadChallenge(
             @NonNull String applicationId,
             @NonNull Class<? extends Scenario> scenario,
             @NonNull String challengeId

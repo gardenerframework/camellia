@@ -14,6 +14,9 @@ import org.springframework.util.StringUtils;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.Date;
 
 /**
  * 挑战服务泛型，用于发送挑战
@@ -22,19 +25,29 @@ import java.time.Instant;
  * @date 2022/5/15 19:03
  */
 @AllArgsConstructor
-public abstract class AbstractChallengeResponseService implements ChallengeResponseService {
+public abstract class AbstractChallengeResponseService<
+        R extends ChallengeRequest,
+        C extends Challenge,
+        X extends ChallengeContext>
+        implements ChallengeResponseService<R, C, X> {
     /**
      * 发送的挑战存储
      */
     @NonNull
     @Getter(AccessLevel.PROTECTED)
-    private final ChallengeStore challengeStore;
+    private final ChallengeStore<C> challengeStore;
+    /**
+     * 冷却管理器
+     */
     @NonNull
     @Getter(AccessLevel.PROTECTED)
     private final ChallengeCooldownManager challengeCooldownManager;
+    /**
+     * 上下文存储
+     */
     @NonNull
     @Getter(AccessLevel.PROTECTED)
-    private final ChallengeContextStore challengeContextStore;
+    private final ChallengeContextStore<X> challengeContextStore;
 
     /**
      * 请求在应用和场景下是否应当重放
@@ -47,7 +60,7 @@ public abstract class AbstractChallengeResponseService implements ChallengeRespo
     protected abstract boolean replayChallenge(
             @NonNull String applicationId,
             @NonNull Class<? extends Scenario> scenario,
-            @NonNull ChallengeRequest request
+            @NonNull R request
     );
 
     /**
@@ -62,7 +75,7 @@ public abstract class AbstractChallengeResponseService implements ChallengeRespo
     protected abstract String getRequestSignature(
             @NonNull String applicationId,
             @NonNull Class<? extends Scenario> scenario,
-            @NonNull ChallengeRequest request
+            @NonNull R request
     );
 
     /**
@@ -76,7 +89,7 @@ public abstract class AbstractChallengeResponseService implements ChallengeRespo
     protected abstract boolean hasCooldown(
             @NonNull String applicationId,
             @NonNull Class<? extends Scenario> scenario,
-            @NonNull ChallengeRequest request
+            @NonNull R request
     );
 
     /**
@@ -91,7 +104,7 @@ public abstract class AbstractChallengeResponseService implements ChallengeRespo
     protected abstract String getCooldownTimerId(
             @NonNull String applicationId,
             @NonNull Class<? extends Scenario> scenario,
-            @NonNull ChallengeRequest request
+            @NonNull R request
     );
 
     /**
@@ -105,7 +118,7 @@ public abstract class AbstractChallengeResponseService implements ChallengeRespo
     protected abstract int getCooldownTime(
             @NonNull String applicationId,
             @NonNull Class<? extends Scenario> scenario,
-            @NonNull ChallengeRequest request
+            @NonNull R request
     );
 
     /**
@@ -117,10 +130,10 @@ public abstract class AbstractChallengeResponseService implements ChallengeRespo
      * @return 挑战
      * @throws Exception 发生问题
      */
-    protected abstract Challenge sendChallengeInternally(
+    protected abstract C sendChallengeInternally(
             @NonNull String applicationId,
             @NonNull Class<? extends Scenario> scenario,
-            @NonNull ChallengeRequest request
+            @NonNull R request
     ) throws Exception;
 
     /**
@@ -132,11 +145,11 @@ public abstract class AbstractChallengeResponseService implements ChallengeRespo
      * @param challenge     挑战
      * @return 挑战上下文
      */
-    protected abstract ChallengeContext createContext(
+    protected abstract X createContext(
             @NonNull String applicationId,
             @NonNull Class<? extends Scenario> scenario,
-            @NonNull ChallengeRequest request,
-            @NonNull Challenge challenge
+            @NonNull R request,
+            @NonNull C challenge
     );
 
     /**
@@ -154,7 +167,7 @@ public abstract class AbstractChallengeResponseService implements ChallengeRespo
             @NonNull String applicationId,
             @NonNull Class<? extends Scenario> scenario,
             @NonNull String challengeId,
-            @NonNull ChallengeContext context,
+            @NonNull X context,
             @NonNull String response
     ) throws Exception;
 
@@ -169,17 +182,19 @@ public abstract class AbstractChallengeResponseService implements ChallengeRespo
      * @throws ChallengeInCooldownException      挑战还在cd中
      */
     @Override
-    public Challenge sendChallenge(
+    public C sendChallenge(
             @NonNull String applicationId,
             @NonNull Class<? extends Scenario> scenario,
-            @NonNull ChallengeRequest request
+            @NonNull R request
     ) throws ChallengeResponseServiceException, ChallengeInCooldownException {
-        Challenge challenge = tryReplayChallenge(applicationId, scenario, request);
+        C challenge = tryReplayChallenge(applicationId, scenario, request);
         if (challenge != null) {
             //完成重放
             return challenge;
         }
         //检查cd
+        //cd完成的绝对时间
+        Date cooldownCompletionTime = null;
         try {
             if (hasCooldown(applicationId, scenario, request)) {
                 String timerId = getCooldownTimerId(applicationId, scenario, request);
@@ -189,9 +204,12 @@ public abstract class AbstractChallengeResponseService implements ChallengeRespo
                 }
                 //cd已经消失
                 //启动cd
+                Duration cooldown = Duration.ofSeconds(getCooldownTime(applicationId, scenario, request));
+                //设置cd完成绝对时间
+                cooldownCompletionTime = Date.from(LocalDateTime.now().plus(cooldown).atZone(ZoneId.systemDefault()).toInstant());
                 boolean started = challengeCooldownManager.startCooldown(
                         applicationId, scenario, timerId,
-                        Duration.ofSeconds(getCooldownTime(applicationId, scenario, request))
+                        cooldown
                 );
                 if (!started) {
                     //当前调用没有启动cd成功
@@ -207,6 +225,8 @@ public abstract class AbstractChallengeResponseService implements ChallengeRespo
         //cd已经抢占或者不需要cd
         //创建挑战并完成发送
         challenge = tryCreateThenSendChallenge(applicationId, scenario, request);
+        //自动设置cd完成时间(不需要启动cd则没有完成时间)
+        challenge.setCooldownCompletionTime(cooldownCompletionTime);
         //尝试保存上下文
         trySaveContext(applicationId, scenario, request, challenge);
         //保存挑战
@@ -233,12 +253,12 @@ public abstract class AbstractChallengeResponseService implements ChallengeRespo
             @NonNull String response
     ) throws ChallengeResponseServiceException {
         try {
-            Challenge challenge = challengeStore.loadChallenge(
+            C challenge = challengeStore.loadChallenge(
                     applicationId,
                     scenario,
                     challengeId
             );
-            ChallengeContext context = challengeContextStore.loadContext(
+            X context = challengeContextStore.loadContext(
                     applicationId,
                     scenario,
                     challengeId
@@ -325,10 +345,10 @@ public abstract class AbstractChallengeResponseService implements ChallengeRespo
      * @return 被重放的挑战，或者null
      * @throws ChallengeResponseServiceException 遇到问题
      */
-    private Challenge tryReplayChallenge(
+    private C tryReplayChallenge(
             @NonNull String applicationId,
             @NonNull Class<? extends Scenario> scenario,
-            @NonNull ChallengeRequest request
+            @NonNull R request
     ) throws ChallengeResponseServiceException {
         try {
             if (replayChallenge(applicationId, scenario, request)) {
@@ -366,10 +386,10 @@ public abstract class AbstractChallengeResponseService implements ChallengeRespo
      * @throws ChallengeResponseServiceException 发生问题
      */
     @NonNull
-    private Challenge tryCreateThenSendChallenge(
+    private C tryCreateThenSendChallenge(
             @NonNull String applicationId,
             @NonNull Class<? extends Scenario> scenario,
-            @NonNull ChallengeRequest request
+            @NonNull R request
     ) throws ChallengeResponseServiceException {
         try {
             return sendChallengeInternally(applicationId, scenario, request);
@@ -390,11 +410,11 @@ public abstract class AbstractChallengeResponseService implements ChallengeRespo
     private void trySaveContext(
             @NonNull String applicationId,
             @NonNull Class<? extends Scenario> scenario,
-            @NonNull ChallengeRequest request,
-            @NonNull Challenge challenge
+            @NonNull R request,
+            @NonNull C challenge
     ) throws ChallengeResponseServiceException {
         try {
-            ChallengeContext context = createContext(applicationId, scenario, request, challenge);
+            X context = createContext(applicationId, scenario, request, challenge);
             challengeContextStore.saveContext(
                     applicationId,
                     scenario,
@@ -422,8 +442,8 @@ public abstract class AbstractChallengeResponseService implements ChallengeRespo
     private void trySaveChallenge(
             @NonNull String applicationId,
             @NonNull Class<? extends Scenario> scenario,
-            @NonNull ChallengeRequest request,
-            @NonNull Challenge challenge
+            @NonNull R request,
+            @NonNull C challenge
     ) throws ChallengeResponseServiceException {
         try {
             String requestSignature = getRequestSignature(applicationId, scenario, request);

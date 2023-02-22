@@ -10,7 +10,7 @@ import java.time.Duration;
  * @author zhanghan30
  * @date 2023/2/20 17:04
  */
-public interface ChallengeContextStore {
+public interface ChallengeContextStore<X extends ChallengeContext> {
     /**
      * 保存上下文
      *
@@ -25,7 +25,7 @@ public interface ChallengeContextStore {
             @NonNull String applicationId,
             @NonNull Class<? extends Scenario> scenario,
             @NonNull String challengeId,
-            @NonNull ChallengeContext context,
+            @NonNull X context,
             @NonNull Duration ttl
     ) throws Exception;
 
@@ -39,7 +39,7 @@ public interface ChallengeContextStore {
      * @throws Exception 发生问题
      */
     @Nullable
-    ChallengeContext loadContext(
+    X loadContext(
             @NonNull String applicationId,
             @NonNull Class<? extends Scenario> scenario,
             @NonNull String challengeId

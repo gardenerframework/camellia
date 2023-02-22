@@ -15,10 +15,10 @@ import java.time.Duration;
  * @date 2023/2/21 17:51
  */
 @AllArgsConstructor
-public class CachedChallengeContextStore implements ChallengeContextStore {
+public class CachedChallengeContextStoreTemplate<X extends ChallengeContext> implements ChallengeContextStore<X> {
     private static final String CHALLENGE_CONTEXT_SUFFIX = "context";
     @NonNull
-    private final BasicCacheManager<ChallengeContext> challengeContextCacheManager;
+    private final BasicCacheManager<X> challengeContextCacheManager;
 
     protected String[] buildNamespace(
             @NonNull String applicationId,
@@ -42,7 +42,7 @@ public class CachedChallengeContextStore implements ChallengeContextStore {
             @NonNull String applicationId,
             @NonNull Class<? extends Scenario> scenario,
             @NonNull String challengeId,
-            @NonNull ChallengeContext context,
+            @NonNull X context,
             @NonNull Duration ttl
     ) throws Exception {
         challengeContextCacheManager.set(
@@ -59,7 +59,7 @@ public class CachedChallengeContextStore implements ChallengeContextStore {
 
     @Nullable
     @Override
-    public ChallengeContext loadContext(@NonNull String applicationId, @NonNull Class<? extends Scenario> scenario, @NonNull String challengeId) throws Exception {
+    public X loadContext(@NonNull String applicationId, @NonNull Class<? extends Scenario> scenario, @NonNull String challengeId) throws Exception {
         return challengeContextCacheManager.get(
                 buildNamespace(
                         applicationId,

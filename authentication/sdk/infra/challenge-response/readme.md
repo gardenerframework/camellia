@@ -85,14 +85,35 @@ public interface ChallengeContext extends Serializable {
 1. 使用上一次的挑战内容进行重放，也就是继续沿用挑战id和过期时间等，而不是重新发送挑战，毕竟诸如短信渠道等都是按条收费
 2. 生成新的挑战以及响应的上下文，重新发送挑战
 
+# 逻辑的聚合与业务多样化之间冲突的解决
+
+既然定义了挑战与应答作为基础设施组件，那么自然是希望常见的挑战主逻辑以及应答的校验聚合在服务代码中解决，比如短信的发送和校验，比如动态令牌的校验，比如人脸的认证识别等。
+但是从上文的数据定义不难发现，挑战的请求是基于业务去定义的，比如短信挑战需要手机号，比如动态令牌的挑战可能需要记录人员的令牌seed等。且基于不同场景，可能还有不同的参数要求和上下文的存储需求。 因此挑战应答服务内部更多的是聚合核心的逻辑。
+基于不同应用需求的调用，传递的上下文以及请求应当是由业务需求去定义，并通过范型的方法声明需要能够处理这种请求以及上下文的挑战应答服务。更进一步，可以将这种范型直接声明为一个接口，要求直接装载明确接口的实现。比如
+
+* MFA验证场景的挑战应答服务接口
+* 短信登录的挑战应答接口
+* 找回密码时的短信验证码挑战应答接口
+
+等等
+
+这样能够明确地令开发知晓当前的代码在做什么，以防挑战应答服务被错误地装载到不正确的逻辑中的问题发生
+
 # 调用应用与场景
 
-从上文中可以发现，挑战以及上下文都需要进行存储。那么为了在不同场景以及被不同应用调用时，彼此之间的挑战以及上下文在即使id相同的情况下还能隔离， 场景以及应用id的会作为通用参数贯穿挑战与应答的生命周期
+从上文中可以发现，挑战以及上下文都需要进行存储。那么为了在不同场景以及被不同应用调用时，彼此之间的挑战以及上下文在即使id相同的情况下还能隔离， 场景以及应用id的会作为通用参数贯穿挑战与应答的生命周期。
+场景其实是在说当前挑战和应答在做什么，比如在进行MFA验证，还是在执行登录，还是在找回密码，还是在下单时进行二次验证。
+
+通过上文不难看出，其实挑战与应答的接口实例其实一定程度上表达了场景的概念(基于不同需求定义不同的子接口)
+。但是，为了避免同一个接口实例为多个场景同时服务，造成无法分辨的情况发生；同时，场景是外部需求定义的，而不是接口实现类来具体定义的，因此接口依然大量的使用了场景参数的方式，由调用方来决定场景。
 
 # ChallengeResponseService
 
 ```java
-public interface ChallengeResponseService {
+public interface ChallengeResponseService<
+        R extends ChallengeRequest,
+        C extends Challenge,
+        X extends ChallengeContext> {
     /**
      * 发送挑战
      *
@@ -103,10 +124,10 @@ public interface ChallengeResponseService {
      * @throws ChallengeResponseServiceException 发送问题
      * @throws ChallengeInCooldownException      发送冷却未结束
      */
-    Challenge sendChallenge(
+    C sendChallenge(
             @NonNull String applicationId,
             @NonNull Class<? extends Scenario> scenario,
-            @NonNull ChallengeRequest request
+            @NonNull R request
     ) throws ChallengeResponseServiceException, ChallengeInCooldownException;
 
     /**
@@ -142,6 +163,22 @@ public interface ChallengeResponseService {
     ) throws ChallengeResponseServiceException;
 
     /**
+     * 加载上下文
+     *
+     * @param applicationId 应用id
+     * @param scenario      场景
+     * @param challengeId   挑战id
+     * @return 上下文信息
+     * @throws ChallengeResponseServiceException 加载出现问题
+     */
+    @Nullable
+    X loadContext(
+            @NonNull String applicationId,
+            @NonNull Class<? extends Scenario> scenario,
+            @NonNull String challengeId
+    ) throws ChallengeResponseServiceException;
+
+    /**
      * 关闭挑战，即释放资源
      *
      * @param applicationId 应用id
@@ -157,11 +194,11 @@ public interface ChallengeResponseService {
 }
 ```
 
-作为挑战应答服务的基本接口，提供了服务具备的基本功能
+作为挑战应答服务的基本接口，提供了服务具备的基本功能以及上下文读取的功能。接口约定了范型，从而使得开发可以声明子类并按照业务的要求处理对应的请求和上下文
 
 # AbstractChallengeResponseService
 
-`AbstractChallengeResponseService`为挑战应答服务提供了基本的cd检查，上下文存储等内置逻辑
+`AbstractChallengeResponseService`为挑战应答服务提供了基本的cd检查，上下文存储等内置逻辑，它将以下接口逻辑进行串联
 
 ## ChallengeStore
 
@@ -170,7 +207,7 @@ public interface ChallengeResponseService {
  * @author zhanghan30
  * @date 2023/2/20 18:07
  */
-public interface ChallengeStore {
+public interface ChallengeStore<C extends Challenge> {
     /**
      * 存储挑战
      *
@@ -185,7 +222,7 @@ public interface ChallengeStore {
             @NonNull String applicationId,
             @NonNull Class<? extends Scenario> scenario,
             @NonNull String requestSignature,
-            @NonNull Challenge challenge,
+            @NonNull C challenge,
             @NonNull Duration ttl
     ) throws Exception;
 
@@ -214,12 +251,45 @@ public interface ChallengeStore {
      * @throws Exception 读取异常
      */
     @Nullable
-    Challenge loadChallenge(
+    C loadChallenge(
             @NonNull String applicationId,
             @NonNull Class<? extends Scenario> scenario,
             @NonNull String challengeId
     ) throws Exception;
 
+    /**
+     * 设置挑战已经完成应答
+     *
+     * @param applicationId 应用id
+     * @param scenario      场景id
+     * @param challengeId   挑战id
+     * @param verified      是否完成了验证
+     * @param ttl           有效时间
+     * @throws Exception 设置错误
+     */
+    void updateChallengeVerifiedFlag(
+            @NonNull String applicationId,
+            @NonNull Class<? extends Scenario> scenario,
+            @NonNull String challengeId,
+            boolean verified,
+            @NonNull Duration ttl
+    ) throws Exception;
+
+
+    /**
+     * 询问挑战是否已经完成校验
+     *
+     * @param applicationId 应用id
+     * @param scenario      场景
+     * @param challengeId   挑战id
+     * @return 是否完成挑战
+     * @throws Exception 发生问题
+     */
+    boolean isChallengeVerified(
+            @NonNull String applicationId,
+            @NonNull Class<? extends Scenario> scenario,
+            @NonNull String challengeId
+    ) throws Exception;
 
     /**
      * 移除挑战
@@ -238,10 +308,106 @@ public interface ChallengeStore {
 ```
 
 `ChallengeStore`为挑战的重放提供辅助，它基于请求的特征以及应用和场景来存储已经生成的挑战。 从调用方法上不难看出，首先希望将请求特征与保存的挑战id进行绑定，随后基于挑战id读取暂存的数据，并在关闭挑战时删除暂存的数据。
-当缓存的挑战数据在有效期结束前被删除时，由于无法计算请求特征，因此请求特征对应的部分会遗留。但是下一个挑战发生时就会通过save方法进行覆盖
+当缓存的挑战数据在有效期结束前被删除时，由于无法计算请求特征，因此请求特征对应的部分会遗留。但是下一个挑战发生时就会通过save方法进行覆盖。
+
+接口约定了范型，用于表达特定挑战的存取。这样让开发在序列化和反序列化时能够明确的知晓类型。 引擎为开发提供了一个`GenericCachedChallengeStore`
+，其基于java的序列化接口完成挑战的存储和读取，java的序列化在存储时会保存目标类型信息，因此任何`Challenge`的子类都能通过这个接口完成序列化和反序列化
 
 ## ChallengeResponseCooldownManager
 
-挑战的冷却时间是一个按照时间自然释放的资源，因此不具有释放方法。其只在发送请求时生效。 冷却的纬度包含了应用和场景以及一个从挑战请求计算而来的冷却计时器id
+挑战的冷却时间是一个按照时间自然释放的资源，因此不具有释放方法。其只在发送请求时生效。 冷却的纬度包含了应用和场景以及一个从挑战请求计算而来的冷却计时器id。
 
+```java
+public interface ChallengeCooldownManager {
+    /**
+     * 获取冷却的剩余时间
+     *
+     * @param applicationId 应用id
+     * @param scenario      场景
+     * @param timerId       冷却计时器id
+     * @return 剩余时间
+     * @throws Exception 发生问题
+     */
+    @Nullable
+    Duration getTimeRemaining(
+            @NonNull String applicationId,
+            @NonNull Class<? extends Scenario> scenario,
+            String timerId
+    ) throws Exception;
+
+    /**
+     * 开始冷却
+     *
+     * @param applicationId 应用id
+     * @param scenario      场景
+     * @param timerId       计时器id
+     * @param ttl           冷却时间
+     * @return 是否由当前调用开始冷却(多并发场景应当只有一个冷却发生)
+     * @throws Exception 发生问题
+     */
+    boolean startCooldown(
+            @NonNull String applicationId,
+            @NonNull Class<? extends Scenario> scenario,
+            String timerId,
+            Duration ttl
+    ) throws Exception;
+}
+```
+
+## ChallengeContextStore
+
+```java
+public interface ChallengeContextStore<X extends ChallengeContext> {
+    /**
+     * 保存上下文
+     *
+     * @param applicationId 应用id
+     * @param scenario      场景id
+     * @param challengeId   挑战id
+     * @param context       场下问
+     * @param ttl           有效期
+     * @throws Exception 异常
+     */
+    void saveContext(
+            @NonNull String applicationId,
+            @NonNull Class<? extends Scenario> scenario,
+            @NonNull String challengeId,
+            @NonNull X context,
+            @NonNull Duration ttl
+    ) throws Exception;
+
+    /**
+     * 加载上下文
+     *
+     * @param applicationId 应用id
+     * @param scenario      场景
+     * @param challengeId   挑战id
+     * @return 上下文
+     * @throws Exception 发生问题
+     */
+    @Nullable
+    X loadContext(
+            @NonNull String applicationId,
+            @NonNull Class<? extends Scenario> scenario,
+            @NonNull String challengeId
+    ) throws Exception;
+
+
+    /**
+     * 删除上下文
+     *
+     * @param applicationId 应用id
+     * @param scenario      场景
+     * @param challengeId   挑战id
+     * @throws Exception 发生问题
+     */
+    void removeContext(
+            @NonNull String applicationId,
+            @NonNull Class<? extends Scenario> scenario,
+            @NonNull String challengeId
+    ) throws Exception;
+}
+```
+
+显而易见，为挑战应答服务提供上下文的存取功能，范型约定了支持的类型。同时引擎提供了`GenericCachedChallengeContextStore`作为默认实现。这也是因为挑战上下文也可以基于java的序列化和反序列化特性保持类型。
 

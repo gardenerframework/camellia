@@ -3,14 +3,19 @@ package io.gardenerframework.camellia.authentication.infra.challenge.core;
 import io.gardenerframework.camellia.authentication.infra.challenge.core.exception.ChallengeInCooldownException;
 import io.gardenerframework.camellia.authentication.infra.challenge.core.exception.ChallengeResponseServiceException;
 import io.gardenerframework.camellia.authentication.infra.challenge.core.schema.Challenge;
+import io.gardenerframework.camellia.authentication.infra.challenge.core.schema.ChallengeContext;
 import io.gardenerframework.camellia.authentication.infra.challenge.core.schema.ChallengeRequest;
 import lombok.NonNull;
+import org.springframework.lang.Nullable;
 
 /**
  * @author zhanghan30
  * @date 2023/2/21 12:39
  */
-public interface ChallengeResponseService {
+public interface ChallengeResponseService<
+        R extends ChallengeRequest,
+        C extends Challenge,
+        X extends ChallengeContext> {
     /**
      * 发送挑战
      *
@@ -21,10 +26,10 @@ public interface ChallengeResponseService {
      * @throws ChallengeResponseServiceException 发送问题
      * @throws ChallengeInCooldownException      发送冷却未结束
      */
-    Challenge sendChallenge(
+    C sendChallenge(
             @NonNull String applicationId,
             @NonNull Class<? extends Scenario> scenario,
-            @NonNull ChallengeRequest request
+            @NonNull R request
     ) throws ChallengeResponseServiceException, ChallengeInCooldownException;
 
     /**
@@ -54,6 +59,22 @@ public interface ChallengeResponseService {
      * @throws ChallengeResponseServiceException 检验过程中发生了问题
      */
     boolean isChallengeVerified(
+            @NonNull String applicationId,
+            @NonNull Class<? extends Scenario> scenario,
+            @NonNull String challengeId
+    ) throws ChallengeResponseServiceException;
+
+    /**
+     * 加载上下文
+     *
+     * @param applicationId 应用id
+     * @param scenario      场景
+     * @param challengeId   挑战id
+     * @return 上下文信息
+     * @throws ChallengeResponseServiceException 加载出现问题
+     */
+    @Nullable
+    X loadContext(
             @NonNull String applicationId,
             @NonNull Class<? extends Scenario> scenario,
             @NonNull String challengeId

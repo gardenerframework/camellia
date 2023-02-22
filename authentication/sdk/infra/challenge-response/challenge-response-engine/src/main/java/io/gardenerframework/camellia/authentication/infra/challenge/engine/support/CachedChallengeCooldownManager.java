@@ -15,7 +15,7 @@ import java.time.Duration;
  */
 @AllArgsConstructor
 public class CachedChallengeCooldownManager implements ChallengeCooldownManager {
-    private final static String CHALLENGE_COOLDOWN_SUFFIX = "cooldown";
+    private static final String CHALLENGE_COOLDOWN_SUFFIX = "cooldown";
     @NonNull
     private final BasicCacheManager<String> cacheManager;
 

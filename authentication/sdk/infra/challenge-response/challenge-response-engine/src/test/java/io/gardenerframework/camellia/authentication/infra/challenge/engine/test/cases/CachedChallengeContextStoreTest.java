@@ -2,7 +2,7 @@ package io.gardenerframework.camellia.authentication.infra.challenge.engine.test
 
 import io.gardenerframework.camellia.authentication.infra.challenge.core.Scenario;
 import io.gardenerframework.camellia.authentication.infra.challenge.core.schema.ChallengeContext;
-import io.gardenerframework.camellia.authentication.infra.challenge.engine.support.CachedChallengeContextStore;
+import io.gardenerframework.camellia.authentication.infra.challenge.engine.support.CachedChallengeContextStoreTemplate;
 import io.gardenerframework.camellia.authentication.infra.challenge.engine.test.ChallengeResponseEngineTestApplication;
 import lombok.Getter;
 import lombok.Setter;
@@ -22,7 +22,7 @@ import java.util.UUID;
 @SpringBootTest(classes = ChallengeResponseEngineTestApplication.class)
 public class CachedChallengeContextStoreTest {
     @Autowired
-    private CachedChallengeContextStore contextStore;
+    private CachedChallengeContextStoreTemplate<ChallengeContext> contextStore;
 
     @Test
     public void smokeTest() throws Exception {
