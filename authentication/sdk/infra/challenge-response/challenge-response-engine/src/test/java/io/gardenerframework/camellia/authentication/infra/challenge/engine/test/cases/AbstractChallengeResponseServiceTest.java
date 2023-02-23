@@ -10,15 +10,18 @@ import io.gardenerframework.camellia.authentication.infra.challenge.engine.Abstr
 import io.gardenerframework.camellia.authentication.infra.challenge.engine.support.GenericCachedChallengeContextStore;
 import io.gardenerframework.camellia.authentication.infra.challenge.engine.support.GenericCachedChallengeStore;
 import io.gardenerframework.camellia.authentication.infra.challenge.engine.test.ChallengeResponseEngineTestApplication;
+import io.gardenerframework.camellia.authentication.infra.client.schema.RequestingClient;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.lang.Nullable;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.util.Collections;
 import java.util.Date;
 import java.util.UUID;
 
@@ -37,9 +40,10 @@ public class AbstractChallengeResponseServiceTest {
     @Test
     public void smokeTest() throws Exception {
         String appId = UUID.randomUUID().toString();
+        RequestingClient client = RequestingClient.builder().clientId(appId).grantType(UUID.randomUUID().toString()).scopes(Collections.EMPTY_SET).build();
         String requestId = UUID.randomUUID().toString();
         testChallengeResponseService.sendChallenge(
-                appId,
+                client,
                 AbstractChallengeResponseServiceTestScenario.class,
                 TestChallengeRequest.builder().requestId(requestId).build()
         );
@@ -47,7 +51,7 @@ public class AbstractChallengeResponseServiceTest {
         Assertions.assertThrowsExactly(
                 ChallengeInCooldownException.class,
                 () -> testChallengeResponseService.sendChallenge(
-                        appId,
+                        client,
                         AbstractChallengeResponseServiceTestScenario.class,
                         TestChallengeRequest.builder().requestId(requestId).build()
                 )
@@ -55,37 +59,37 @@ public class AbstractChallengeResponseServiceTest {
         Thread.sleep(10000);
         //再次发送成功
         Challenge challenge = testChallengeResponseService.sendChallenge(
-                appId,
+                client,
                 AbstractChallengeResponseServiceTestScenario.class,
                 TestChallengeRequest.builder().requestId(requestId).build()
         );
         String response = challenge.getId();
-        TestChallengeContext testChallengeContext = testChallengeResponseService.getContext(appId, AbstractChallengeResponseServiceTestScenario.class, challenge.getId());
+        TestChallengeContext testChallengeContext = testChallengeResponseService.getContext(client, AbstractChallengeResponseServiceTestScenario.class, challenge.getId());
         Assertions.assertEquals(response, testChallengeContext.getResponse());
         //完成验证
         Assertions.assertTrue(testChallengeResponseService.verifyResponse(
-                appId,
+                client,
                 AbstractChallengeResponseServiceTestScenario.class,
                 challenge.getId(),
                 response
         ));
         //bj
         Assertions.assertFalse(testChallengeResponseService.verifyResponse(
-                appId,
+                client,
                 AbstractChallengeResponseServiceTestScenario.class,
                 challenge.getId() + UUID.randomUUID().toString(),
                 response
         ));
         //释放资源
         testChallengeResponseService.closeChallenge(
-                appId,
+                client,
                 AbstractChallengeResponseServiceTestScenario.class,
                 challenge.getId()
         );
         //上下文就已经消失
         Assertions.assertNull(
                 testChallengeResponseService.getContext(
-                        appId,
+                        client,
                         AbstractChallengeResponseServiceTestScenario.class,
                         challenge.getId()
                 )
@@ -93,7 +97,7 @@ public class AbstractChallengeResponseServiceTest {
         //挑战存储也已经消失
         Assertions.assertNull(
                 challengeStore.loadChallenge(
-                        appId,
+                        client,
                         AbstractChallengeResponseServiceTestScenario.class,
                         challenge.getId()
                 )
@@ -113,32 +117,32 @@ public class AbstractChallengeResponseServiceTest {
         }
 
         @Override
-        protected boolean replayChallenge(@NonNull String applicationId, @NonNull Class<? extends Scenario> scenario, @NonNull TestChallengeRequest request) {
+        protected boolean replayChallenge(@Nullable RequestingClient client, @NonNull Class<? extends Scenario> scenario, @NonNull TestChallengeRequest request) {
             return false;
         }
 
         @Override
-        protected @NonNull String getRequestSignature(@NonNull String applicationId, @NonNull Class<? extends Scenario> scenario, @NonNull TestChallengeRequest request) {
+        protected @NonNull String getRequestSignature(@Nullable RequestingClient client, @NonNull Class<? extends Scenario> scenario, @NonNull TestChallengeRequest request) {
             return "";
         }
 
         @Override
-        protected boolean hasCooldown(@NonNull String applicationId, @NonNull Class<? extends Scenario> scenario, @NonNull TestChallengeRequest request) {
+        protected boolean hasCooldown(@Nullable RequestingClient client, @NonNull Class<? extends Scenario> scenario, @NonNull TestChallengeRequest request) {
             return true;
         }
 
         @Override
-        protected @NonNull String getCooldownTimerId(@NonNull String applicationId, @NonNull Class<? extends Scenario> scenario, @NonNull TestChallengeRequest request) {
+        protected @NonNull String getCooldownTimerId(@Nullable RequestingClient client, @NonNull Class<? extends Scenario> scenario, @NonNull TestChallengeRequest request) {
             return request.getRequestId();
         }
 
         @Override
-        protected int getCooldownTime(@NonNull String applicationId, @NonNull Class<? extends Scenario> scenario, @NonNull TestChallengeRequest request) {
+        protected int getCooldownTime(@Nullable RequestingClient client, @NonNull Class<? extends Scenario> scenario, @NonNull TestChallengeRequest request) {
             return 10;
         }
 
         @Override
-        protected Challenge sendChallengeInternally(@NonNull String applicationId, @NonNull Class<? extends Scenario> scenario, @NonNull TestChallengeRequest request) throws Exception {
+        protected Challenge sendChallengeInternally(@Nullable RequestingClient client, @NonNull Class<? extends Scenario> scenario, @NonNull TestChallengeRequest request) throws Exception {
             return Challenge.builder()
                     .id(UUID.randomUUID().toString())
                     .expiryTime(Date.from(Instant.now().plus(Duration.ofSeconds(300))))
@@ -147,13 +151,13 @@ public class AbstractChallengeResponseServiceTest {
         }
 
         @Override
-        protected TestChallengeContext createContext(@NonNull String applicationId, @NonNull Class<? extends Scenario> scenario, @NonNull TestChallengeRequest request, @NonNull Challenge challenge) {
+        protected TestChallengeContext createContext(@Nullable RequestingClient client, @NonNull Class<? extends Scenario> scenario, @NonNull TestChallengeRequest request, @NonNull Challenge challenge) {
             return new TestChallengeContext(challenge.getId());
         }
 
         @Override
-        protected boolean verifyChallengeInternally(@NonNull String applicationId, @NonNull Class<? extends Scenario> scenario, @NonNull String challengeId, @NonNull TestChallengeContext context, @NonNull String response) throws Exception {
-            return getContext(applicationId, scenario, challengeId).getResponse().equals(response);
+        protected boolean verifyChallengeInternally(@Nullable RequestingClient client, @NonNull Class<? extends Scenario> scenario, @NonNull String challengeId, @NonNull TestChallengeContext context, @NonNull String response) throws Exception {
+            return getContext(client, scenario, challengeId).getResponse().equals(response);
         }
     }
 

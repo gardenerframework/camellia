@@ -2,6 +2,7 @@ package io.gardenerframework.camellia.authentication.infra.challenge.engine.supp
 
 import io.gardenerframework.camellia.authentication.infra.challenge.core.ChallengeCooldownManager;
 import io.gardenerframework.camellia.authentication.infra.challenge.core.Scenario;
+import io.gardenerframework.camellia.authentication.infra.client.schema.RequestingClient;
 import io.gardenerframework.fragrans.data.cache.manager.BasicCacheManager;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
@@ -14,13 +15,13 @@ import java.time.Duration;
  * @date 2023/2/21 17:59
  */
 @AllArgsConstructor
-public class CachedChallengeCooldownManager implements ChallengeCooldownManager {
+public class CachedChallengeCooldownManager implements ChallengeCooldownManager, NullRequestingClientIdProvider {
     private static final String CHALLENGE_COOLDOWN_SUFFIX = "cooldown";
     @NonNull
     private final BasicCacheManager<String> cacheManager;
 
     protected String[] buildNamespace(
-            @NonNull String applicationId,
+            @Nullable RequestingClient client,
             @NonNull Class<? extends Scenario> scenario
     ) {
         return new String[]{
@@ -31,7 +32,7 @@ public class CachedChallengeCooldownManager implements ChallengeCooldownManager 
                 "core",
                 "cooldown",
                 "challenge",
-                applicationId,
+                getClientId(client),
                 scenario.getCanonicalName()
         };
     }
@@ -39,12 +40,12 @@ public class CachedChallengeCooldownManager implements ChallengeCooldownManager 
     @Nullable
     @Override
     public Duration getTimeRemaining(
-            @NonNull String applicationId,
+            @Nullable RequestingClient client,
             @NonNull Class<? extends Scenario> scenario,
             @NonNull String timerId
     ) throws Exception {
         return cacheManager.ttl(
-                buildNamespace(applicationId, scenario),
+                buildNamespace(client, scenario),
                 timerId,
                 CHALLENGE_COOLDOWN_SUFFIX
         );
@@ -52,13 +53,13 @@ public class CachedChallengeCooldownManager implements ChallengeCooldownManager 
 
     @Override
     public boolean startCooldown(
-            @NonNull String applicationId,
+            @Nullable RequestingClient client,
             @NonNull Class<? extends Scenario> scenario,
             @NonNull String timerId,
             @NonNull Duration ttl
     ) throws Exception {
         return cacheManager.setIfNotPresents(
-                buildNamespace(applicationId, scenario),
+                buildNamespace(client, scenario),
                 timerId,
                 CHALLENGE_COOLDOWN_SUFFIX,
                 timerId,

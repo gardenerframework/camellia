@@ -6,6 +6,7 @@ import io.gardenerframework.camellia.authentication.infra.challenge.core.excepti
 import io.gardenerframework.camellia.authentication.infra.challenge.core.schema.Challenge;
 import io.gardenerframework.camellia.authentication.infra.challenge.core.schema.ChallengeContext;
 import io.gardenerframework.camellia.authentication.infra.challenge.core.schema.ChallengeRequest;
+import io.gardenerframework.camellia.authentication.infra.client.schema.RequestingClient;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -51,13 +52,13 @@ public abstract class AbstractChallengeResponseService<
     /**
      * 请求在应用和场景下是否应当重放
      *
-     * @param applicationId 应用id
-     * @param scenario      场景
-     * @param request       请求
+     * @param client   请求客户端
+     * @param scenario 场景
+     * @param request  请求
      * @return 是否需要重放
      */
     protected abstract boolean replayChallenge(
-            @NonNull String applicationId,
+            @Nullable RequestingClient client,
             @NonNull Class<? extends Scenario> scenario,
             @NonNull R request
     );
@@ -65,14 +66,14 @@ public abstract class AbstractChallengeResponseService<
     /**
      * 返回请求特征
      *
-     * @param applicationId 请求的应用id
-     * @param scenario      场景
-     * @param request       请求
+     * @param client   请求客户端
+     * @param scenario 场景
+     * @param request  请求
      * @return 请求特征
      */
     @NonNull
     protected abstract String getRequestSignature(
-            @NonNull String applicationId,
+            @Nullable RequestingClient client,
             @NonNull Class<? extends Scenario> scenario,
             @NonNull R request
     );
@@ -80,13 +81,13 @@ public abstract class AbstractChallengeResponseService<
     /**
      * 当前应用在当前场景下面对当前请求是否存在着cd
      *
-     * @param applicationId 应用id
-     * @param scenario      场景
-     * @param request       请求
+     * @param client   请求客户端
+     * @param scenario 场景
+     * @param request  请求
      * @return 是否存在cd
      */
     protected abstract boolean hasCooldown(
-            @NonNull String applicationId,
+            @Nullable RequestingClient client,
             @NonNull Class<? extends Scenario> scenario,
             @NonNull R request
     );
@@ -94,14 +95,14 @@ public abstract class AbstractChallengeResponseService<
     /**
      * 由请求计算出冷却的计时器id
      *
-     * @param applicationId 应用id
-     * @param scenario      场景
-     * @param request       请求
+     * @param client   请求客户端
+     * @param scenario 场景
+     * @param request  请求
      * @return 计时器id
      */
     @NonNull
     protected abstract String getCooldownTimerId(
-            @NonNull String applicationId,
+            @Nullable RequestingClient client,
             @NonNull Class<? extends Scenario> scenario,
             @NonNull R request
     );
@@ -109,13 +110,13 @@ public abstract class AbstractChallengeResponseService<
     /**
      * 给出基于应用，场景以及请求的cd时间
      *
-     * @param applicationId 应用
-     * @param scenario      场景
-     * @param request       请求
+     * @param client   请求客户端
+     * @param scenario 场景
+     * @param request  请求
      * @return cd时间
      */
     protected abstract int getCooldownTime(
-            @NonNull String applicationId,
+            @Nullable RequestingClient client,
             @NonNull Class<? extends Scenario> scenario,
             @NonNull R request
     );
@@ -123,14 +124,14 @@ public abstract class AbstractChallengeResponseService<
     /**
      * 完成挑战的创建和发送
      *
-     * @param applicationId 应用
-     * @param scenario      场景
-     * @param request       请求
+     * @param client   请求客户端
+     * @param scenario 场景
+     * @param request  请求
      * @return 挑战
      * @throws Exception 发生问题
      */
     protected abstract C sendChallengeInternally(
-            @NonNull String applicationId,
+            @Nullable RequestingClient client,
             @NonNull Class<? extends Scenario> scenario,
             @NonNull R request
     ) throws Exception;
@@ -138,14 +139,14 @@ public abstract class AbstractChallengeResponseService<
     /**
      * 创建一个挑战上下文。存储有挑战相关的数据
      *
-     * @param applicationId 应用id
-     * @param scenario      场景
-     * @param request       请求
-     * @param challenge     挑战
+     * @param client    请求客户端
+     * @param scenario  场景
+     * @param request   请求
+     * @param challenge 挑战
      * @return 挑战上下文
      */
     protected abstract X createContext(
-            @NonNull String applicationId,
+            @Nullable RequestingClient client,
             @NonNull Class<? extends Scenario> scenario,
             @NonNull R request,
             @NonNull C challenge
@@ -154,16 +155,16 @@ public abstract class AbstractChallengeResponseService<
     /**
      * 完成校验
      *
-     * @param applicationId 应用id
-     * @param scenario      场景
-     * @param challengeId   挑战id
-     * @param context       挑战对应的上下文
-     * @param response      响应
+     * @param client      请求客户端
+     * @param scenario    场景
+     * @param challengeId 挑战id
+     * @param context     挑战对应的上下文
+     * @param response    响应
      * @return 是否通过
      * @throws Exception 验证过程出现问题
      */
     protected abstract boolean verifyChallengeInternally(
-            @NonNull String applicationId,
+            @Nullable RequestingClient client,
             @NonNull Class<? extends Scenario> scenario,
             @NonNull String challengeId,
             @NonNull X context,
@@ -173,20 +174,20 @@ public abstract class AbstractChallengeResponseService<
     /**
      * 发送挑战
      *
-     * @param applicationId 应用id
-     * @param scenario      场景
-     * @param request       挑战请求
+     * @param client   请求客户端
+     * @param scenario 场景
+     * @param request  挑战请求
      * @return 挑战
      * @throws ChallengeResponseServiceException 挑战服务出现问题
      * @throws ChallengeInCooldownException      挑战还在cd中
      */
     @Override
     public C sendChallenge(
-            @NonNull String applicationId,
+            @Nullable RequestingClient client,
             @NonNull Class<? extends Scenario> scenario,
             @NonNull R request
     ) throws ChallengeResponseServiceException, ChallengeInCooldownException {
-        C challenge = tryReplayChallenge(applicationId, scenario, request);
+        C challenge = tryReplayChallenge(client, scenario, request);
         if (challenge != null) {
             //完成重放
             return challenge;
@@ -195,24 +196,24 @@ public abstract class AbstractChallengeResponseService<
         //cd完成的绝对时间
         Date cooldownCompletionTime = null;
         try {
-            if (hasCooldown(applicationId, scenario, request)) {
-                String timerId = getCooldownTimerId(applicationId, scenario, request);
-                Duration timeRemaining = challengeCooldownManager.getTimeRemaining(applicationId, scenario, timerId);
+            if (hasCooldown(client, scenario, request)) {
+                String timerId = getCooldownTimerId(client, scenario, request);
+                Duration timeRemaining = challengeCooldownManager.getTimeRemaining(client, scenario, timerId);
                 if (timeRemaining != null) {
                     throw new ChallengeInCooldownException(timeRemaining);
                 }
                 //cd已经消失
                 //启动cd
-                Duration cooldown = Duration.ofSeconds(getCooldownTime(applicationId, scenario, request));
+                Duration cooldown = Duration.ofSeconds(getCooldownTime(client, scenario, request));
                 //设置cd完成绝对时间
                 cooldownCompletionTime = Date.from(Instant.now().plus(cooldown));
                 boolean started = challengeCooldownManager.startCooldown(
-                        applicationId, scenario, timerId,
+                        client, scenario, timerId,
                         cooldown
                 );
                 if (!started) {
                     //当前调用没有启动cd成功
-                    timeRemaining = challengeCooldownManager.getTimeRemaining(applicationId, scenario, timerId);
+                    timeRemaining = challengeCooldownManager.getTimeRemaining(client, scenario, timerId);
                     throw new ChallengeInCooldownException(timeRemaining);
                 }
             }
@@ -223,13 +224,13 @@ public abstract class AbstractChallengeResponseService<
         }
         //cd已经抢占或者不需要cd
         //创建挑战并完成发送
-        challenge = tryCreateThenSendChallenge(applicationId, scenario, request);
+        challenge = tryCreateThenSendChallenge(client, scenario, request);
         //自动设置cd完成时间(不需要启动cd则没有完成时间)
         challenge.setCooldownCompletionTime(cooldownCompletionTime);
         //尝试保存上下文
-        trySaveContext(applicationId, scenario, request, challenge);
+        trySaveContext(client, scenario, request, challenge);
         //保存挑战
-        trySaveChallenge(applicationId, scenario, request, challenge);
+        trySaveChallenge(client, scenario, request, challenge);
         //返回挑战
         return challenge;
     }
@@ -237,28 +238,28 @@ public abstract class AbstractChallengeResponseService<
     /**
      * 检查响应是否符合预期
      *
-     * @param applicationId 应用id
-     * @param scenario      场景
-     * @param challengeId   挑战id
-     * @param response      挑战响应
+     * @param client      请求客户端
+     * @param scenario    场景
+     * @param challengeId 挑战id
+     * @param response    挑战响应
      * @return 是否验证通过
      * @throws ChallengeResponseServiceException 验证过程中发生问题
      */
     @Override
     public boolean verifyResponse(
-            @NonNull String applicationId,
+            @Nullable RequestingClient client,
             @NonNull Class<? extends Scenario> scenario,
             @NonNull String challengeId,
             @NonNull String response
     ) throws ChallengeResponseServiceException {
         try {
             C challenge = challengeStore.loadChallenge(
-                    applicationId,
+                    client,
                     scenario,
                     challengeId
             );
             X context = challengeContextStore.loadContext(
-                    applicationId,
+                    client,
                     scenario,
                     challengeId
             );
@@ -267,7 +268,7 @@ public abstract class AbstractChallengeResponseService<
                 return false;
             }
             return verifyChallengeInternally(
-                    applicationId,
+                    client,
                     scenario,
                     challengeId,
                     context,
@@ -281,12 +282,12 @@ public abstract class AbstractChallengeResponseService<
     @Nullable
     @Override
     public X getContext(
-            @NonNull String applicationId,
+            @Nullable RequestingClient client,
             @NonNull Class<? extends Scenario> scenario,
             @NonNull String challengeId
     ) throws ChallengeResponseServiceException {
         try {
-            return challengeContextStore.loadContext(applicationId, scenario, challengeId);
+            return challengeContextStore.loadContext(client, scenario, challengeId);
         } catch (Exception e) {
             throw new ChallengeResponseServiceException(e);
         }
@@ -295,20 +296,20 @@ public abstract class AbstractChallengeResponseService<
     /**
      * 关闭挑战，释放资源
      *
-     * @param applicationId 应用id
-     * @param scenario      场景
-     * @param challengeId   挑战id
+     * @param client      请求客户端
+     * @param scenario    场景
+     * @param challengeId 挑战id
      * @throws ChallengeResponseServiceException 发生问题
      */
     @Override
     public void closeChallenge(
-            @NonNull String applicationId,
+            @Nullable RequestingClient client,
             @NonNull Class<? extends Scenario> scenario,
             @NonNull String challengeId
     ) throws ChallengeResponseServiceException {
         try {
-            challengeStore.removeChallenge(applicationId, scenario, challengeId);
-            challengeContextStore.removeContext(applicationId, scenario, challengeId);
+            challengeStore.removeChallenge(client, scenario, challengeId);
+            challengeContextStore.removeContext(client, scenario, challengeId);
         } catch (Exception e) {
             throw new ChallengeResponseServiceException(e);
         }
@@ -317,31 +318,31 @@ public abstract class AbstractChallengeResponseService<
     /**
      * 尝试重放挑战
      *
-     * @param applicationId 应用id
-     * @param scenario      场景
-     * @param request       请求
+     * @param client   请求客户端
+     * @param scenario 场景
+     * @param request  请求
      * @return 被重放的挑战，或者null
      * @throws ChallengeResponseServiceException 遇到问题
      */
     private C tryReplayChallenge(
-            @NonNull String applicationId,
+            @Nullable RequestingClient client,
             @NonNull Class<? extends Scenario> scenario,
             @NonNull R request
     ) throws ChallengeResponseServiceException {
         try {
-            if (replayChallenge(applicationId, scenario, request)) {
+            if (replayChallenge(client, scenario, request)) {
                 //当前请求可以被未完成的挑战重放
-                String requestSignature = getRequestSignature(applicationId, scenario, request);
+                String requestSignature = getRequestSignature(client, scenario, request);
                 if (StringUtils.hasText(requestSignature)) {
                     String challengeId = challengeStore.getChallengeId(
-                            applicationId,
+                            client,
                             scenario,
                             requestSignature
                     );
                     if (StringUtils.hasText(challengeId)) {
                         //返回了请求特征，该特征对应着存储的挑战
                         return challengeStore.loadChallenge(
-                                applicationId,
+                                client,
                                 scenario,
                                 challengeId
                         );
@@ -357,20 +358,20 @@ public abstract class AbstractChallengeResponseService<
     /**
      * 尝试创建并发送挑战
      *
-     * @param applicationId 应用id
-     * @param scenario      场景
-     * @param request       请求
+     * @param client   请求客户端
+     * @param scenario 场景
+     * @param request  请求
      * @return 发送完毕的挑战
      * @throws ChallengeResponseServiceException 发生问题
      */
     @NonNull
     private C tryCreateThenSendChallenge(
-            @NonNull String applicationId,
+            @Nullable RequestingClient client,
             @NonNull Class<? extends Scenario> scenario,
             @NonNull R request
     ) throws ChallengeResponseServiceException {
         try {
-            return sendChallengeInternally(applicationId, scenario, request);
+            return sendChallengeInternally(client, scenario, request);
         } catch (Exception e) {
             throw new ChallengeResponseServiceException(e);
         }
@@ -379,22 +380,22 @@ public abstract class AbstractChallengeResponseService<
     /**
      * 尝试创建并保存上下文
      *
-     * @param applicationId 应用id
-     * @param scenario      场景
-     * @param request       请求
-     * @param challenge     挑战
+     * @param client    请求客户端
+     * @param scenario  场景
+     * @param request   请求
+     * @param challenge 挑战
      * @throws ChallengeResponseServiceException 保存异常
      */
     private void trySaveContext(
-            @NonNull String applicationId,
+            @Nullable RequestingClient client,
             @NonNull Class<? extends Scenario> scenario,
             @NonNull R request,
             @NonNull C challenge
     ) throws ChallengeResponseServiceException {
         try {
-            X context = createContext(applicationId, scenario, request, challenge);
+            X context = createContext(client, scenario, request, challenge);
             challengeContextStore.saveContext(
-                    applicationId,
+                    client,
                     scenario,
                     challenge.getId(),
                     context,
@@ -411,23 +412,23 @@ public abstract class AbstractChallengeResponseService<
     /**
      * 尝试去保存挑战
      *
-     * @param applicationId 应用id
-     * @param scenario      场景
-     * @param request       请求
-     * @param challenge     挑战
+     * @param client    请求客户端
+     * @param scenario  场景
+     * @param request   请求
+     * @param challenge 挑战
      * @throws ChallengeResponseServiceException 保存问题
      */
     private void trySaveChallenge(
-            @NonNull String applicationId,
+            @Nullable RequestingClient client,
             @NonNull Class<? extends Scenario> scenario,
             @NonNull R request,
             @NonNull C challenge
     ) throws ChallengeResponseServiceException {
         try {
-            String requestSignature = getRequestSignature(applicationId, scenario, request);
+            String requestSignature = getRequestSignature(client, scenario, request);
             if (StringUtils.hasText(requestSignature)) {
                 challengeStore.saveChallengeId(
-                        applicationId,
+                        client,
                         scenario,
                         requestSignature,
                         challenge.getId(),
@@ -438,7 +439,7 @@ public abstract class AbstractChallengeResponseService<
                 );
             }
             challengeStore.saveChallenge(
-                    applicationId,
+                    client,
                     scenario,
                     challenge.getId(),
                     challenge,

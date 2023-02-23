@@ -1,6 +1,7 @@
 package io.gardenerframework.camellia.authentication.infra.challenge.core;
 
 import io.gardenerframework.camellia.authentication.infra.challenge.core.schema.ChallengeContext;
+import io.gardenerframework.camellia.authentication.infra.client.schema.RequestingClient;
 import lombok.NonNull;
 import org.springframework.lang.Nullable;
 
@@ -14,15 +15,15 @@ public interface ChallengeContextStore<X extends ChallengeContext> {
     /**
      * 保存上下文
      *
-     * @param applicationId 应用id
-     * @param scenario      场景id
-     * @param challengeId   挑战id
-     * @param context       场下问
-     * @param ttl           有效期
+     * @param client      正在请求的客户端
+     * @param scenario    场景id
+     * @param challengeId 挑战id
+     * @param context     场下问
+     * @param ttl         有效期
      * @throws Exception 异常
      */
     void saveContext(
-            @NonNull String applicationId,
+            @Nullable RequestingClient client,
             @NonNull Class<? extends Scenario> scenario,
             @NonNull String challengeId,
             @NonNull X context,
@@ -32,15 +33,15 @@ public interface ChallengeContextStore<X extends ChallengeContext> {
     /**
      * 加载上下文
      *
-     * @param applicationId 应用id
-     * @param scenario      场景
-     * @param challengeId   挑战id
+     * @param client      正在请求的客户端
+     * @param scenario    场景
+     * @param challengeId 挑战id
      * @return 上下文
      * @throws Exception 发生问题
      */
     @Nullable
     X loadContext(
-            @NonNull String applicationId,
+            @Nullable RequestingClient client,
             @NonNull Class<? extends Scenario> scenario,
             @NonNull String challengeId
     ) throws Exception;
@@ -49,13 +50,13 @@ public interface ChallengeContextStore<X extends ChallengeContext> {
     /**
      * 删除上下文
      *
-     * @param applicationId 应用id
-     * @param scenario      场景
-     * @param challengeId   挑战id
+     * @param client      正在请求的客户端
+     * @param scenario    场景
+     * @param challengeId 挑战id
      * @throws Exception 发生问题
      */
     void removeContext(
-            @NonNull String applicationId,
+            @Nullable RequestingClient client,
             @NonNull Class<? extends Scenario> scenario,
             @NonNull String challengeId
     ) throws Exception;

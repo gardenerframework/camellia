@@ -4,6 +4,7 @@ import io.gardenerframework.camellia.authentication.infra.challenge.core.Scenari
 import io.gardenerframework.camellia.authentication.infra.challenge.core.schema.Challenge;
 import io.gardenerframework.camellia.authentication.infra.challenge.engine.support.CachedChallengeStoreTemplate;
 import io.gardenerframework.camellia.authentication.infra.challenge.engine.test.ChallengeResponseEngineTestApplication;
+import io.gardenerframework.camellia.authentication.infra.client.schema.RequestingClient;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
@@ -14,6 +15,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.util.Collections;
 import java.util.Date;
 import java.util.UUID;
 
@@ -29,6 +31,7 @@ public class CachedChallengeStoreTest {
     @Test
     public void smokeTest() throws Exception {
         String applicationId = UUID.randomUUID().toString();
+        RequestingClient client = RequestingClient.builder().clientId(applicationId).grantType(UUID.randomUUID().toString()).scopes(Collections.EMPTY_SET).build();
         String requestSignature = UUID.randomUUID().toString();
         ChallengeSubClass challenge = ChallengeSubClass.builder()
                 .id(UUID.randomUUID().toString())
@@ -38,7 +41,7 @@ public class CachedChallengeStoreTest {
                 .field(UUID.randomUUID().toString())
                 .build();
         challengeStore.saveChallengeId(
-                applicationId,
+                client,
                 CachedChallengeStoreTestScenario.class,
                 requestSignature,
                 challenge.getId(),
@@ -48,7 +51,7 @@ public class CachedChallengeStoreTest {
                 )
         );
         challengeStore.saveChallenge(
-                applicationId,
+                client,
                 CachedChallengeStoreTestScenario.class,
                 challenge.getId(),
                 challenge,
@@ -58,13 +61,13 @@ public class CachedChallengeStoreTest {
                 )
         );
         String challengeId = challengeStore.getChallengeId(
-                applicationId,
+                client,
                 CachedChallengeStoreTestScenario.class,
                 requestSignature
         );
         Assertions.assertEquals(challenge.getId(), challengeId);
         ChallengeSubClass challengeSaved = (ChallengeSubClass) challengeStore.loadChallenge(
-                applicationId,
+                client,
                 CachedChallengeStoreTestScenario.class,
                 challenge.getId()
         );
@@ -74,12 +77,12 @@ public class CachedChallengeStoreTest {
         Assertions.assertEquals(challenge.getExpiryTime(), challengeSaved.getExpiryTime());
         Assertions.assertEquals(challenge.getField(), challengeSaved.getField());
         challengeStore.removeChallenge(
-                applicationId,
+                client,
                 CachedChallengeStoreTestScenario.class,
                 challenge.getId()
         );
         Assertions.assertNull(challengeStore.loadChallenge(
-                applicationId,
+                client,
                 CachedChallengeStoreTestScenario.class,
                 challenge.getId()
         ));

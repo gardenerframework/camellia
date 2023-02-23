@@ -5,6 +5,7 @@ import io.gardenerframework.camellia.authentication.infra.challenge.core.excepti
 import io.gardenerframework.camellia.authentication.infra.challenge.core.schema.Challenge;
 import io.gardenerframework.camellia.authentication.infra.challenge.core.schema.ChallengeContext;
 import io.gardenerframework.camellia.authentication.infra.challenge.core.schema.ChallengeRequest;
+import io.gardenerframework.camellia.authentication.infra.client.schema.RequestingClient;
 import lombok.NonNull;
 import org.springframework.lang.Nullable;
 
@@ -19,15 +20,15 @@ public interface ChallengeResponseService<
     /**
      * 发送挑战
      *
-     * @param applicationId 应用id
-     * @param scenario      场景
-     * @param request       挑战请求
+     * @param client   正在请求的客户端
+     * @param scenario 场景
+     * @param request  挑战请求
      * @return 挑战结果
      * @throws ChallengeResponseServiceException 发送问题
      * @throws ChallengeInCooldownException      发送冷却未结束
      */
     C sendChallenge(
-            @NonNull String applicationId,
+            @Nullable RequestingClient client,
             @NonNull Class<? extends Scenario> scenario,
             @NonNull R request
     ) throws ChallengeResponseServiceException, ChallengeInCooldownException;
@@ -35,15 +36,15 @@ public interface ChallengeResponseService<
     /**
      * 验证响应是否符合预期
      *
-     * @param applicationId 应用id
-     * @param scenario      场景
-     * @param challengeId   挑战id
-     * @param response      挑战响应
+     * @param client      正在请求的客户端
+     * @param scenario    场景
+     * @param challengeId 挑战id
+     * @param response    挑战响应
      * @return 是否通过校验
      * @throws ChallengeResponseServiceException 校验过程发生问题
      */
     boolean verifyResponse(
-            @NonNull String applicationId,
+            @Nullable RequestingClient client,
             @NonNull Class<? extends Scenario> scenario,
             @NonNull String challengeId,
             @NonNull String response
@@ -52,15 +53,15 @@ public interface ChallengeResponseService<
     /**
      * 加载上下文
      *
-     * @param applicationId 应用id
-     * @param scenario      场景
-     * @param challengeId   挑战id
+     * @param client      正在请求的客户端
+     * @param scenario    场景
+     * @param challengeId 挑战id
      * @return 上下文信息
      * @throws ChallengeResponseServiceException 加载出现问题
      */
     @Nullable
     X getContext(
-            @NonNull String applicationId,
+            @Nullable RequestingClient client,
             @NonNull Class<? extends Scenario> scenario,
             @NonNull String challengeId
     ) throws ChallengeResponseServiceException;
@@ -68,13 +69,13 @@ public interface ChallengeResponseService<
     /**
      * 关闭挑战，即释放资源
      *
-     * @param applicationId 应用id
-     * @param scenario      场景
-     * @param challengeId   挑战id
+     * @param client      正在请求的客户端
+     * @param scenario    场景
+     * @param challengeId 挑战id
      * @throws ChallengeResponseServiceException 关闭过程中遇到了问题
      */
     void closeChallenge(
-            @NonNull String applicationId,
+            @Nullable RequestingClient client,
             @NonNull Class<? extends Scenario> scenario,
             @NonNull String challengeId
     ) throws ChallengeResponseServiceException;

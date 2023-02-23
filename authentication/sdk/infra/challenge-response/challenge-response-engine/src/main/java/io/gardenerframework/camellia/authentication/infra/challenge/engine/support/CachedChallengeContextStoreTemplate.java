@@ -3,6 +3,7 @@ package io.gardenerframework.camellia.authentication.infra.challenge.engine.supp
 import io.gardenerframework.camellia.authentication.infra.challenge.core.ChallengeContextStore;
 import io.gardenerframework.camellia.authentication.infra.challenge.core.Scenario;
 import io.gardenerframework.camellia.authentication.infra.challenge.core.schema.ChallengeContext;
+import io.gardenerframework.camellia.authentication.infra.client.schema.RequestingClient;
 import io.gardenerframework.fragrans.data.cache.manager.BasicCacheManager;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
@@ -15,13 +16,13 @@ import java.time.Duration;
  * @date 2023/2/21 17:51
  */
 @AllArgsConstructor
-public class CachedChallengeContextStoreTemplate<X extends ChallengeContext> implements ChallengeContextStore<X> {
+public class CachedChallengeContextStoreTemplate<X extends ChallengeContext> implements ChallengeContextStore<X>, NullRequestingClientIdProvider {
     private static final String CHALLENGE_CONTEXT_SUFFIX = "context";
     @NonNull
     private final BasicCacheManager<X> challengeContextCacheManager;
 
     protected String[] buildNamespace(
-            @NonNull String applicationId,
+            @Nullable RequestingClient client,
             @NonNull Class<? extends Scenario> scenario
     ) {
         return new String[]{
@@ -32,14 +33,14 @@ public class CachedChallengeContextStoreTemplate<X extends ChallengeContext> imp
                 "core",
                 "store",
                 "challenge-context",
-                applicationId,
+                getClientId(client),
                 scenario.getCanonicalName()
         };
     }
 
     @Override
     public void saveContext(
-            @NonNull String applicationId,
+            @Nullable RequestingClient client,
             @NonNull Class<? extends Scenario> scenario,
             @NonNull String challengeId,
             @NonNull X context,
@@ -47,7 +48,7 @@ public class CachedChallengeContextStoreTemplate<X extends ChallengeContext> imp
     ) throws Exception {
         challengeContextCacheManager.set(
                 buildNamespace(
-                        applicationId,
+                        client,
                         scenario
                 ),
                 challengeId,
@@ -59,10 +60,14 @@ public class CachedChallengeContextStoreTemplate<X extends ChallengeContext> imp
 
     @Nullable
     @Override
-    public X loadContext(@NonNull String applicationId, @NonNull Class<? extends Scenario> scenario, @NonNull String challengeId) throws Exception {
+    public X loadContext(
+            @Nullable RequestingClient client,
+            @NonNull Class<? extends Scenario> scenario,
+            @NonNull String challengeId
+    ) throws Exception {
         return challengeContextCacheManager.get(
                 buildNamespace(
-                        applicationId,
+                        client,
                         scenario
                 ),
                 challengeId,
@@ -71,10 +76,14 @@ public class CachedChallengeContextStoreTemplate<X extends ChallengeContext> imp
     }
 
     @Override
-    public void removeContext(@NonNull String applicationId, @NonNull Class<? extends Scenario> scenario, @NonNull String challengeId) throws Exception {
+    public void removeContext(
+            @Nullable RequestingClient client,
+            @NonNull Class<? extends Scenario> scenario,
+            @NonNull String challengeId
+    ) throws Exception {
         challengeContextCacheManager.delete(
                 buildNamespace(
-                        applicationId,
+                        client,
                         scenario
                 ),
                 challengeId,

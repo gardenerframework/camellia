@@ -1,4 +1,6 @@
 dependencies {
     api "${fragrans.group}:data-traits-generic"
+    api "${group}:authentication-common-toolkits"
+    api "${group}:requesting-client-core"
     api "org.springframework:spring-core"
 }

@@ -1,6 +1,6 @@
 package io.gardenerframework.camellia.authentication.infra.challenge.core.schema;
 
-import io.gardenerframework.camellia.authentication.infra.challenge.core.Version;
+import io.gardenerframework.camellia.authentication.common.data.serialization.SerializationVersionNumber;
 import io.gardenerframework.fragrans.data.trait.generic.GenericTraits;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -26,7 +26,7 @@ public class Challenge implements
         GenericTraits.IdentifierTraits.Id<String>,
         GenericTraits.GroupingTraits.Type<String>,
         Serializable {
-    private static final long serialVersionUID = Version.current;
+    private static final long serialVersionUID = SerializationVersionNumber.version;
     /**
      * 挑战id
      */

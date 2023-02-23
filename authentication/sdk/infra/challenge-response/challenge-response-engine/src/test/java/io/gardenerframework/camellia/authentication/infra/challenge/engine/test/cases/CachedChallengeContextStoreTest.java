@@ -4,6 +4,7 @@ import io.gardenerframework.camellia.authentication.infra.challenge.core.Scenari
 import io.gardenerframework.camellia.authentication.infra.challenge.core.schema.ChallengeContext;
 import io.gardenerframework.camellia.authentication.infra.challenge.engine.support.CachedChallengeContextStoreTemplate;
 import io.gardenerframework.camellia.authentication.infra.challenge.engine.test.ChallengeResponseEngineTestApplication;
+import io.gardenerframework.camellia.authentication.infra.client.schema.RequestingClient;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
@@ -13,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.time.Duration;
+import java.util.Collections;
 import java.util.UUID;
 
 /**
@@ -28,31 +30,32 @@ public class CachedChallengeContextStoreTest {
     public void smokeTest() throws Exception {
         String appId = UUID.randomUUID().toString();
         String challengeId = UUID.randomUUID().toString();
+        RequestingClient client = RequestingClient.builder().clientId(appId).grantType(UUID.randomUUID().toString()).scopes(Collections.EMPTY_SET).build();
         ChallengeContextSubClass context = ChallengeContextSubClass.builder()
                 .field(UUID.randomUUID().toString())
                 .build();
         contextStore.saveContext(
-                appId,
+                client,
                 CachedChallengeContextStoreTestScenario.class,
                 challengeId,
                 context,
                 Duration.ofSeconds(10)
         );
         ChallengeContextSubClass contextSaved = (ChallengeContextSubClass) contextStore.loadContext(
-                appId,
+                client,
                 CachedChallengeContextStoreTestScenario.class,
                 challengeId
         );
         Assertions.assertInstanceOf(ChallengeContextSubClass.class, contextSaved);
         Assertions.assertEquals(context.getField(), contextSaved.getField());
         contextStore.removeContext(
-                appId,
+                client,
                 CachedChallengeContextStoreTestScenario.class,
                 challengeId
         );
         Assertions.assertNull(
                 contextStore.loadContext(
-                        appId,
+                        client,
                         CachedChallengeContextStoreTestScenario.class,
                         challengeId
                 )
