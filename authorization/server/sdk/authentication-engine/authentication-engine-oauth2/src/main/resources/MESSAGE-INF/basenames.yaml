@@ -1,0 +1,8 @@
+com:
+  jdcloud:
+    gardener:
+      fragrans:
+        messages:
+          basenames:
+            - authorization-server-authentication-engine/oauth2/errors/client
+            - authorization-server-authentication-engine/oauth2/errors/constraints

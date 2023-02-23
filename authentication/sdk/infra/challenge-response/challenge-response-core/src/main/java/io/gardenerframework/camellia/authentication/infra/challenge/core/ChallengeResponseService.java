@@ -50,21 +50,6 @@ public interface ChallengeResponseService<
     ) throws ChallengeResponseServiceException;
 
     /**
-     * 给定的挑战是否已经通过了验证
-     *
-     * @param applicationId 应用id
-     * @param scenario      场景
-     * @param challengeId   挑战id
-     * @return 是否已经完成了验证
-     * @throws ChallengeResponseServiceException 检验过程中发生了问题
-     */
-    boolean isChallengeVerified(
-            @NonNull String applicationId,
-            @NonNull Class<? extends Scenario> scenario,
-            @NonNull String challengeId
-    ) throws ChallengeResponseServiceException;
-
-    /**
      * 加载上下文
      *
      * @param applicationId 应用id
@@ -74,7 +59,7 @@ public interface ChallengeResponseService<
      * @throws ChallengeResponseServiceException 加载出现问题
      */
     @Nullable
-    X loadContext(
+    X getContext(
             @NonNull String applicationId,
             @NonNull Class<? extends Scenario> scenario,
             @NonNull String challengeId

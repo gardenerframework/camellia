@@ -23,7 +23,7 @@ public interface ChallengeCooldownManager {
     Duration getTimeRemaining(
             @NonNull String applicationId,
             @NonNull Class<? extends Scenario> scenario,
-            String timerId
+            @NonNull String timerId
     ) throws Exception;
 
     /**
@@ -39,8 +39,8 @@ public interface ChallengeCooldownManager {
     boolean startCooldown(
             @NonNull String applicationId,
             @NonNull Class<? extends Scenario> scenario,
-            String timerId,
-            Duration ttl
+            @NonNull String timerId,
+            @NonNull Duration ttl
     ) throws Exception;
 }
 

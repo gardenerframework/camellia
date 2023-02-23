@@ -18,13 +18,10 @@ import java.time.Duration;
 public class CachedChallengeStoreTemplate<C extends Challenge> implements ChallengeStore<C> {
     private static final String REQUEST_SIGNATURE_SUFFIX = "requestSignature";
     private static final String CHALLENGE_SUFFIX = "challenge";
-    private static final String CHALLENGE_VERIFIED_FLAG_SUFFIX = "flag";
     @NonNull
     private final BasicCacheManager<C> challengeCacheManager;
     @NonNull
     private final BasicCacheManager<String> challengeIdCacheManager;
-    @NonNull
-    private final BasicCacheManager<Boolean> challengeVerifiedFlagCacheManager;
 
     protected String[] buildNamespace(
             @NonNull String applicationId,
@@ -47,25 +44,27 @@ public class CachedChallengeStoreTemplate<C extends Challenge> implements Challe
     public void saveChallenge(
             @NonNull String applicationId,
             @NonNull Class<? extends Scenario> scenario,
-            @NonNull String requestSignature,
+            @NonNull String challengeId,
             @NonNull C challenge, @NonNull Duration ttl
     ) throws Exception {
-        //获取挑战id
-        String challengeId = challenge.getId();
-        //完成请求特征与挑战id的对应
-        challengeIdCacheManager.set(
-                buildNamespace(applicationId, scenario),
-                requestSignature,
-                REQUEST_SIGNATURE_SUFFIX,
-                challengeId,
-                ttl
-        );
         //存储挑战
         challengeCacheManager.set(
                 buildNamespace(applicationId, scenario),
                 challengeId,
                 CHALLENGE_SUFFIX,
                 challenge,
+                ttl
+        );
+    }
+
+    @Override
+    public void saveChallengeId(@NonNull String applicationId, @NonNull Class<? extends Scenario> scenario, @NonNull String requestSignature, @NonNull String challengeId, @NonNull Duration ttl) throws Exception {
+        //完成请求特征与挑战id的对应
+        challengeIdCacheManager.set(
+                buildNamespace(applicationId, scenario),
+                requestSignature,
+                REQUEST_SIGNATURE_SUFFIX,
+                challengeId,
                 ttl
         );
     }
@@ -99,38 +98,6 @@ public class CachedChallengeStoreTemplate<C extends Challenge> implements Challe
     }
 
     @Override
-    public void updateChallengeVerifiedFlag(
-            @NonNull String applicationId,
-            @NonNull Class<? extends Scenario> scenario,
-            @NonNull String challengeId,
-            boolean verified,
-            @NonNull Duration ttl
-    ) throws Exception {
-        challengeVerifiedFlagCacheManager.set(
-                buildNamespace(applicationId, scenario),
-                challengeId,
-                CHALLENGE_VERIFIED_FLAG_SUFFIX,
-                verified,
-                ttl
-        );
-    }
-
-    @Override
-    public boolean isChallengeVerified(
-            @NonNull String applicationId,
-            @NonNull Class<? extends Scenario> scenario,
-            @NonNull String challengeId
-    ) throws Exception {
-        return Boolean.TRUE.equals(
-                challengeVerifiedFlagCacheManager.get(
-                        buildNamespace(applicationId, scenario),
-                        challengeId,
-                        CHALLENGE_VERIFIED_FLAG_SUFFIX
-                )
-        );
-    }
-
-    @Override
     public void removeChallenge(
             @NonNull String applicationId,
             @NonNull Class<? extends Scenario> scenario,
@@ -140,11 +107,6 @@ public class CachedChallengeStoreTemplate<C extends Challenge> implements Challe
                 buildNamespace(applicationId, scenario),
                 challengeId,
                 CHALLENGE_SUFFIX
-        );
-        challengeVerifiedFlagCacheManager.delete(
-                buildNamespace(applicationId, scenario),
-                challengeId,
-                CHALLENGE_VERIFIED_FLAG_SUFFIX
         );
     }
 }

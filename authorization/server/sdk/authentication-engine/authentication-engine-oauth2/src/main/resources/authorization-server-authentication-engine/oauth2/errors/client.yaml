@@ -1,0 +1,10 @@
+com:
+  jdcloud:
+    gardener:
+      camellia:
+        authorization:
+          authentication:
+            main:
+              exception:
+                client:
+                  InvalidStateException: "state不合法: [{0}]"

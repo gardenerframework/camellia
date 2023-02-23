@@ -1,0 +1,12 @@
+com:
+  jdcloud:
+    gardener:
+      camellia:
+        uac:
+          client:
+            exception:
+              client:
+                ClientAlreadyExistedException: 客户端已存在
+                ClientDisabledException: 客户端已被禁用
+                ClientNotFoundException: 客户端不存在
+

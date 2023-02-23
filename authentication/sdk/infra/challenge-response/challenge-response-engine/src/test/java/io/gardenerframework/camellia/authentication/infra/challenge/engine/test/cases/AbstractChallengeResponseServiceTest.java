@@ -1,0 +1,176 @@
+package io.gardenerframework.camellia.authentication.infra.challenge.engine.test.cases;
+
+import io.gardenerframework.camellia.authentication.infra.challenge.core.ChallengeCooldownManager;
+import io.gardenerframework.camellia.authentication.infra.challenge.core.Scenario;
+import io.gardenerframework.camellia.authentication.infra.challenge.core.exception.ChallengeInCooldownException;
+import io.gardenerframework.camellia.authentication.infra.challenge.core.schema.Challenge;
+import io.gardenerframework.camellia.authentication.infra.challenge.core.schema.ChallengeContext;
+import io.gardenerframework.camellia.authentication.infra.challenge.core.schema.ChallengeRequest;
+import io.gardenerframework.camellia.authentication.infra.challenge.engine.AbstractChallengeResponseService;
+import io.gardenerframework.camellia.authentication.infra.challenge.engine.support.GenericCachedChallengeContextStore;
+import io.gardenerframework.camellia.authentication.infra.challenge.engine.support.GenericCachedChallengeStore;
+import io.gardenerframework.camellia.authentication.infra.challenge.engine.test.ChallengeResponseEngineTestApplication;
+import lombok.*;
+import lombok.experimental.SuperBuilder;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+
+import java.time.Duration;
+import java.time.Instant;
+import java.util.Date;
+import java.util.UUID;
+
+/**
+ * @author zhanghan30
+ * @date 2023/2/23 10:31
+ */
+@SpringBootTest(classes = ChallengeResponseEngineTestApplication.class)
+public class AbstractChallengeResponseServiceTest {
+    @Autowired
+    private TestChallengeResponseService testChallengeResponseService;
+
+    @Autowired
+    private GenericCachedChallengeStore challengeStore;
+
+    @Test
+    public void smokeTest() throws Exception {
+        String appId = UUID.randomUUID().toString();
+        String requestId = UUID.randomUUID().toString();
+        testChallengeResponseService.sendChallenge(
+                appId,
+                AbstractChallengeResponseServiceTestScenario.class,
+                TestChallengeRequest.builder().requestId(requestId).build()
+        );
+        //10秒cd
+        Assertions.assertThrowsExactly(
+                ChallengeInCooldownException.class,
+                () -> testChallengeResponseService.sendChallenge(
+                        appId,
+                        AbstractChallengeResponseServiceTestScenario.class,
+                        TestChallengeRequest.builder().requestId(requestId).build()
+                )
+        );
+        Thread.sleep(10000);
+        //再次发送成功
+        Challenge challenge = testChallengeResponseService.sendChallenge(
+                appId,
+                AbstractChallengeResponseServiceTestScenario.class,
+                TestChallengeRequest.builder().requestId(requestId).build()
+        );
+        String response = challenge.getId();
+        TestChallengeContext testChallengeContext = testChallengeResponseService.getContext(appId, AbstractChallengeResponseServiceTestScenario.class, challenge.getId());
+        Assertions.assertEquals(response, testChallengeContext.getResponse());
+        //完成验证
+        Assertions.assertTrue(testChallengeResponseService.verifyResponse(
+                appId,
+                AbstractChallengeResponseServiceTestScenario.class,
+                challenge.getId(),
+                response
+        ));
+        //bj
+        Assertions.assertFalse(testChallengeResponseService.verifyResponse(
+                appId,
+                AbstractChallengeResponseServiceTestScenario.class,
+                challenge.getId() + UUID.randomUUID().toString(),
+                response
+        ));
+        //释放资源
+        testChallengeResponseService.closeChallenge(
+                appId,
+                AbstractChallengeResponseServiceTestScenario.class,
+                challenge.getId()
+        );
+        //上下文就已经消失
+        Assertions.assertNull(
+                testChallengeResponseService.getContext(
+                        appId,
+                        AbstractChallengeResponseServiceTestScenario.class,
+                        challenge.getId()
+                )
+        );
+        //挑战存储也已经消失
+        Assertions.assertNull(
+                challengeStore.loadChallenge(
+                        appId,
+                        AbstractChallengeResponseServiceTestScenario.class,
+                        challenge.getId()
+                )
+        );
+    }
+
+    public static class AbstractChallengeResponseServiceTestScenario implements Scenario {
+    }
+
+    public static class TestChallengeResponseService extends AbstractChallengeResponseService<
+            TestChallengeRequest,
+            Challenge,
+            TestChallengeContext> {
+
+        public TestChallengeResponseService(@NonNull GenericCachedChallengeStore challengeStore, @NonNull ChallengeCooldownManager challengeCooldownManager, @NonNull GenericCachedChallengeContextStore challengeContextStore) {
+            super(challengeStore, challengeCooldownManager, challengeContextStore.migrateType());
+        }
+
+        @Override
+        protected boolean replayChallenge(@NonNull String applicationId, @NonNull Class<? extends Scenario> scenario, @NonNull TestChallengeRequest request) {
+            return false;
+        }
+
+        @Override
+        protected @NonNull String getRequestSignature(@NonNull String applicationId, @NonNull Class<? extends Scenario> scenario, @NonNull TestChallengeRequest request) {
+            return "";
+        }
+
+        @Override
+        protected boolean hasCooldown(@NonNull String applicationId, @NonNull Class<? extends Scenario> scenario, @NonNull TestChallengeRequest request) {
+            return true;
+        }
+
+        @Override
+        protected @NonNull String getCooldownTimerId(@NonNull String applicationId, @NonNull Class<? extends Scenario> scenario, @NonNull TestChallengeRequest request) {
+            return request.getRequestId();
+        }
+
+        @Override
+        protected int getCooldownTime(@NonNull String applicationId, @NonNull Class<? extends Scenario> scenario, @NonNull TestChallengeRequest request) {
+            return 10;
+        }
+
+        @Override
+        protected Challenge sendChallengeInternally(@NonNull String applicationId, @NonNull Class<? extends Scenario> scenario, @NonNull TestChallengeRequest request) throws Exception {
+            return Challenge.builder()
+                    .id(UUID.randomUUID().toString())
+                    .expiryTime(Date.from(Instant.now().plus(Duration.ofSeconds(300))))
+                    .type(UUID.randomUUID().toString())
+                    .build();
+        }
+
+        @Override
+        protected TestChallengeContext createContext(@NonNull String applicationId, @NonNull Class<? extends Scenario> scenario, @NonNull TestChallengeRequest request, @NonNull Challenge challenge) {
+            return new TestChallengeContext(challenge.getId());
+        }
+
+        @Override
+        protected boolean verifyChallengeInternally(@NonNull String applicationId, @NonNull Class<? extends Scenario> scenario, @NonNull String challengeId, @NonNull TestChallengeContext context, @NonNull String response) throws Exception {
+            return getContext(applicationId, scenario, challengeId).getResponse().equals(response);
+        }
+    }
+
+    @Getter
+    @Setter
+    @SuperBuilder
+    public static class TestChallengeRequest implements ChallengeRequest {
+        @NonNull
+        private String requestId;
+    }
+
+    @Getter
+    @Setter
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class TestChallengeContext implements ChallengeContext {
+        @NonNull
+        private String response;
+    }
+}

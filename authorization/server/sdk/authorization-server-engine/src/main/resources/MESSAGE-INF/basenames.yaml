@@ -1,0 +1,10 @@
+com:
+  jdcloud:
+    gardener:
+      fragrans:
+        messages:
+          basenames:
+            - authorization-server-engine/errors/client
+            - authorization-server-engine/errors/spring/hard-coded
+            - authorization-server-engine/errors/constraints
+            - authorization-server-engine/options

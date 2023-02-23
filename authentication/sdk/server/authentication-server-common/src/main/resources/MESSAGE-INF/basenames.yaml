@@ -1,0 +1,9 @@
+com:
+  jdcloud:
+    gardener:
+      fragrans:
+        messages:
+          basenames:
+            - authorization-server-common/errors/spring/security
+            - authorization-server-common/errors/client
+            - authorization-server-common/options

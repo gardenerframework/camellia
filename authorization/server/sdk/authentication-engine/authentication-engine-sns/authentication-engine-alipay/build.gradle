@@ -1,0 +1,4 @@
+dependencies {
+    api "${group}:authorization-server-authentication-engine-oauth2"
+    api "com.alipay.sdk:alipay-easysdk:2.2.0"
+}

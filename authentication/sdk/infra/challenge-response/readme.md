@@ -148,21 +148,6 @@ public interface ChallengeResponseService<
     ) throws ChallengeResponseServiceException;
 
     /**
-     * 给定的挑战是否已经通过了验证
-     *
-     * @param applicationId 应用id
-     * @param scenario      场景
-     * @param challengeId   挑战id
-     * @return 是否已经完成了验证
-     * @throws ChallengeResponseServiceException 检验过程中发生了问题
-     */
-    boolean isChallengeVerified(
-            @NonNull String applicationId,
-            @NonNull Class<? extends Scenario> scenario,
-            @NonNull String challengeId
-    ) throws ChallengeResponseServiceException;
-
-    /**
      * 加载上下文
      *
      * @param applicationId 应用id
@@ -172,7 +157,7 @@ public interface ChallengeResponseService<
      * @throws ChallengeResponseServiceException 加载出现问题
      */
     @Nullable
-    X loadContext(
+    X getContext(
             @NonNull String applicationId,
             @NonNull Class<? extends Scenario> scenario,
             @NonNull String challengeId
@@ -194,7 +179,9 @@ public interface ChallengeResponseService<
 }
 ```
 
-作为挑战应答服务的基本接口，提供了服务具备的基本功能以及上下文读取的功能。接口约定了范型，从而使得开发可以声明子类并按照业务的要求处理对应的请求和上下文
+作为挑战应答服务的基本接口，提供了服务具备的基本功能以及上下文读取的功能。接口约定了范型，从而使得开发可以声明子类并按照业务的要求处理对应的请求和上下文。
+
+此外不难看出，接口并不保留挑战是否已经被成功验证过一次的状态。理由是在成功验证状态保存到使用挑战id+业务参数执行逻辑前有一段空档期，恶意代码可以利用这段空档期没有实际地完成挑战但可以执行希望的业务操作，比如重置密码
 
 # AbstractChallengeResponseService
 
@@ -209,20 +196,19 @@ public interface ChallengeResponseService<
  */
 public interface ChallengeStore<C extends Challenge> {
     /**
-     * 存储挑战
+     * 保存挑战id与请求特征的对应关系
      *
      * @param applicationId    应用id
      * @param scenario         场景
      * @param requestSignature 请求特征
-     * @param challenge        挑战
-     * @param ttl              有效期
-     * @throws Exception 存储问题
+     * @param challengeId      挑战id
+     * @throws Exception 发生问题
      */
-    void saveChallenge(
+    void saveChallengeId(
             @NonNull String applicationId,
             @NonNull Class<? extends Scenario> scenario,
             @NonNull String requestSignature,
-            @NonNull C challenge,
+            @NonNull String challengeId,
             @NonNull Duration ttl
     ) throws Exception;
 
@@ -242,6 +228,24 @@ public interface ChallengeStore<C extends Challenge> {
     );
 
     /**
+     * 存储挑战
+     *
+     * @param applicationId 应用id
+     * @param scenario      场景
+     * @param challengeId   挑战id
+     * @param challenge     挑战
+     * @param ttl           有效期
+     * @throws Exception 存储问题
+     */
+    void saveChallenge(
+            @NonNull String applicationId,
+            @NonNull Class<? extends Scenario> scenario,
+            @NonNull String challengeId,
+            @NonNull C challenge,
+            @NonNull Duration ttl
+    ) throws Exception;
+
+    /**
      * 读取挑战
      *
      * @param applicationId 应用id
@@ -252,40 +256,6 @@ public interface ChallengeStore<C extends Challenge> {
      */
     @Nullable
     C loadChallenge(
-            @NonNull String applicationId,
-            @NonNull Class<? extends Scenario> scenario,
-            @NonNull String challengeId
-    ) throws Exception;
-
-    /**
-     * 设置挑战已经完成应答
-     *
-     * @param applicationId 应用id
-     * @param scenario      场景id
-     * @param challengeId   挑战id
-     * @param verified      是否完成了验证
-     * @param ttl           有效时间
-     * @throws Exception 设置错误
-     */
-    void updateChallengeVerifiedFlag(
-            @NonNull String applicationId,
-            @NonNull Class<? extends Scenario> scenario,
-            @NonNull String challengeId,
-            boolean verified,
-            @NonNull Duration ttl
-    ) throws Exception;
-
-
-    /**
-     * 询问挑战是否已经完成校验
-     *
-     * @param applicationId 应用id
-     * @param scenario      场景
-     * @param challengeId   挑战id
-     * @return 是否完成挑战
-     * @throws Exception 发生问题
-     */
-    boolean isChallengeVerified(
             @NonNull String applicationId,
             @NonNull Class<? extends Scenario> scenario,
             @NonNull String challengeId
@@ -332,7 +302,7 @@ public interface ChallengeCooldownManager {
     Duration getTimeRemaining(
             @NonNull String applicationId,
             @NonNull Class<? extends Scenario> scenario,
-            String timerId
+            @NonNull String timerId
     ) throws Exception;
 
     /**
@@ -348,8 +318,8 @@ public interface ChallengeCooldownManager {
     boolean startCooldown(
             @NonNull String applicationId,
             @NonNull Class<? extends Scenario> scenario,
-            String timerId,
-            Duration ttl
+            @NonNull String timerId,
+            @NonNull Duration ttl
     ) throws Exception;
 }
 ```
@@ -411,3 +381,8 @@ public interface ChallengeContextStore<X extends ChallengeContext> {
 
 显而易见，为挑战应答服务提供上下文的存取功能，范型约定了支持的类型。同时引擎提供了`GenericCachedChallengeContextStore`作为默认实现。这也是因为挑战上下文也可以基于java的序列化和反序列化特性保持类型。
 
+# 总结
+
+`ChallengeResponseService`主要应当积累挑战与应答的发送和验证的核心逻辑。当业务场景不同时，基于业务的需求定义挑战请求`ChallengeRequest`与上下文对象`ChallengeContext`。
+以及用于按类型加载的`ChallengeResponseService`的子接口， 业务端基于spring的类型加载规则加载所需了的`ChallengeResponseService`
+子接口实例并且将请求与上下文以及挑战内容交给具体的实例开发人员实现逻辑。

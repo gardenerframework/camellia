@@ -6,8 +6,8 @@ import io.gardenerframework.camellia.authentication.infra.challenge.core.Challen
 import io.gardenerframework.camellia.authentication.infra.challenge.core.schema.Challenge;
 import io.gardenerframework.camellia.authentication.infra.challenge.core.schema.ChallengeContext;
 import io.gardenerframework.camellia.authentication.infra.challenge.engine.support.CachedChallengeCooldownManager;
-import io.gardenerframework.camellia.authentication.infra.challenge.engine.support.GenericCachedChallengeStore;
 import io.gardenerframework.camellia.authentication.infra.challenge.engine.support.GenericCachedChallengeContextStore;
+import io.gardenerframework.camellia.authentication.infra.challenge.engine.support.GenericCachedChallengeStore;
 import io.gardenerframework.fragrans.data.cache.client.CacheClient;
 import io.gardenerframework.fragrans.data.cache.manager.BasicCacheManager;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
@@ -28,20 +28,18 @@ public class ChallengeResponseEngineConfiguration {
     public static class ChallengeResponseStoreAutoConfiguration {
         @Bean
         @ConditionalOnMissingBean(ChallengeStore.class)
-        public ChallengeStore<Challenge> challengeStore(CacheClient cacheClient) {
+        public GenericCachedChallengeStore challengeStore(CacheClient cacheClient) {
             return new GenericCachedChallengeStore(
                     new BasicCacheManager<Challenge>(cacheClient) {
                     },
                     new BasicCacheManager<String>(cacheClient) {
-                    },
-                    new BasicCacheManager<Boolean>(cacheClient) {
                     }
             );
         }
 
         @Bean
         @ConditionalOnMissingBean(ChallengeContextStore.class)
-        public ChallengeContextStore<ChallengeContext> challengeContextStore(CacheClient cacheClient) {
+        public GenericCachedChallengeContextStore challengeContextStore(CacheClient cacheClient) {
             return new GenericCachedChallengeContextStore(
                     new BasicCacheManager<ChallengeContext>(cacheClient) {
                     }

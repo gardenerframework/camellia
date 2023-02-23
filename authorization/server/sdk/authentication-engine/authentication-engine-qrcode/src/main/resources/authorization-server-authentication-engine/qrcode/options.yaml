@@ -1,0 +1,8 @@
+com:
+  jdcloud:
+    gardener:
+      camellia:
+        authorization:
+          qrcode:
+            configuration:
+              QrCodeOption: 二维码登录选项

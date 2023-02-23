@@ -1,0 +1,7 @@
+com:
+  jdcloud:
+    gardener:
+      fragrans:
+        messages:
+          basenames:
+            - authorization-server-authentication-engine/username/security/errors/client

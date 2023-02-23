@@ -1,0 +1,12 @@
+com:
+  jdcloud:
+    gardener:
+      camellia:
+        uac:
+          account:
+            exception:
+              client:
+                AccountPropertyUniqueConstraintsViolationException: "不满足账户属性唯一性约束: (账号、手机、邮箱等已存在)"
+                AccountNotFoundException: 账户不存在
+                AccountNotFoundOrNotUniqueException: 账户不存在或不唯一
+

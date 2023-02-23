@@ -1,0 +1,7 @@
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=io.gardenerframework.camellia.authentication.server.configuration.AuthenticationServerEngineConfiguration
+#  com.jdcloud.gardener.camellia.authorization.common.configuration.AuthorizationServerEngineCommonConfiguration,\
+#  com.jdcloud.gardener.camellia.authorization.authentication.configuration.AuthorizationServerEngineSecurityConfiguration,\
+#    com.jdcloud.gardener.camellia.authorization.authentication.configuration.AuthorizationServerEngineOAuth2Configuration,\
+#  com.jdcloud.gardener.camellia.authorization.user.configuration.AuthorizationEngineUserConfiguration,\
+#  com.jdcloud.gardener.camellia.authorization.challenge.configuration.AuthorizationEngineChallengeConfiguration,\
+#  com.jdcloud.gardener.camellia.authorization.client.configuration.AuthorizationEngineClientConfiguration

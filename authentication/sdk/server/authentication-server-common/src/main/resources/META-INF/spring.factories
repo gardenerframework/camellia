@@ -1,0 +1,2 @@
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=com.jdcloud.gardener.camellia.authorization.common.configuration.AuthorizationServerCommonApiSecurityConfiguration,\
+  com.jdcloud.gardener.camellia.authorization.challenge.configuration.AuthorizationServerCommonChallengeConfiguration

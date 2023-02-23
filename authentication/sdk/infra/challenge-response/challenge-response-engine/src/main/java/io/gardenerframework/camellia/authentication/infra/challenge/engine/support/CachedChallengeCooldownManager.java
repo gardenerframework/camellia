@@ -38,7 +38,11 @@ public class CachedChallengeCooldownManager implements ChallengeCooldownManager 
 
     @Nullable
     @Override
-    public Duration getTimeRemaining(@NonNull String applicationId, @NonNull Class<? extends Scenario> scenario, String timerId) throws Exception {
+    public Duration getTimeRemaining(
+            @NonNull String applicationId,
+            @NonNull Class<? extends Scenario> scenario,
+            @NonNull String timerId
+    ) throws Exception {
         return cacheManager.ttl(
                 buildNamespace(applicationId, scenario),
                 timerId,
@@ -47,7 +51,12 @@ public class CachedChallengeCooldownManager implements ChallengeCooldownManager 
     }
 
     @Override
-    public boolean startCooldown(@NonNull String applicationId, @NonNull Class<? extends Scenario> scenario, String timerId, Duration ttl) throws Exception {
+    public boolean startCooldown(
+            @NonNull String applicationId,
+            @NonNull Class<? extends Scenario> scenario,
+            @NonNull String timerId,
+            @NonNull Duration ttl
+    ) throws Exception {
         return cacheManager.setIfNotPresents(
                 buildNamespace(applicationId, scenario),
                 timerId,

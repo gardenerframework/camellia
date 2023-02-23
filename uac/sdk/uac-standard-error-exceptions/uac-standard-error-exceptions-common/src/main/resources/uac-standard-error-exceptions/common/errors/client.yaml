@@ -1,0 +1,9 @@
+com:
+  jdcloud:
+    gardener:
+      camellia:
+        uac:
+          common:
+            exception:
+              client:
+                IncorrectPasswordException: 密码不正确

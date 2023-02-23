@@ -1,0 +1,11 @@
+com:
+  jdcloud:
+    gardener:
+      camellia:
+        uac:
+          application:
+            connector:
+              rbac:
+                exception:
+                  client:
+                    ApplicationRbacConnectorServiceNotFoundException: "RBAC应用连接器不存在"

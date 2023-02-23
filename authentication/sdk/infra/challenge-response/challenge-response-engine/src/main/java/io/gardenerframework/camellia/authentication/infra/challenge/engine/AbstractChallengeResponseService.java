@@ -10,12 +10,11 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NonNull;
+import org.springframework.lang.Nullable;
 import org.springframework.util.StringUtils;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.Date;
 
 /**
@@ -206,7 +205,7 @@ public abstract class AbstractChallengeResponseService<
                 //启动cd
                 Duration cooldown = Duration.ofSeconds(getCooldownTime(applicationId, scenario, request));
                 //设置cd完成绝对时间
-                cooldownCompletionTime = Date.from(LocalDateTime.now().plus(cooldown).atZone(ZoneId.systemDefault()).toInstant());
+                cooldownCompletionTime = Date.from(Instant.now().plus(cooldown));
                 boolean started = challengeCooldownManager.startCooldown(
                         applicationId, scenario, timerId,
                         cooldown
@@ -267,48 +266,27 @@ public abstract class AbstractChallengeResponseService<
                 //挑战已经过期
                 return false;
             }
-            boolean verified = verifyChallengeInternally(
+            return verifyChallengeInternally(
                     applicationId,
                     scenario,
                     challengeId,
                     context,
                     response
             );
-            if (verified) {
-                challengeStore.updateChallengeVerifiedFlag(
-                        applicationId,
-                        scenario,
-                        challengeId,
-                        true,
-                        Duration.between(
-                                Instant.now(),
-                                challenge.getExpiryTime().toInstant()
-                        )
-                );
-            }
-            return verified;
         } catch (Exception e) {
             throw new ChallengeResponseServiceException(e);
         }
     }
 
-    /**
-     * 挑战是否被应答
-     *
-     * @param applicationId 应用id
-     * @param scenario      场景
-     * @param challengeId   挑战id
-     * @return 是否被应答
-     * @throws ChallengeResponseServiceException 发生问题
-     */
+    @Nullable
     @Override
-    public boolean isChallengeVerified(
+    public X getContext(
             @NonNull String applicationId,
             @NonNull Class<? extends Scenario> scenario,
             @NonNull String challengeId
     ) throws ChallengeResponseServiceException {
         try {
-            return challengeStore.isChallengeVerified(applicationId, scenario, challengeId);
+            return challengeContextStore.loadContext(applicationId, scenario, challengeId);
         } catch (Exception e) {
             throw new ChallengeResponseServiceException(e);
         }
@@ -448,18 +426,28 @@ public abstract class AbstractChallengeResponseService<
         try {
             String requestSignature = getRequestSignature(applicationId, scenario, request);
             if (StringUtils.hasText(requestSignature)) {
-                challengeStore.saveChallenge(
+                challengeStore.saveChallengeId(
                         applicationId,
                         scenario,
                         requestSignature,
-                        challenge,
-                        //计算存储的有效期
+                        challenge.getId(),
                         Duration.between(
                                 Instant.now(),
                                 challenge.getExpiryTime().toInstant()
                         )
                 );
             }
+            challengeStore.saveChallenge(
+                    applicationId,
+                    scenario,
+                    challenge.getId(),
+                    challenge,
+                    //计算存储的有效期
+                    Duration.between(
+                            Instant.now(),
+                            challenge.getExpiryTime().toInstant()
+                    )
+            );
         } catch (Exception e) {
             throw new ChallengeResponseServiceException(e);
         }

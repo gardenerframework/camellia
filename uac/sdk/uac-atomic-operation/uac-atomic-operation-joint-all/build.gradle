@@ -1,0 +1,7 @@
+dependencies {
+    api "${group}:uac-atomic-operation-data-common"
+    api "${group}:uac-data-schema-joint-all"
+    api "${group}:uac-atomic-operation-account"
+    api "${group}:uac-atomic-operation-application"
+    testImplementation "mysql:mysql-connector-java"
+}

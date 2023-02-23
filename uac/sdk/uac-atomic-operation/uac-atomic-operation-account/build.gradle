@@ -1,0 +1,9 @@
+dependencies {
+    api "${group}:uac-data-schema-account"
+    api "${group}:uac-standard-error-exceptions-account"
+    api "${group}:uac-atomic-operation-common"
+    api "${fragrans.group}:data-schema"
+    api "${fragrans.group}:data-domain-common-practice"
+    testImplementation "mysql:mysql-connector-java"
+
+}

@@ -1,0 +1,9 @@
+io:
+  gardenerframework:
+    fragrans:
+      messages:
+        basenames:
+          - authentication-server-engine/errors/client
+          - authentication-server-engine/errors/spring/hard-coded
+          - authentication-server-engine/errors/constraints
+          - authentication-server-engine/options

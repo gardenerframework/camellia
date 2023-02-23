@@ -1,0 +1,4 @@
+dependencies {
+    api "${group}:uac-api-data-application"
+    api "org.springframework:spring-core"
+}

@@ -37,10 +37,20 @@ public class CachedChallengeStoreTest {
                 .expiryTime(new Date(new Date().getTime() + 100000))
                 .field(UUID.randomUUID().toString())
                 .build();
-        challengeStore.saveChallenge(
+        challengeStore.saveChallengeId(
                 applicationId,
                 CachedChallengeStoreTestScenario.class,
                 requestSignature,
+                challenge.getId(),
+                Duration.between(
+                        Instant.now(),
+                        challenge.getExpiryTime().toInstant()
+                )
+        );
+        challengeStore.saveChallenge(
+                applicationId,
+                CachedChallengeStoreTestScenario.class,
+                challenge.getId(),
                 challenge,
                 Duration.between(
                         Instant.now(),
@@ -63,21 +73,6 @@ public class CachedChallengeStoreTest {
         Assertions.assertEquals(challenge.getType(), challengeSaved.getType());
         Assertions.assertEquals(challenge.getExpiryTime(), challengeSaved.getExpiryTime());
         Assertions.assertEquals(challenge.getField(), challengeSaved.getField());
-        challengeStore.updateChallengeVerifiedFlag(
-                applicationId,
-                CachedChallengeStoreTestScenario.class,
-                challenge.getId(),
-                true,
-                Duration.between(
-                        Instant.now(),
-                        challenge.getExpiryTime().toInstant()
-                )
-        );
-        Assertions.assertTrue(challengeStore.isChallengeVerified(
-                applicationId,
-                CachedChallengeStoreTestScenario.class,
-                challenge.getId()
-        ));
         challengeStore.removeChallenge(
                 applicationId,
                 CachedChallengeStoreTestScenario.class,

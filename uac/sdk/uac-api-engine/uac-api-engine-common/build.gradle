@@ -1,0 +1,10 @@
+dependencies {
+    api "${group}:uac-api-data-common"
+    api "${group}:uac-atomic-operation-data-common"
+    api "${group}:uac-standard-error-exceptions-common"
+    api "${group}:uac-atomic-operation-common"
+    api "${group}:uac-logic-service-common"
+    api "${fragrans.group}:api-options-engine"
+    api "${fragrans.group}:api-starter"
+    api "${fragrans.group}:api-group-context-path"
+}

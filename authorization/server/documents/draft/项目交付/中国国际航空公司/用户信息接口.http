@@ -1,0 +1,2 @@
+GET https://camellia-air-china.com.jdcloud.com/userinfo
+Authorization: Bearer {访问令牌}

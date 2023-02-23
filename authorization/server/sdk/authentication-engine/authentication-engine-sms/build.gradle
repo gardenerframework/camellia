@@ -1,0 +1,6 @@
+dependencies {
+    api "${fragrans.group}:api-options-common"
+    api "${group}:authorization-server-common"
+    api "${group}:sms-authentication-core"
+    testImplementation "${fragrans.group}:data-cache-spring-redis"
+}

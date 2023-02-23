@@ -1,0 +1,11 @@
+com:
+  jdcloud:
+    gardener:
+      camellia:
+        authorization:
+          authentication:
+            main:
+              exception:
+                SpringHardCodedErrors:
+                  OAuth2ParameterError: "请求参数错误: {0}"
+                  OAuth2ClientAuthenticationError: "客户端认证失败: {0}"

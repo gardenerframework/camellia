@@ -1,0 +1,9 @@
+com:
+  jdcloud:
+    gardener:
+      camellia:
+        authorization:
+          qrcode:
+            exception:
+              server:
+                QrCodeAuthenticationNotSupportedException: 不支持二维码扫码登录

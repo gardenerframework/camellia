@@ -1,0 +1,5 @@
+dependencies {
+    api "${group}:uac-api-data-common"
+    api "${group}:uac-atomic-operation-data-common"
+    api "${group}:uac-atomic-operation-common"
+}

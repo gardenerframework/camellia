@@ -57,9 +57,7 @@ System(企业员工数据库, 企业员工数据库, 身份源) #green
 企业内部的C端用户、企业员工都需要进行身份认证。对于不同的使用场景一般架设不同的认证服务实例。尽管实例不同，但都可以使用"authentication-server-engine"作为引擎进行开发。
 并配合引擎定义和抽象的认证组件来完成多种多样的认证方法接入
 
-# IAM引擎
-
-认证服务器引擎本质上提供的就是基于oauth2标准的集中身份认证能力
+# 基本数据结构和核心接口
 
 ## 客户端
 
@@ -460,7 +458,7 @@ public interface UserService {
 特别是，如果对接的接口要求必须提交用户名密码才能完成认证那么`UserAuthenticationRequestToken`中也包含了`credentials`。 在引擎的逻辑上，如果发现`credentials`
 是`PasswordCredentials`，则优先调用`authenticate`，如果不是`PasswordCredentials`，则调用`load`
 
-## 事件
+# 事件
 
 在认证过程中为了开发人员能够插入自己的逻辑来中断认证过程或记录一些日志，引擎提供了以下事件:
 
@@ -519,4 +517,178 @@ public abstract class AuthenticationEvent {
 ## CareForAuthorizationEnginePreservedPrincipal & CareForAuthorizationEnginePreservedException
 
 部分登录名和异常的类型是引擎内部使用的，通常来说开发人员不需要关注。当需要关注时，在事件监听上添加以上注解
+
+# Api分组与选项
+
+### AuthenticationServerRestController
+
+这个注解用于给认证服务器上的，非Spring Security的表单提交类型的rest接口提供分组功能。
+
+分组后，这些接口可以享受fragrans的api分组功能并服从`AuthenticationServerPathOption`的统一前缀路径设置
+
+### AuthenticationServerPathOption
+
+```java
+
+@ApiOption(readonly = true)
+@Getter
+@NoArgsConstructor
+@AllArgsConstructor
+public final class AuthenticationServerPathOption {
+    /**
+     * rest api的上下文路径
+     */
+    private String restApiContextPath = "/api";
+    /**
+     * 网页端登录入口的地址
+     * <p>
+     * 只有POST会处理
+     */
+    private String webAuthenticationEndpoint = "/login";
+    /**
+     * 登录网页的地址
+     */
+    private String webLoginPage = "/";
+    /**
+     * 登录网页的地址
+     */
+    private String webLoginSuccessPage = "/welcome";
+    /**
+     * web应用类型的认证错误跳向的错误页面
+     */
+    private String webAuthenticationErrorPage = "/error";
+    /**
+     * 需要mfa多因子验证时转向的页面
+     */
+    private String webMfaChallengePage = "/mfa";
+    /**
+     * 成功登出后的跳转地址
+     */
+    private String webLogoutPage = "/goodbye";
+    /**
+     * 网页登出地址
+     * <p>
+     * 什么请求类型可以
+     */
+    private String webLogoutEndpoint = "/logout";
+
+    /**
+     * oauth2的授权申请接口
+     */
+    private String oAuth2AuthorizationEndpoint = "/oauth2/authorize";
+    /**
+     * oauth2的授权批准网页地址
+     */
+    private String oAuth2AuthorizationConsentPage = "/consent";
+    /**
+     * oauth2的令牌接口
+     */
+    private String oAuth2TokenEndpoint = "/oauth2/token";
+    /**
+     * oidc的用户信息接口
+     */
+    private String oidcUserInfoEndpoint = "/userinfo";
+}
+```
+
+可见路径配置中设置了很多接口的地址或前缀，这些前缀目前还不支持修改
+
+# 认证处理入口
+
+引擎的认证处理入口有`WebAuthenticationEntryProcessingFilter`和`OAuth2TokenEndpointFilter`两个，在默认情况下分别对应"/login"和"/oauth2/token"(
+附送路径配置选项)
+
+# LoginAuthenticationRequestConverter
+
+上文的2个认证入口都会使用`LoginAuthenticationRequestConverter`作为用户的登录认证请求的转换器。 它主要将http请求转为`LoginAuthenticationRequestToken`认证请求
+
+```java
+public class LoginAuthenticationRequestToken implements Authentication {
+    private final transient UserAuthenticationRequestToken userAuthenticationRequestToken;
+    /**
+     * 当前要进行用户访问的客户端
+     * <p>
+     * {@link OAuth2ClientAuthenticationFilter}认证了client id和密码
+     * 别的没有认证
+     */
+    @Nullable
+    private final transient OAuth2ClientUserAuthenticationToken clientUserAuthenticationRequestToken;
+    /**
+     * 客户端组
+     */
+    private final transient String clientGroup;
+    /**
+     * 认证请求的上下文，主要是给{@link LoginAuthenticationRequestAuthenticator}用的
+     */
+    private final transient LoginAuthenticationRequestContext context;
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return Collections.emptyList();
+    }
+
+    @Override
+    public Object getCredentials() {
+        return userAuthenticationRequestToken.getCredentials();
+    }
+
+    @Override
+    public Object getDetails() {
+        return null;
+    }
+
+    @Override
+    public Principal getPrincipal() {
+        return userAuthenticationRequestToken.getPrincipal();
+    }
+
+    @Override
+    public boolean isAuthenticated() {
+        //没有认证当然返回false
+        return false;
+    }
+
+    @Override
+    public void setAuthenticated(boolean isAuthenticated) throws IllegalArgumentException {
+        //do nothing
+    }
+
+    @Override
+    public String getName() {
+        return getPrincipal().getName();
+    }
+}
+```
+
+这个请求是交给Spring Security引擎的认证请求类型，包含了客户端信息、用户认证请求信息以及上下文信息
+
+```java
+public class LoginAuthenticationRequestContext {
+    /**
+     * 由哪个服务来完成认证过程
+     */
+    private final UserAuthenticationService userAuthenticationService;
+    /**
+     * 携带的http请求
+     */
+    private final HttpServletRequest httpServletRequest;
+}
+```
+
+可见传递的上下文就是负责转换请求的用户认证服务以及http请求
+
+# UserAuthenticationServiceRegistry
+
+在`LoginAuthenticationRequestConverter`的转换逻辑中使用到了用户认证服务的注册表。注册表收取所有`UserAuthenticationService`
+类型的bean，提取`AuthenticationType`注解中表达的类型，以及`AuthenticationEndpoint`注解中表达的支持的认证接口，并最后判断是否具有`AuthorizationEnginePreserved`
+注解。 注册表在注册的过程中会检查`AuthenticationType`是否已经被注册，如果已经被注册则会阻止引擎启动
+
+通过注册表的分析，以及搭配`AuthenticationTypeParameter`从http请求中读取"authenticationType"属性，`LoginAuthenticationRequestConverter`
+就能从请求中分析出需要的用户认证服务并存储到`LoginAuthenticationRequestContext`中。
+
+特别的，`AuthenticationTypeParameter`的`authenticationType`属性具有`AuthenticationTypeSupported`注解，因此如果提交的认证类型不被支持则会报错
+
+# AuthenticationTypeRegistry
+
+利用`UserAuthenticationServiceRegistry`，`AuthenticationTypeRegistry`为api选项注入目前注册的所有认证类型的功能
 

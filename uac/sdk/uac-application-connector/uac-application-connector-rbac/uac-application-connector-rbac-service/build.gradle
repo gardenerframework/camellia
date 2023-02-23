@@ -1,0 +1,3 @@
+dependencies {
+    api "${group}:uac-application-connector-rbac-common"
+}

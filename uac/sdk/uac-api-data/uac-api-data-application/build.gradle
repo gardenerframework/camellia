@@ -1,0 +1,5 @@
+dependencies {
+    api "${group}:uac-api-data-common"
+    api "${group}:uac-data-schema-application"
+    api "${fragrans.group}:api-standard-data"
+}

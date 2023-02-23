@@ -1,0 +1,4 @@
+dependencies {
+    api "${group}:authorization-server-authentication-engine-username-encryptor-common"
+    api "${fragrans.group}:data-cache-spring-redis"
+}

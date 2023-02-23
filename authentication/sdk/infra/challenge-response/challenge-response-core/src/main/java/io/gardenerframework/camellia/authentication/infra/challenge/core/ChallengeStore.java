@@ -12,20 +12,19 @@ import java.time.Duration;
  */
 public interface ChallengeStore<C extends Challenge> {
     /**
-     * 存储挑战
+     * 保存挑战id与请求特征的对应关系
      *
      * @param applicationId    应用id
      * @param scenario         场景
      * @param requestSignature 请求特征
-     * @param challenge        挑战
-     * @param ttl              有效期
-     * @throws Exception 存储问题
+     * @param challengeId      挑战id
+     * @throws Exception 发生问题
      */
-    void saveChallenge(
+    void saveChallengeId(
             @NonNull String applicationId,
             @NonNull Class<? extends Scenario> scenario,
             @NonNull String requestSignature,
-            @NonNull C challenge,
+            @NonNull String challengeId,
             @NonNull Duration ttl
     ) throws Exception;
 
@@ -45,6 +44,24 @@ public interface ChallengeStore<C extends Challenge> {
     );
 
     /**
+     * 存储挑战
+     *
+     * @param applicationId 应用id
+     * @param scenario      场景
+     * @param challengeId   挑战id
+     * @param challenge     挑战
+     * @param ttl           有效期
+     * @throws Exception 存储问题
+     */
+    void saveChallenge(
+            @NonNull String applicationId,
+            @NonNull Class<? extends Scenario> scenario,
+            @NonNull String challengeId,
+            @NonNull C challenge,
+            @NonNull Duration ttl
+    ) throws Exception;
+
+    /**
      * 读取挑战
      *
      * @param applicationId 应用id
@@ -55,40 +72,6 @@ public interface ChallengeStore<C extends Challenge> {
      */
     @Nullable
     C loadChallenge(
-            @NonNull String applicationId,
-            @NonNull Class<? extends Scenario> scenario,
-            @NonNull String challengeId
-    ) throws Exception;
-
-    /**
-     * 设置挑战已经完成应答
-     *
-     * @param applicationId 应用id
-     * @param scenario      场景id
-     * @param challengeId   挑战id
-     * @param verified      是否完成了验证
-     * @param ttl           有效时间
-     * @throws Exception 设置错误
-     */
-    void updateChallengeVerifiedFlag(
-            @NonNull String applicationId,
-            @NonNull Class<? extends Scenario> scenario,
-            @NonNull String challengeId,
-            boolean verified,
-            @NonNull Duration ttl
-    ) throws Exception;
-
-
-    /**
-     * 询问挑战是否已经完成校验
-     *
-     * @param applicationId 应用id
-     * @param scenario      场景
-     * @param challengeId   挑战id
-     * @return 是否完成挑战
-     * @throws Exception 发生问题
-     */
-    boolean isChallengeVerified(
             @NonNull String applicationId,
             @NonNull Class<? extends Scenario> scenario,
             @NonNull String challengeId

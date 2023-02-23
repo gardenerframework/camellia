@@ -1,0 +1,12 @@
+com:
+  jdcloud:
+    gardener:
+      camellia:
+        uac:
+          application:
+            exception:
+              client:
+                ApplicationNotFoundException: 应用不存在
+                ApplicationDisabledException: 应用已被禁用
+                ApplicationAlreadyExistedException: 应用已存在
+

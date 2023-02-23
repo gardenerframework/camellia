@@ -1,0 +1,5 @@
+dependencies {
+    api "${group}:authorization-server-common"
+    api "${fragrans.group}:api-standard-error-reveal-config"
+    api "${fragrans.group}:enhance-validation-constraints"
+}

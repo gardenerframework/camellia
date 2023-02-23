@@ -1,0 +1,2 @@
+###
+GET http://localhost:10240/management/application/aaaa/joint:account+role?accountId=123123

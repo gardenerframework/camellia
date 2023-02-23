@@ -1,0 +1,4 @@
+dependencies {
+    api "${fragrans.group}:enhance-message-source-core"
+    api "${group}:uac-standard-error-exceptions-common"
+}

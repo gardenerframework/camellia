@@ -1,0 +1,5 @@
+POST https://camellia-air-china.com.jdcloud.com/oauth2/token
+Authorization: Basic YWlyLWNoaW5hLXdlYjo5Y0QwbU0xNDNIMG5ucGpKeHhVMQ==
+Content-Type: application/x-www-form-urlencoded
+
+grant_type=user_authentication&scope=openid%20profile&authenticationType=username&username={测试用户}&password={测试密码}

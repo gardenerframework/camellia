@@ -1,0 +1,11 @@
+com:
+  jdcloud:
+    gardener:
+      camellia:
+        authorization:
+          authentication:
+            main:
+              schema:
+                request:
+                  constraints:
+                    AuthenticationTypeSupported: 为空或不支持

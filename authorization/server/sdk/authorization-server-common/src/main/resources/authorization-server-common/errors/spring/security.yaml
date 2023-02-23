@@ -1,0 +1,10 @@
+org:
+  springframework:
+    security:
+      authentication:
+        BadCredentialsException: 不正确的登录凭据
+        AccountExpiredException: 您的账号已过期
+        LockedException: 您的账号已被锁定
+        DisabledException: 您的账号已被禁用
+        CredentialsExpiredException: 您的密码已经过期，请修改密码后重新登录
+

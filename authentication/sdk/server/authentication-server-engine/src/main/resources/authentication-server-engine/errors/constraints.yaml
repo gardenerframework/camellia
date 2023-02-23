@@ -1,0 +1,10 @@
+io:
+  gardenerframework:
+    camellia:
+      authentication:
+        server:
+          main:
+            schema:
+              request:
+                constraints:
+                  AuthenticationTypeSupported: 为空或不支持
