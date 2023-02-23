@@ -2,6 +2,7 @@ package io.gardenerframework.camellia.authentication.server.main.schema.request;
 
 import io.gardenerframework.camellia.authentication.server.main.schema.request.constraints.AuthenticationTypeSupported;
 import lombok.Getter;
+import lombok.NonNull;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -12,6 +13,7 @@ import javax.servlet.http.HttpServletRequest;
 public class AuthenticationTypeParameter extends AuthenticationRequestParameter {
     @AuthenticationTypeSupported
     @Getter
+    @NonNull
     private final String authenticationType;
 
     public AuthenticationTypeParameter(HttpServletRequest request) {

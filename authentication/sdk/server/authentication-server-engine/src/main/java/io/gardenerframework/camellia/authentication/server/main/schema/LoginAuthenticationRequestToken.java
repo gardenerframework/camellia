@@ -4,6 +4,7 @@ import io.gardenerframework.camellia.authentication.server.main.LoginAuthenticat
 import io.gardenerframework.camellia.authentication.server.main.schema.subject.principal.Principal;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NonNull;
 import lombok.Setter;
 import org.springframework.lang.Nullable;
 import org.springframework.security.core.Authentication;
@@ -43,6 +44,7 @@ public class LoginAuthenticationRequestToken implements Authentication {
     /**
      * 认证请求的上下文，主要是给{@link LoginAuthenticationRequestAuthenticator}用的
      */
+    @NonNull
     private final transient LoginAuthenticationRequestContext context;
 
     @Override
