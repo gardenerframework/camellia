@@ -2,10 +2,14 @@ package io.gardenerframework.camellia.authentication.server.configuration;
 
 import com.jdcloud.gardener.camellia.authorization.challenge.exception.client.ChallengeException;
 import io.gardenerframework.camellia.authentication.server.common.configuration.AuthenticationServerPathOption;
-import io.gardenerframework.camellia.authentication.server.main.*;
+import io.gardenerframework.camellia.authentication.server.main.AuthenticationEndpointAuthenticatedAuthenticationAdapter;
+import io.gardenerframework.camellia.authentication.server.main.UserAuthenticationServiceRegistry;
+import io.gardenerframework.camellia.authentication.server.main.event.listener.OAuth2ClientValidationListener;
+import io.gardenerframework.camellia.authentication.server.main.event.listener.UserStatusValidationListener;
 import io.gardenerframework.camellia.authentication.server.main.exception.AuthenticationServerAuthenticationExceptions;
 import io.gardenerframework.camellia.authentication.server.main.exception.OAuth2ErrorCodes;
-import io.gardenerframework.camellia.authentication.server.main.spring.LoginAuthenticationRequestConverter;
+import io.gardenerframework.camellia.authentication.server.main.mfa.event.listener.MfaAuthenticationListener;
+import io.gardenerframework.camellia.authentication.server.main.spring.*;
 import io.gardenerframework.camellia.authentication.server.utils.AuthenticationEndpointMatcher;
 import io.gardenerframework.fragrans.api.standard.error.DefaultApiErrorConstants;
 import io.gardenerframework.fragrans.api.standard.error.ServletApiErrorAttributes;
@@ -37,13 +41,21 @@ import java.util.Arrays;
 @Order(Ordered.HIGHEST_PRECEDENCE)
 @AllArgsConstructor
 @Import({
+        //认证入口配置bean
+        WebAuthenticationEndpointFilterConfigurer.class,
+        WebAuthenticationSuccessHandler.class,
+        //认证转换器与认证器
+        LoginAuthenticationRequestConverter.class,
+        LoginAuthenticationRequestAuthenticator.class,
+
         AuthenticationEndpointAuthenticatedAuthenticationAdapter.class,
         AuthenticationEndpointExceptionAdapter.class,
-        LoginAuthenticationRequestConverter.class,
+        //认证服务注册表
         UserAuthenticationServiceRegistry.class,
-        //待确定
-        AuthenticationTypeRegistry.class,
-        WebAuthenticationEndpointFilterConfigurer.class
+        //事件监听
+        OAuth2ClientValidationListener.class,
+        UserStatusValidationListener.class,
+        MfaAuthenticationListener.class
 })
 @RevealError(superClasses = {
         AuthenticationServerAuthenticationExceptions.ClientSideException.class,

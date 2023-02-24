@@ -1,6 +1,6 @@
 package com.jdcloud.gardener.camellia.authorization.test.cases;
 
-import io.gardenerframework.camellia.authentication.server.main.support.oauth2.CachedOAuth2AuthorizationConsentService;
+import io.gardenerframework.camellia.authentication.server.main.spring.support.oauth2.CachedOAuth2AuthorizationConsentService;
 import com.jdcloud.gardener.camellia.authorization.test.AuthorizationServerEngineTestApplication;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;

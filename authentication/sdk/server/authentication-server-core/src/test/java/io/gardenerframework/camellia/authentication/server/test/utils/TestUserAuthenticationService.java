@@ -29,7 +29,7 @@ public class TestUserAuthenticationService extends AbstractUserAuthenticationSer
     }
 
     @Override
-    protected UsernamePasswordAuthenticationParameter getAuthenticationParameter(HttpServletRequest request) {
+    protected UsernamePasswordAuthenticationParameter getAuthenticationParameter(@NonNull HttpServletRequest request) {
         UsernamePasswordAuthenticationParameter usernamePasswordAuthenticationParameter = new UsernamePasswordAuthenticationParameter();
         if (!nullUsername) {
             usernamePasswordAuthenticationParameter.setUsername(UUID.randomUUID().toString());
@@ -39,14 +39,14 @@ public class TestUserAuthenticationService extends AbstractUserAuthenticationSer
     }
 
     @Override
-    protected UserAuthenticationRequestToken doConvert(UsernamePasswordAuthenticationParameter authenticationParameter) {
+    protected UserAuthenticationRequestToken doConvert(@NonNull UsernamePasswordAuthenticationParameter authenticationParameter) {
         return new UserAuthenticationRequestToken(UsernamePrincipal.builder()
                 .name(authenticationParameter.getUsername())
                 .build());
     }
 
     @Override
-    public void authenticate(UserAuthenticationRequestToken authenticationRequest, User user) throws AuthenticationException {
+    public void authenticate(@NonNull UserAuthenticationRequestToken authenticationRequest, @NonNull User user) throws AuthenticationException {
 
     }
 }

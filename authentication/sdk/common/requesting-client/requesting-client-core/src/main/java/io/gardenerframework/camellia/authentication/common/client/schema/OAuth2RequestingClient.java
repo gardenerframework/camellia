@@ -4,7 +4,6 @@ import io.gardenerframework.camellia.authentication.common.data.serialization.Se
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 
-import java.util.Collections;
 import java.util.Set;
 
 /**
@@ -12,8 +11,8 @@ import java.util.Set;
  */
 @SuperBuilder
 @Getter
+@Setter
 @NoArgsConstructor
-@Setter(AccessLevel.PRIVATE)
 public class OAuth2RequestingClient extends RequestingClient {
     private static final long serialVersionUID = SerializationVersionNumber.version;
     /**
@@ -25,15 +24,6 @@ public class OAuth2RequestingClient extends RequestingClient {
      * 对用户信息的访问范围
      */
     @NonNull
-    private Set<String> scopes;
-
-    /**
-     * 要求范围不能被改变
-     *
-     * @param scopes 范围
-     */
-    public void setScopes(@NonNull Set<String> scopes) {
-        this.scopes = Collections.unmodifiableSet(scopes);
-    }
-
+    @Singular
+    private Set<@NonNull String> scopes;
 }

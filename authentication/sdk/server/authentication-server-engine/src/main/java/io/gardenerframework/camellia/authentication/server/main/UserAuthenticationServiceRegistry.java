@@ -1,6 +1,6 @@
 package io.gardenerframework.camellia.authentication.server.main;
 
-import io.gardenerframework.camellia.authentication.server.common.annotation.AuthorizationEnginePreserved;
+import io.gardenerframework.camellia.authentication.server.common.annotation.AuthenticationServerEnginePreserved;
 import io.gardenerframework.camellia.authentication.server.main.annotation.AuthenticationEndpoint;
 import io.gardenerframework.camellia.authentication.server.main.annotation.AuthenticationType;
 import io.gardenerframework.fragrans.log.GenericLoggerStaticAccessor;
@@ -122,7 +122,7 @@ public class UserAuthenticationServiceRegistry implements InitializingBean {
                                             service,
                                             annotation,
                                             AnnotationUtils.findAnnotation(ClassUtils.getUserClass(service), AuthenticationEndpoint.class),
-                                            AnnotationUtils.findAnnotation(service.getClass(), AuthorizationEnginePreserved.class) != null,
+                                            AnnotationUtils.findAnnotation(service.getClass(), AuthenticationServerEnginePreserved.class) != null,
                                             true)
                             );
                         } else {

@@ -1,11 +1,8 @@
 package io.gardenerframework.camellia.authentication.server.main.schema.subject.principal;
 
-import io.gardenerframework.camellia.authentication.server.common.Version;
+import io.gardenerframework.camellia.authentication.common.data.serialization.SerializationVersionNumber;
 import io.gardenerframework.fragrans.data.trait.generic.GenericTraits;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
 
 import java.io.Serializable;
@@ -29,12 +26,16 @@ import java.io.Serializable;
 @Getter
 @Setter
 @SuperBuilder
-@EqualsAndHashCode
 @NoArgsConstructor
-public abstract class Principal implements java.security.Principal, Serializable, GenericTraits.LiteralTraits.Name {
-    private static final long serialVersionUID = Version.current;
+@EqualsAndHashCode
+public abstract class Principal implements
+        java.security.Principal,
+        Serializable,
+        GenericTraits.LiteralTraits.Name {
+    private static final long serialVersionUID = SerializationVersionNumber.version;
     /**
      * 名字
      */
+    @NonNull
     private String name;
 }

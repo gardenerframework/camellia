@@ -1,7 +1,7 @@
 package io.gardenerframework.camellia.authentication.server.main.schema;
 
-import io.gardenerframework.camellia.authentication.server.main.LoginAuthenticationRequestAuthenticator;
 import io.gardenerframework.camellia.authentication.server.main.schema.subject.principal.Principal;
+import io.gardenerframework.camellia.authentication.server.main.spring.LoginAuthenticationRequestAuthenticator;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NonNull;
@@ -37,10 +37,6 @@ public class LoginAuthenticationRequestToken implements Authentication {
      */
     @Nullable
     private final transient OAuth2ClientUserAuthenticationToken clientUserAuthenticationRequestToken;
-    /**
-     * 客户端组
-     */
-    private final transient String clientGroup;
     /**
      * 认证请求的上下文，主要是给{@link LoginAuthenticationRequestAuthenticator}用的
      */

@@ -2,7 +2,6 @@ package io.gardenerframework.camellia.authentication.server.main.schema.request;
 
 import lombok.AccessLevel;
 import lombok.Getter;
-import lombok.NonNull;
 import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
 
 import javax.servlet.http.HttpServletRequest;
@@ -22,11 +21,9 @@ public class OAuth2GrantTypeParameter extends AuthenticationRequestParameter {
      */
     @NotBlank
     @Getter(AccessLevel.NONE)
-    @NonNull
     private final String grant_type;
 
     @Getter
-    @NonNull
     private final String grantType;
 
     public OAuth2GrantTypeParameter(HttpServletRequest request) {

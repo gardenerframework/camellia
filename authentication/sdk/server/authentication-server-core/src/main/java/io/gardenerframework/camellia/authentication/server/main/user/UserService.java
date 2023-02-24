@@ -3,6 +3,7 @@ package io.gardenerframework.camellia.authentication.server.main.user;
 import io.gardenerframework.camellia.authentication.server.main.schema.subject.credentials.PasswordCredentials;
 import io.gardenerframework.camellia.authentication.server.main.schema.subject.principal.Principal;
 import io.gardenerframework.camellia.authentication.server.main.user.schema.User;
+import lombok.NonNull;
 import org.springframework.lang.Nullable;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.AuthenticationException;
@@ -31,7 +32,7 @@ public interface UserService {
      * @throws AuthenticationException 认证有问题
      */
     @Nullable
-    User authenticate(Principal principal, PasswordCredentials credentials, @Nullable Map<String, Object> context) throws AuthenticationException;
+    User authenticate(@NonNull Principal principal, @NonNull PasswordCredentials credentials, @Nullable Map<String, Object> context) throws AuthenticationException;
 
     /**
      * 基于请求凭据去读取而不是认证用户，其余错误按需转为{@link AuthenticationException}
@@ -46,5 +47,5 @@ public interface UserService {
      * @throws UnsupportedOperationException 如果当前服务对接的用户存储根本不支持直接通过登录名查找用户
      */
     @Nullable
-    User load(Principal principal, @Nullable Map<String, Object> context) throws AuthenticationException, UnsupportedOperationException;
+    User load(@NonNull Principal principal, @Nullable Map<String, Object> context) throws AuthenticationException, UnsupportedOperationException;
 }

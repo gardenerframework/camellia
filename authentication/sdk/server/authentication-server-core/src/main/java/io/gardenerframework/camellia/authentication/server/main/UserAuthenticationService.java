@@ -3,6 +3,7 @@ package io.gardenerframework.camellia.authentication.server.main;
 import io.gardenerframework.camellia.authentication.server.main.exception.client.BadAuthenticationRequestParameterException;
 import io.gardenerframework.camellia.authentication.server.main.schema.UserAuthenticationRequestToken;
 import io.gardenerframework.camellia.authentication.server.main.user.schema.User;
+import lombok.NonNull;
 import org.springframework.security.core.AuthenticationException;
 
 import javax.servlet.http.HttpServletRequest;
@@ -24,7 +25,7 @@ public interface UserAuthenticationService {
      * @throws AuthenticationException 如果认为当前认证过程应当中断，则抛出异常，
      *                                 比如{@link BadAuthenticationRequestParameterException}来表示参数有问题
      */
-    UserAuthenticationRequestToken convert(HttpServletRequest request) throws AuthenticationException;
+    UserAuthenticationRequestToken convert(@NonNull HttpServletRequest request) throws AuthenticationException;
 
     /**
      * 执行认证
@@ -33,5 +34,5 @@ public interface UserAuthenticationService {
      * @param user                  用户详情
      * @throws AuthenticationException 有问题抛异常
      */
-    void authenticate(UserAuthenticationRequestToken authenticationRequest, User user) throws AuthenticationException;
+    void authenticate(@NonNull UserAuthenticationRequestToken authenticationRequest, @NonNull User user) throws AuthenticationException;
 }

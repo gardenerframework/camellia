@@ -1,8 +1,8 @@
-com:
-  jdcloud:
-    gardener:
-      camellia:
-        authorization:
+io:
+  gardenerframework:
+    camellia:
+      authentication:
+        server:
           common:
             configuration:
-              AuthorizationServerPathOption: 认证服务器路径参数
+              AuthenticationServerPathOption: 认证服务器路径参数

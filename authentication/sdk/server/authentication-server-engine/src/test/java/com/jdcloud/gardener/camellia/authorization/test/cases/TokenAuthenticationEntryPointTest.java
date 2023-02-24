@@ -7,7 +7,7 @@ import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.jdcloud.gardener.camellia.authorization.authentication.main.annotation.AuthenticationType;
 import com.jdcloud.gardener.camellia.authorization.authentication.main.client.schema.Client;
 import com.jdcloud.gardener.camellia.authorization.authentication.main.exception.OAuth2ErrorCodes;
-import io.gardenerframework.camellia.authentication.server.main.support.oauth2.OAuth2AuthorizationIdModifier;
+import io.gardenerframework.camellia.authentication.server.main.spring.support.oauth2.OAuth2AuthorizationIdModifier;
 import com.jdcloud.gardener.camellia.authorization.authentication.main.user.schema.subject.User;
 import com.jdcloud.gardener.camellia.authorization.authentication.mfa.MfaAuthenticationService;
 import com.jdcloud.gardener.camellia.authorization.authentication.mfa.exception.client.MfaAuthenticationRequiredException;

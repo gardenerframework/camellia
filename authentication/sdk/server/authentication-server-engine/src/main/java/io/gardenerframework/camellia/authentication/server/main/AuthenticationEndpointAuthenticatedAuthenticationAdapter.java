@@ -2,10 +2,11 @@ package io.gardenerframework.camellia.authentication.server.main;
 
 import io.gardenerframework.camellia.authentication.server.main.schema.OAuth2ClientUserAuthenticationToken;
 import io.gardenerframework.camellia.authentication.server.main.schema.UserAuthenticatedAuthentication;
-import io.gardenerframework.camellia.authentication.server.main.support.oauth2.OAuth2AccessTokenGranter;
+import io.gardenerframework.camellia.authentication.server.main.spring.support.oauth2.OAuth2AccessTokenGranter;
 import io.gardenerframework.camellia.authentication.server.utils.AuthenticationEndpointMatcher;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
+import org.springframework.lang.Nullable;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.server.authorization.authentication.OAuth2AccessTokenAuthenticationToken;
 import org.springframework.security.oauth2.server.authorization.web.OAuth2TokenEndpointFilter;
@@ -40,7 +41,7 @@ public class AuthenticationEndpointAuthenticatedAuthenticationAdapter {
     public Authentication adapt(
             @NonNull HttpServletRequest request,
             @NonNull UserAuthenticatedAuthentication userAuthentication,
-            @NonNull OAuth2ClientUserAuthenticationToken clientUserAuthentication
+            @Nullable OAuth2ClientUserAuthenticationToken clientUserAuthentication
     ) {
         if (authenticationEndpointMatcher.isTokenEndpoint(request)) {
             return oAuth2AccessTokenGranter.createOAuth2AccessTokenAuthenticationToken(

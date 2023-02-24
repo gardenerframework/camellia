@@ -12,13 +12,13 @@ public interface AuthenticationServerAuthenticationExceptions {
     /**
      * 基准错误
      */
-    class AuthorizationServerAuthenticationException extends AuthenticationException {
+    class AuthenticationServerAuthenticationException extends AuthenticationException {
 
-        public AuthorizationServerAuthenticationException(String msg, Throwable cause) {
+        public AuthenticationServerAuthenticationException(String msg, Throwable cause) {
             super(msg, cause);
         }
 
-        public AuthorizationServerAuthenticationException(String msg) {
+        public AuthenticationServerAuthenticationException(String msg) {
             super(msg);
         }
     }
@@ -26,7 +26,7 @@ public interface AuthenticationServerAuthenticationExceptions {
     /**
      * 客户端错误
      */
-    class ClientSideException extends AuthorizationServerAuthenticationException {
+    class ClientSideException extends AuthenticationServerAuthenticationException {
 
         public ClientSideException(String msg, Throwable cause) {
             super(msg, cause);
@@ -40,7 +40,7 @@ public interface AuthenticationServerAuthenticationExceptions {
     /**
      * 服务端错误
      */
-    class ServerSideException extends AuthorizationServerAuthenticationException {
+    class ServerSideException extends AuthenticationServerAuthenticationException {
 
         public ServerSideException(String msg, Throwable cause) {
             super(msg, cause);

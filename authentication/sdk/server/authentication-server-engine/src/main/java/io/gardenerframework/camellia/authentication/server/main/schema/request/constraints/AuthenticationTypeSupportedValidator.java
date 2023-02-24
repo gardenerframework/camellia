@@ -1,6 +1,5 @@
 package io.gardenerframework.camellia.authentication.server.main.schema.request.constraints;
 
-import io.gardenerframework.camellia.authentication.server.main.AuthenticationTypeRegistry;
 import io.gardenerframework.camellia.authentication.server.main.UserAuthenticationServiceRegistry;
 import io.gardenerframework.camellia.authentication.server.main.annotation.AuthenticationEndpoint;
 import io.gardenerframework.camellia.authentication.server.utils.AuthenticationEndpointMatcher;

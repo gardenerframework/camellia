@@ -117,5 +117,4 @@ public interface OAuth2ErrorCodes {
      * 需要进行多因子认证
      */
     String MFA_AUTHENTICATION_REQUIRED = "mfa_authentication_required";
-
 }

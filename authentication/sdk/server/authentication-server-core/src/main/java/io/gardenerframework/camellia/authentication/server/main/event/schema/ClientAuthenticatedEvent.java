@@ -1,10 +1,7 @@
 package io.gardenerframework.camellia.authentication.server.main.event.schema;
 
 import lombok.Getter;
-import lombok.NonNull;
 import lombok.experimental.SuperBuilder;
-
-import javax.servlet.http.HttpServletRequest;
 
 /**
  * 客户端已经通过Spring Security的认证
@@ -21,9 +18,4 @@ import javax.servlet.http.HttpServletRequest;
 @Getter
 @SuperBuilder
 public class ClientAuthenticatedEvent extends AuthenticationEvent {
-    /**
-     * http请求
-     */
-    @NonNull
-    private final HttpServletRequest request;
 }

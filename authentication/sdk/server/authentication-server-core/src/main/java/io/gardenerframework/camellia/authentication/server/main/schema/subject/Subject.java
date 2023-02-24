@@ -1,12 +1,13 @@
 package io.gardenerframework.camellia.authentication.server.main.schema.subject;
 
-import io.gardenerframework.camellia.authentication.server.common.Version;
+import io.gardenerframework.camellia.authentication.common.data.serialization.SerializationVersionNumber;
 import io.gardenerframework.camellia.authentication.server.main.schema.subject.credentials.Credentials;
 import io.gardenerframework.camellia.authentication.server.main.schema.subject.principal.Principal;
 import io.gardenerframework.fragrans.data.trait.generic.GenericTraits;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 import org.springframework.lang.Nullable;
+import org.springframework.security.core.CredentialsContainer;
 
 import java.io.Serializable;
 import java.util.Collection;
@@ -27,10 +28,11 @@ import java.util.Date;
 @SuperBuilder
 @NoArgsConstructor
 public abstract class Subject implements Serializable,
+        CredentialsContainer,
         GenericTraits.IdentifierTraits.Id<String>,
         GenericTraits.StatusTraits.LockFlag,
         GenericTraits.StatusTraits.EnableFlag {
-    private static final long serialVersionUID = Version.current;
+    private static final long serialVersionUID = SerializationVersionNumber.version;
     /**
      * id
      */
@@ -50,7 +52,7 @@ public abstract class Subject implements Serializable,
      */
     @Singular
     @NonNull
-    private Collection<Principal> principals;
+    private Collection<@NonNull Principal> principals;
     /**
      * 被锁定
      */
@@ -75,6 +77,7 @@ public abstract class Subject implements Serializable,
     /**
      * 由引擎负责调用，在不需要的时候擦除密码
      */
+    @Override
     public final void eraseCredentials() {
         this.credentials = null;
     }

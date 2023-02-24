@@ -1,11 +1,12 @@
 package io.gardenerframework.camellia.authentication.server.main.user.schema;
 
-import io.gardenerframework.camellia.authentication.server.common.Version;
+import io.gardenerframework.camellia.authentication.common.data.serialization.SerializationVersionNumber;
 import io.gardenerframework.camellia.authentication.server.main.schema.subject.Subject;
 import io.gardenerframework.fragrans.data.trait.account.AccountTraits;
 import io.gardenerframework.fragrans.data.trait.generic.GenericTraits;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.NonNull;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 import org.springframework.lang.Nullable;
@@ -32,13 +33,13 @@ import org.springframework.lang.Nullable;
 public class User extends Subject implements
         GenericTraits.LiteralTraits.Name,
         AccountTraits.VisualTraits.Avatar {
-    private static final long serialVersionUID = Version.current;
+    private static final long serialVersionUID = SerializationVersionNumber.version;
     /**
      * 任何形式的展示名称
      * <p>
      * 昵称，姓名随便
      */
-    @Nullable
+    @NonNull
     private String name;
     /**
      * 任何形式的显示图标

@@ -16,7 +16,7 @@ import java.util.*;
  * @date 2022/5/31 16:00
  */
 @Getter
-public class OAuth2ScopeParameter extends AbstractAuthenticationRequestParameter {
+public class OAuth2ScopeParameter extends AuthenticationRequestParameter {
     @Valid
     private final Collection<@NotBlank String> scopes;
 

@@ -1,10 +1,10 @@
 package io.gardenerframework.camellia.authentication.server.configuration;
 
 import io.gardenerframework.camellia.authentication.server.common.configuration.AuthenticationServerPathOption;
-import io.gardenerframework.camellia.authentication.server.main.AuthenticationEndpointAuthenticationFailureHandler;
+import io.gardenerframework.camellia.authentication.server.main.spring.AuthenticationEndpointAuthenticationFailureHandler;
 import io.gardenerframework.camellia.authentication.server.main.spring.LoginAuthenticationRequestConverter;
-import io.gardenerframework.camellia.authentication.server.main.WebAuthenticationEntryProcessingFilter;
-import io.gardenerframework.camellia.authentication.server.main.WebAuthenticationSuccessHandler;
+import io.gardenerframework.camellia.authentication.server.main.spring.WebAuthenticationEntryProcessingFilter;
+import io.gardenerframework.camellia.authentication.server.main.spring.WebAuthenticationSuccessHandler;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;

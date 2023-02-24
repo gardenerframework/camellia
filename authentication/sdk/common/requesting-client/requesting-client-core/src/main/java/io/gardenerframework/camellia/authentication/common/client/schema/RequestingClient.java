@@ -1,7 +1,10 @@
 package io.gardenerframework.camellia.authentication.common.client.schema;
 
 import io.gardenerframework.camellia.authentication.common.data.serialization.SerializationVersionNumber;
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.NonNull;
 import lombok.experimental.SuperBuilder;
 import org.springframework.lang.Nullable;
 
@@ -15,7 +18,6 @@ import java.util.concurrent.ConcurrentHashMap;
 @SuperBuilder
 @Getter
 @NoArgsConstructor
-@Setter(AccessLevel.PRIVATE)
 public abstract class RequestingClient implements Serializable {
     private static final long serialVersionUID = SerializationVersionNumber.version;
     /**

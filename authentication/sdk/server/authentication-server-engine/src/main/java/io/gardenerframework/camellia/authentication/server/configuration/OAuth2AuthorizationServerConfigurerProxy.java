@@ -1,10 +1,10 @@
 package io.gardenerframework.camellia.authentication.server.configuration;
 
 import io.gardenerframework.camellia.authentication.server.common.configuration.AuthenticationServerPathOption;
-import io.gardenerframework.camellia.authentication.server.main.AuthenticationEndpointAuthenticationFailureHandler;
+import io.gardenerframework.camellia.authentication.server.main.spring.AuthenticationEndpointAuthenticationFailureHandler;
 import io.gardenerframework.camellia.authentication.server.main.spring.LoginAuthenticationRequestConverter;
 import io.gardenerframework.camellia.authentication.server.main.OidcUserInfoMapper;
-import io.gardenerframework.camellia.authentication.server.main.support.oauth2.TokenEndpointAuthenticationConverterDelegate;
+import io.gardenerframework.camellia.authentication.server.main.spring.support.oauth2.TokenEndpointAuthenticationConverterDelegate;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.apache.commons.lang3.reflect.FieldUtils;

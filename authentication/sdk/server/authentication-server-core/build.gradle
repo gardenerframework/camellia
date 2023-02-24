@@ -1,5 +1,6 @@
 dependencies {
     api "org.springframework:spring-core"
+    api "${group}:authentication-common-toolkits"
     api "${group}:challenge-response-core"
     api "${fragrans.group}:api-options-common"
     api "${fragrans.group}:data-traits-security"
@@ -12,4 +13,5 @@ dependencies {
     api "org.springframework:spring-web"
     api "jakarta.validation:jakarta.validation-api"
     testImplementation "org.springframework.boot:spring-boot-starter-validation"
+    testImplementation "org.springframework.boot:spring-boot-starter-web"
 }

@@ -24,22 +24,15 @@ System(接口, 接口, api)
 @enduml
 ```
 
-现在的情况下，用户会通过多种客户端访问后台的接口来办理业务。面对不同的客户端接口可能需要做出不同的反应，比如手机app专属商品推荐，又或者是需要对单个客户端或者应用的访问次数进行限制。
-本组件再次就是用来给出来访客户端的定义。
+现在的情况下，用户会通过多种客户端访问后台的接口来办理业务。面对不同的客户端接口可能需要做出不同的反应，比如手机app专属商品推荐，又或者是需要对单个客户端或者应用的访问次数进行限制。 本组件再次就是用来给出来访客户端的定义。
 
 需要注意的是，一般浏览器是客户端，但是难以从oauth2的角度获取其客户端id。
 
 # RequestingClient & OAuth2RequestingClient
 
 ```java
-
 public abstract class RequestingClient implements Serializable {
     private static final long serialVersionUID = SerializationVersionNumber.version;
-    /**
-     * client id
-     */
-    @NonNull
-    private String clientId;
     /**
      * 客户端元数据，用于开发人员在客户端内保存自己的一些所需数据
      * <p>
@@ -49,6 +42,11 @@ public abstract class RequestingClient implements Serializable {
      */
     @Getter(AccessLevel.PRIVATE)
     private final Map<String, Serializable> metadata = new ConcurrentHashMap<>();
+    /**
+     * client id
+     */
+    @NonNull
+    private String clientId;
 
     /**
      * 设置元数据
@@ -74,10 +72,6 @@ public abstract class RequestingClient implements Serializable {
     }
 }
 
-@SuperBuilder
-@Getter
-@NoArgsConstructor
-@Setter(AccessLevel.PRIVATE)
 public class OAuth2RequestingClient extends RequestingClient {
     private static final long serialVersionUID = SerializationVersionNumber.version;
     /**
@@ -89,22 +83,12 @@ public class OAuth2RequestingClient extends RequestingClient {
      * 对用户信息的访问范围
      */
     @NonNull
-    private Set<String> scopes;
-
-    /**
-     * 要求范围不能被改变
-     *
-     * @param scopes 范围
-     */
-    public void setScopes(@NonNull Set<String> scopes) {
-        this.scopes = Collections.unmodifiableSet(scopes);
-    }
-
+    @Singular
+    private Set<@NonNull String> scopes;
 }
 ```
 
-从定义可见请求客户端包含了oauth2标准的基本属性，包含客户端id、请求的授权类型以及请求访问的数据范围。此外这些属性一旦设置就不能更改。
-为了能够使得业务开发向客户端中加入一些自定义的属性和数据，可以通过"setMetadata"
+从定义可见请求客户端包含了oauth2标准的基本属性，包含客户端id、请求的授权类型以及请求访问的数据范围。此外这些属性一旦设置就不能更改。 为了能够使得业务开发向客户端中加入一些自定义的属性和数据，可以通过"setMetadata"
 方法设置元数据。由于请求客户端可能会被存储在session中等导致序列化，因此要求元数据也必须支持序列化
 
 将`OAuth2RequestingClient`进行特别的定义是因为从认证的角度出发，请求客户端(`RequestingClient`)

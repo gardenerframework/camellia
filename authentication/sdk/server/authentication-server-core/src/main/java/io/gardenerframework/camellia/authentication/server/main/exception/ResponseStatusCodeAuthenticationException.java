@@ -14,7 +14,7 @@ import org.springframework.web.server.ResponseStatusException;
  * @author ZhangHan
  * @date 2022/4/16 3:08
  */
-public class ResponseStatusCodeAuthenticationException extends AuthenticationServerAuthenticationExceptions.AuthorizationServerAuthenticationException {
+public class ResponseStatusCodeAuthenticationException extends AuthenticationServerAuthenticationExceptions.AuthenticationServerAuthenticationException {
     @Getter
     private final HttpStatus status;
 

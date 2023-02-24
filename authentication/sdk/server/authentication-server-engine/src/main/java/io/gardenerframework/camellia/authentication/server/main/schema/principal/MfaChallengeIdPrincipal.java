@@ -1,7 +1,7 @@
 package io.gardenerframework.camellia.authentication.server.main.schema.principal;
 
-import io.gardenerframework.camellia.authentication.server.common.Version;
-import io.gardenerframework.camellia.authentication.server.common.annotation.AuthorizationEnginePreserved;
+import io.gardenerframework.camellia.authentication.common.data.serialization.SerializationVersionNumber;
+import io.gardenerframework.camellia.authentication.server.common.annotation.AuthenticationServerEnginePreserved;
 import io.gardenerframework.camellia.authentication.server.main.schema.subject.principal.Principal;
 import io.gardenerframework.camellia.authentication.server.main.user.UserService;
 import lombok.experimental.SuperBuilder;
@@ -15,7 +15,7 @@ import lombok.experimental.SuperBuilder;
  * @date 2022/5/11 10:15
  */
 @SuperBuilder
-@AuthorizationEnginePreserved
+@AuthenticationServerEnginePreserved
 public class MfaChallengeIdPrincipal extends Principal {
-    private static final long serialVersionUID = Version.current;
+    private static final long serialVersionUID = SerializationVersionNumber.version;
 }

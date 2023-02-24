@@ -1,14 +1,20 @@
+io:
+  gardenerframework:
+    camellia:
+      authentication:
+        server:
+          main:
+            exception:
+              client:
+                UnauthorizedGrantTypeException: "当前客户端未分配授权类型: {0}"
+                UnauthorizedScopeException: "当前客户客户端无权访问: {0}"
+                ClientNotFoundException: "客户端不存在: {0}"
 com:
   jdcloud:
     gardener:
       camellia:
         authorization:
           authentication:
-            main:
-              exception:
-                client:
-                  UnauthorizedGrantTypeException: "当前客户端未分配授权类型: {0}"
-                  UnauthorizedScopeException: "当前客户客户端无权访问: {0}"
             mfa:
               exception:
                 client:

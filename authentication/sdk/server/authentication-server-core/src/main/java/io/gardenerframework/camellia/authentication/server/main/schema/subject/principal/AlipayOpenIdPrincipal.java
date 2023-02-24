@@ -1,6 +1,6 @@
 package io.gardenerframework.camellia.authentication.server.main.schema.subject.principal;
 
-import io.gardenerframework.camellia.authentication.server.common.Version;
+import io.gardenerframework.camellia.authentication.common.data.serialization.SerializationVersionNumber;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
@@ -10,9 +10,9 @@ import lombok.experimental.SuperBuilder;
  * @date 2022/1/2 23:23
  */
 @SuperBuilder
-@EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
+@EqualsAndHashCode(callSuper = true)
 public class AlipayOpenIdPrincipal extends Principal {
-    private static final long serialVersionUID = Version.current;
+    private static final long serialVersionUID = SerializationVersionNumber.version;
 
 }

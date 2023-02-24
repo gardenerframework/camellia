@@ -10,8 +10,8 @@ import lombok.experimental.SuperBuilder;
  * @author zhanghan30
  * @date 2022/5/12 4:23 下午
  */
-@EqualsAndHashCode
 @SuperBuilder
 @NoArgsConstructor
+@EqualsAndHashCode
 public abstract class Credentials {
 }

@@ -1,5 +1,6 @@
 package io.gardenerframework.camellia.authentication.server.configuration;
 
+import io.gardenerframework.camellia.authentication.server.common.api.group.AuthorizationServerRestControllerGroupConfigurer;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
@@ -11,8 +12,12 @@ import org.springframework.context.annotation.Import;
  */
 @Configuration
 @Import({
+        //配置累
         AuthenticationServerEngineSecurityConfiguration.class,
-        AuthenticationServerEngineOAuth2Configuration.class
+        AuthenticationServerEngineOAuth2Configuration.class,
+        AuthenticationServerEngineManagementConfiguration.class,
+        //api分组配置
+        AuthorizationServerRestControllerGroupConfigurer.class
 })
 public class AuthenticationServerEngineConfiguration {
 }
