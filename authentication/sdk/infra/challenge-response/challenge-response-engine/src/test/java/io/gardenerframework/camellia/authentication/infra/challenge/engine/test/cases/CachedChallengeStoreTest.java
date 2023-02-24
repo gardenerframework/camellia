@@ -1,10 +1,11 @@
 package io.gardenerframework.camellia.authentication.infra.challenge.engine.test.cases;
 
+import io.gardenerframework.camellia.authentication.common.client.schema.OAuth2RequestingClient;
+import io.gardenerframework.camellia.authentication.common.client.schema.RequestingClient;
 import io.gardenerframework.camellia.authentication.infra.challenge.core.Scenario;
 import io.gardenerframework.camellia.authentication.infra.challenge.core.schema.Challenge;
 import io.gardenerframework.camellia.authentication.infra.challenge.engine.support.CachedChallengeStoreTemplate;
 import io.gardenerframework.camellia.authentication.infra.challenge.engine.test.ChallengeResponseEngineTestApplication;
-import io.gardenerframework.camellia.authentication.infra.client.schema.RequestingClient;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
@@ -31,7 +32,7 @@ public class CachedChallengeStoreTest {
     @Test
     public void smokeTest() throws Exception {
         String applicationId = UUID.randomUUID().toString();
-        RequestingClient client = RequestingClient.builder().clientId(applicationId).grantType(UUID.randomUUID().toString()).scopes(Collections.EMPTY_SET).build();
+        RequestingClient client = OAuth2RequestingClient.builder().clientId(applicationId).grantType(UUID.randomUUID().toString()).scopes(Collections.EMPTY_SET).build();
         String requestSignature = UUID.randomUUID().toString();
         ChallengeSubClass challenge = ChallengeSubClass.builder()
                 .id(UUID.randomUUID().toString())

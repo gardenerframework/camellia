@@ -1,6 +1,6 @@
 package io.gardenerframework.camellia.authentication.infra.challenge.engine.support;
 
-import io.gardenerframework.camellia.authentication.infra.client.schema.RequestingClient;
+import io.gardenerframework.camellia.authentication.common.client.schema.RequestingClient;
 import org.springframework.lang.Nullable;
 
 public interface NullRequestingClientIdProvider {

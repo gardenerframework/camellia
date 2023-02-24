@@ -1,9 +1,9 @@
 package io.gardenerframework.camellia.authentication.infra.challenge.engine.support;
 
+import io.gardenerframework.camellia.authentication.common.client.schema.RequestingClient;
 import io.gardenerframework.camellia.authentication.infra.challenge.core.ChallengeStore;
 import io.gardenerframework.camellia.authentication.infra.challenge.core.Scenario;
 import io.gardenerframework.camellia.authentication.infra.challenge.core.schema.Challenge;
-import io.gardenerframework.camellia.authentication.infra.client.schema.RequestingClient;
 import io.gardenerframework.fragrans.data.cache.manager.BasicCacheManager;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;

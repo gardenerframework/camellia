@@ -4,7 +4,7 @@ package io.gardenerframework.camellia.authentication.infra.challenge.core.except
  * @author zhanghan30
  * @date 2023/2/21 13:34
  */
-public class ChallengeResponseException extends Exception{
+public class ChallengeResponseException extends Exception {
     public ChallengeResponseException() {
     }
 

@@ -1,11 +1,11 @@
 package io.gardenerframework.camellia.authentication.infra.challenge.core;
 
+import io.gardenerframework.camellia.authentication.common.client.schema.RequestingClient;
 import io.gardenerframework.camellia.authentication.infra.challenge.core.exception.ChallengeInCooldownException;
 import io.gardenerframework.camellia.authentication.infra.challenge.core.exception.ChallengeResponseServiceException;
 import io.gardenerframework.camellia.authentication.infra.challenge.core.schema.Challenge;
 import io.gardenerframework.camellia.authentication.infra.challenge.core.schema.ChallengeContext;
 import io.gardenerframework.camellia.authentication.infra.challenge.core.schema.ChallengeRequest;
-import io.gardenerframework.camellia.authentication.infra.client.schema.RequestingClient;
 import lombok.NonNull;
 import org.springframework.lang.Nullable;
 

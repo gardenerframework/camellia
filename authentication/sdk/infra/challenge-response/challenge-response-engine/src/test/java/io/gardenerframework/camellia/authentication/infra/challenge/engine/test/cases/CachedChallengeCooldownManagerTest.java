@@ -1,9 +1,10 @@
 package io.gardenerframework.camellia.authentication.infra.challenge.engine.test.cases;
 
+import io.gardenerframework.camellia.authentication.common.client.schema.OAuth2RequestingClient;
+import io.gardenerframework.camellia.authentication.common.client.schema.RequestingClient;
 import io.gardenerframework.camellia.authentication.infra.challenge.core.Scenario;
 import io.gardenerframework.camellia.authentication.infra.challenge.engine.support.CachedChallengeCooldownManager;
 import io.gardenerframework.camellia.authentication.infra.challenge.engine.test.ChallengeResponseEngineTestApplication;
-import io.gardenerframework.camellia.authentication.infra.client.schema.RequestingClient;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,7 +26,7 @@ public class CachedChallengeCooldownManagerTest {
     @Test
     public void smokeTest() throws Exception {
         String appId = UUID.randomUUID().toString();
-        RequestingClient client = RequestingClient.builder().clientId(appId).grantType(UUID.randomUUID().toString()).scopes(Collections.EMPTY_SET).build();
+        RequestingClient client = OAuth2RequestingClient.builder().clientId(appId).grantType(UUID.randomUUID().toString()).scopes(Collections.EMPTY_SET).build();
         String timerId = UUID.randomUUID().toString();
         Assertions.assertNull(cooldownManager.getTimeRemaining(client, CachedChallengeCooldownManagerTestScenario.class, timerId));
         //启动5米考cd

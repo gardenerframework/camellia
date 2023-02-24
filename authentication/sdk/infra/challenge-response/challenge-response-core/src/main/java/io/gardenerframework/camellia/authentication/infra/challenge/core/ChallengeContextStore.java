@@ -1,7 +1,7 @@
 package io.gardenerframework.camellia.authentication.infra.challenge.core;
 
+import io.gardenerframework.camellia.authentication.common.client.schema.RequestingClient;
 import io.gardenerframework.camellia.authentication.infra.challenge.core.schema.ChallengeContext;
-import io.gardenerframework.camellia.authentication.infra.client.schema.RequestingClient;
 import lombok.NonNull;
 import org.springframework.lang.Nullable;
 

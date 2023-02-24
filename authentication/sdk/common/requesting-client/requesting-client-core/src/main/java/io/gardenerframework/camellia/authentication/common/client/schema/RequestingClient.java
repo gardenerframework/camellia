@@ -19,11 +19,6 @@ import java.util.concurrent.ConcurrentHashMap;
 public abstract class RequestingClient implements Serializable {
     private static final long serialVersionUID = SerializationVersionNumber.version;
     /**
-     * client id
-     */
-    @NonNull
-    private String clientId;
-    /**
      * 客户端元数据，用于开发人员在客户端内保存自己的一些所需数据
      * <p>
      * 第一级key是provider的类路径，值是提供的元数据
@@ -32,6 +27,11 @@ public abstract class RequestingClient implements Serializable {
      */
     @Getter(AccessLevel.PRIVATE)
     private final Map<String, Serializable> metadata = new ConcurrentHashMap<>();
+    /**
+     * client id
+     */
+    @NonNull
+    private String clientId;
 
     /**
      * 设置元数据

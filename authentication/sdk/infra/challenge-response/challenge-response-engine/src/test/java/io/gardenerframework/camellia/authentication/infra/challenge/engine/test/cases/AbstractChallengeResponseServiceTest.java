@@ -1,5 +1,7 @@
 package io.gardenerframework.camellia.authentication.infra.challenge.engine.test.cases;
 
+import io.gardenerframework.camellia.authentication.common.client.schema.OAuth2RequestingClient;
+import io.gardenerframework.camellia.authentication.common.client.schema.RequestingClient;
 import io.gardenerframework.camellia.authentication.infra.challenge.core.ChallengeCooldownManager;
 import io.gardenerframework.camellia.authentication.infra.challenge.core.Scenario;
 import io.gardenerframework.camellia.authentication.infra.challenge.core.exception.ChallengeInCooldownException;
@@ -10,7 +12,6 @@ import io.gardenerframework.camellia.authentication.infra.challenge.engine.Abstr
 import io.gardenerframework.camellia.authentication.infra.challenge.engine.support.GenericCachedChallengeContextStore;
 import io.gardenerframework.camellia.authentication.infra.challenge.engine.support.GenericCachedChallengeStore;
 import io.gardenerframework.camellia.authentication.infra.challenge.engine.test.ChallengeResponseEngineTestApplication;
-import io.gardenerframework.camellia.authentication.infra.client.schema.RequestingClient;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 import org.junit.jupiter.api.Assertions;
@@ -40,7 +41,7 @@ public class AbstractChallengeResponseServiceTest {
     @Test
     public void smokeTest() throws Exception {
         String appId = UUID.randomUUID().toString();
-        RequestingClient client = RequestingClient.builder().clientId(appId).grantType(UUID.randomUUID().toString()).scopes(Collections.EMPTY_SET).build();
+        RequestingClient client = OAuth2RequestingClient.builder().clientId(appId).grantType(UUID.randomUUID().toString()).scopes(Collections.EMPTY_SET).build();
         String requestId = UUID.randomUUID().toString();
         testChallengeResponseService.sendChallenge(
                 client,
