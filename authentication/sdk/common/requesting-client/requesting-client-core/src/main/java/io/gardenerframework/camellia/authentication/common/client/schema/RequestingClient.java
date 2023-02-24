@@ -6,9 +6,7 @@ import lombok.experimental.SuperBuilder;
 import org.springframework.lang.Nullable;
 
 import java.io.Serializable;
-import java.util.Collections;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -18,33 +16,13 @@ import java.util.concurrent.ConcurrentHashMap;
 @Getter
 @NoArgsConstructor
 @Setter(AccessLevel.PRIVATE)
-public class RequestingClient implements Serializable {
+public abstract class RequestingClient implements Serializable {
     private static final long serialVersionUID = SerializationVersionNumber.version;
     /**
      * client id
      */
     @NonNull
     private String clientId;
-    /**
-     * 访问的授权类型
-     */
-    @NonNull
-    private String grantType;
-    /**
-     * 对用户信息的访问范围
-     */
-    @NonNull
-    private Set<String> scopes;
-
-    /**
-     * 要求范围不能被改变
-     *
-     * @param scopes 范围
-     */
-    public void setScopes(@NonNull Set<String> scopes) {
-        this.scopes = Collections.unmodifiableSet(scopes);
-    }
-
     /**
      * 客户端元数据，用于开发人员在客户端内保存自己的一些所需数据
      * <p>
