@@ -1,14 +1,14 @@
 package io.gardenerframework.camellia.authentication.server.test.cases;
 
+import io.gardenerframework.camellia.authentication.server.main.annotation.AuthenticationType;
+import io.gardenerframework.camellia.authentication.server.main.mfa.MfaAuthenticationService;
+import io.gardenerframework.camellia.authentication.server.main.mfa.exception.client.BadMfaAuthenticationRequestException;
 import io.gardenerframework.camellia.authentication.server.test.AuthorizationServerEngineTestApplication;
 import io.gardenerframework.camellia.authentication.server.test.authentication.main.AccountStatusErrorRequest;
 import io.gardenerframework.camellia.authentication.server.test.authentication.main.MfaTriggerRequest;
 import io.gardenerframework.camellia.authentication.server.test.authentication.main.NullAuthenticationRequest;
 import io.gardenerframework.camellia.authentication.server.test.authentication.main.NullPrincipalRequest;
 import io.gardenerframework.camellia.authentication.server.test.utils.WebAuthenticationClient;
-import io.gardenerframework.camellia.authentication.server.main.annotation.AuthenticationType;
-import io.gardenerframework.camellia.authentication.server.main.mfa.MfaAuthenticationService;
-import io.gardenerframework.camellia.authentication.server.main.mfa.exception.client.BadMfaAuthenticationRequestException;
 import io.gardenerframework.fragrans.api.standard.error.DefaultApiErrorConstants;
 import io.gardenerframework.fragrans.messages.EnhancedMessageSource;
 import lombok.Data;
@@ -25,16 +25,14 @@ import org.springframework.security.authentication.AccountExpiredException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.LockedException;
+import org.springframework.util.CollectionUtils;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Map;
-import java.util.UUID;
-import java.util.regex.Matcher;
+import java.util.*;
 import java.util.regex.Pattern;
 
 /**
@@ -96,16 +94,6 @@ public class WebAuthenticationEntryPointTest {
     }
 
     @Test
-    @DisplayName("测试错误授权码")
-    public void testErrorAuthorizationCode() {
-        Map<String, Object> request = new HashMap<>();
-        String username = UUID.randomUUID().toString();
-        String password = UUID.randomUUID().toString();
-        request.put("username", username);
-        request.put("password", password);
-    }
-
-    @Test
     @DisplayName("触发mfa测试")
     public void testTriggerMfa() throws UnsupportedEncodingException {
         Map<String, Object> request = new HashMap<>();
@@ -128,6 +116,7 @@ public class WebAuthenticationEntryPointTest {
         String challengeId = mfaAuthenticationRequest.getChallengeId();
 
         //不进行mfa认证依然要求mfa
+        //此时认证还是重放的
         mfaAuthenticationRequest = new MfaAuthenticationRequest(authenticationClient.login(AnnotationUtils.findAnnotation(MfaTriggerRequest.class, AuthenticationType.class).value(), request));
         Assertions.assertEquals("test", mfaAuthenticationRequest.getAuthenticator());
         Assertions.assertEquals(challengeId, mfaAuthenticationRequest.getChallengeId());
@@ -135,6 +124,7 @@ public class WebAuthenticationEntryPointTest {
         //给一个错误的challengeId
         request.put("challengeId", UUID.randomUUID().toString());
         request.put("response", UUID.randomUUID().toString());
+        request.put("authenticator", "test");
         error = new WebAuthenticationError(authenticationClient.login(AnnotationUtils.findAnnotation(MfaAuthenticationService.class, AuthenticationType.class).value(), request));
         Assertions.assertEquals(HttpStatus.BAD_REQUEST.value(), error.getStatus());
         Assertions.assertEquals(HttpStatus.BAD_REQUEST.getReasonPhrase(), error.getPhrase());
@@ -143,6 +133,7 @@ public class WebAuthenticationEntryPointTest {
         //执行认证
         request.put("challengeId", challengeId);
         request.put("response", UUID.randomUUID().toString());
+        request.put("authenticator", "test");
         assertLoginSuccess(authenticationClient.login(AnnotationUtils.findAnnotation(MfaAuthenticationService.class, AuthenticationType.class).value(), request));
 
         //再来一遍报错
@@ -158,6 +149,9 @@ public class WebAuthenticationEntryPointTest {
 
     }
 
+    public static String safeRead(List<String> strings) {
+        return CollectionUtils.isEmpty(strings) ? "" : strings.get(0) == null ? "" : strings.get(0);
+    }
 
     @Data
     public static class WebAuthenticationError {
@@ -166,12 +160,14 @@ public class WebAuthenticationEntryPointTest {
         private final String phrase;
         private final String message;
 
+        private final String code;
+
         public WebAuthenticationError(ResponseEntity<Void> response) throws UnsupportedEncodingException {
-            Matcher matcher = pattern.matcher(response.getHeaders().get("Location").get(0));
-            matcher.find();
-            this.status = Integer.parseInt(matcher.group(1));
-            this.phrase = matcher.group(2);
-            this.message = URLDecoder.decode(matcher.group(3), "utf-8");
+            UriComponents url = UriComponentsBuilder.fromHttpUrl(response.getHeaders().get("Location").get(0)).build();
+            status = Integer.valueOf(safeRead(url.getQueryParams().get("status")));
+            phrase = URLDecoder.decode(safeRead(url.getQueryParams().get("phrase")), "utf-8");
+            message = URLDecoder.decode(safeRead(url.getQueryParams().get("message")), "utf-8");
+            code = URLDecoder.decode(safeRead(url.getQueryParams().get("code")), "utf-8");
         }
     }
 
@@ -183,8 +179,8 @@ public class WebAuthenticationEntryPointTest {
         @SneakyThrows
         public MfaAuthenticationRequest(ResponseEntity<Void> response) {
             UriComponents url = UriComponentsBuilder.fromHttpUrl(response.getHeaders().get("Location").get(0)).build();
-            this.authenticator = url.getQueryParams().get("authenticator").get(0);
-            this.challengeId = url.getQueryParams().get("challengeId").get(0);
+            this.authenticator = URLDecoder.decode(url.getQueryParams().get("authenticator").get(0), "utf-8");
+            this.challengeId = URLDecoder.decode(url.getQueryParams().get("challengeId").get(0), "utf-8");
         }
     }
 }

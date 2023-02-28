@@ -4,7 +4,7 @@ import io.gardenerframework.camellia.authentication.server.common.annotation.Aut
 import io.gardenerframework.camellia.authentication.server.main.schema.OAuth2ClientUserAuthenticationToken;
 import io.gardenerframework.camellia.authentication.server.main.schema.UserAuthenticatedAuthentication;
 import io.gardenerframework.camellia.authentication.server.main.spring.support.oidc.OAuth2AccessTokenGranter;
-import io.gardenerframework.camellia.authentication.server.utils.AuthenticationEndpointMatcher;
+import io.gardenerframework.camellia.authentication.server.main.utils.AuthenticationEndpointMatcher;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
 import org.springframework.lang.Nullable;

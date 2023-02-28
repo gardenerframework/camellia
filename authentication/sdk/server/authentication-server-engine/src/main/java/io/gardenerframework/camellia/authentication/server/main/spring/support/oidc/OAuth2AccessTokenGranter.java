@@ -3,7 +3,7 @@ package io.gardenerframework.camellia.authentication.server.main.spring.support.
 import io.gardenerframework.camellia.authentication.server.common.annotation.AuthenticationServerEngineComponent;
 import io.gardenerframework.camellia.authentication.server.main.schema.OAuth2ClientUserAuthenticationToken;
 import io.gardenerframework.camellia.authentication.server.main.schema.UserAuthenticatedAuthentication;
-import io.gardenerframework.camellia.authentication.server.utils.JwtUtils;
+import io.gardenerframework.camellia.authentication.server.main.utils.JwtUtils;
 import io.gardenerframework.fragrans.log.GenericLoggerStaticAccessor;
 import io.gardenerframework.fragrans.log.common.schema.reason.NotFound;
 import io.gardenerframework.fragrans.log.schema.content.GenericBasicLogContent;

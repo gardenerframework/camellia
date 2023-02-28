@@ -1,4 +1,4 @@
-package io.gardenerframework.camellia.authentication.server.utils;
+package io.gardenerframework.camellia.authentication.server.main.utils;
 
 import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
 import org.springframework.security.oauth2.core.oidc.IdTokenClaimNames;

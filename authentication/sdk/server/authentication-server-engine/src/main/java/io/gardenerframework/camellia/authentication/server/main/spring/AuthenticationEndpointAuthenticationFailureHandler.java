@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.gardenerframework.camellia.authentication.server.common.annotation.AuthenticationServerEngineComponent;
 import io.gardenerframework.camellia.authentication.server.common.configuration.AuthenticationServerPathOption;
 import io.gardenerframework.camellia.authentication.server.main.exception.*;
-import io.gardenerframework.camellia.authentication.server.main.exception.client.MfaAuthenticationRequiredException;
+import io.gardenerframework.camellia.authentication.server.main.mfa.exception.client.MfaAuthenticationRequiredException;
 import io.gardenerframework.camellia.authentication.server.main.schema.LoginAuthenticationRequestToken;
 import io.gardenerframework.fragrans.api.standard.error.ApiErrorFactory;
 import io.gardenerframework.fragrans.api.standard.error.DefaultApiErrorConstants;

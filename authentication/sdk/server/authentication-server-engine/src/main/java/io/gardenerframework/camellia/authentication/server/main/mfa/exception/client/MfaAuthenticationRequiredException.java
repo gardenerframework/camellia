@@ -1,4 +1,4 @@
-package io.gardenerframework.camellia.authentication.server.main.exception.client;
+package io.gardenerframework.camellia.authentication.server.main.mfa.exception.client;
 
 import com.fasterxml.jackson.databind.util.StdDateFormat;
 import io.gardenerframework.camellia.authentication.infra.challenge.core.ChallengeAuthenticatorNameProvider;

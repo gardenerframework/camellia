@@ -58,12 +58,19 @@ public class InMemoryMfaAuthenticationService extends
 
     @Override
     protected boolean replayChallenge(@Nullable RequestingClient client, @NonNull Class<? extends Scenario> scenario, @NonNull MfaAuthenticationChallengeRequest request) {
+        //是否有没有完成的挑战
+        String incompleteChallengeId = userIncompleteRequest.get(request.getUser().getId());
+        if (StringUtils.hasText(incompleteChallengeId)) {
+            return sentRequests.get(incompleteChallengeId) != null;
+        }
+        //没有就不需要重放
         return false;
     }
 
     @Override
     protected @NonNull String getRequestSignature(@Nullable RequestingClient client, @NonNull Class<? extends Scenario> scenario, @NonNull MfaAuthenticationChallengeRequest request) {
-        return "";
+        //使用用户名当做请求特征
+        return request.getUser().getId();
     }
 
     @Override
@@ -112,7 +119,7 @@ public class InMemoryMfaAuthenticationService extends
         return MfaAuthenticationChallengeContext.builder()
                 .principal(request.getPrincipal())
                 .user(request.getUser())
-                .client(client)
+                .client((OAuth2RequestingClient) client)
                 .build();
     }
 

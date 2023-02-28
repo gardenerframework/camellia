@@ -55,6 +55,7 @@ public class MfaAuthenticationUserService implements UserService {
                         MfaAuthenticationScenario.class,
                         challengeId
                 );
+                Objects.requireNonNull(context).put(MfaAuthenticationChallengeContext.class.getName(), mfaAuthenticationChallengeContext);
             } catch (ChallengeResponseServiceException e) {
                 throw new NestedAuthenticationException(e);
             }

@@ -1,4 +1,4 @@
-package io.gardenerframework.camellia.authentication.server.utils;
+package io.gardenerframework.camellia.authentication.server.main.utils;
 
 import io.gardenerframework.camellia.authentication.server.common.annotation.AuthenticationServerEngineComponent;
 import io.gardenerframework.camellia.authentication.server.configuration.AuthenticationServerEngineSecurityConfigurer;

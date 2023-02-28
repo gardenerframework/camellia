@@ -11,7 +11,7 @@ import io.gardenerframework.camellia.authentication.server.main.schema.request.A
 import io.gardenerframework.camellia.authentication.server.main.schema.request.AuthenticationTypeParameter;
 import io.gardenerframework.camellia.authentication.server.main.schema.request.OAuth2GrantTypeParameter;
 import io.gardenerframework.camellia.authentication.server.main.schema.request.OAuth2ScopeParameter;
-import io.gardenerframework.camellia.authentication.server.utils.AuthenticationEndpointMatcher;
+import io.gardenerframework.camellia.authentication.server.main.utils.AuthenticationEndpointMatcher;
 import io.gardenerframework.fragrans.log.GenericBasicLogger;
 import io.gardenerframework.fragrans.log.GenericOperationLogger;
 import io.gardenerframework.fragrans.log.common.schema.reason.Mismatch;

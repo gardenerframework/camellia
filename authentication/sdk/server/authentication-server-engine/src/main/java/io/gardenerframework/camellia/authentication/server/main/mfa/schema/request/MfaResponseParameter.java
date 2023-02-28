@@ -26,12 +26,12 @@ public class MfaResponseParameter extends AuthenticationRequestParameter {
      */
     @AuthenticatorNameSupported
     @Getter
-    private final String authenticatorName;
+    private final String authenticator;
 
     public MfaResponseParameter(HttpServletRequest request) {
         super(request);
         this.challengeId = request.getParameter("challengeId");
         this.response = request.getParameter("response");
-        this.authenticatorName = request.getParameter("authenticatorName");
+        this.authenticator = request.getParameter("authenticator");
     }
 }

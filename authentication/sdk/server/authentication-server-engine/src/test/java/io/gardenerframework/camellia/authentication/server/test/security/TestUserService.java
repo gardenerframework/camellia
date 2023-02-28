@@ -36,7 +36,7 @@ public class TestUserService implements UserService {
     @Override
     public User load(Principal principal, Map<String, Object> context) throws AuthenticationException {
         return TestUserPrincipal.builder()
-                .id(UUID.randomUUID().toString())
+                .id(principal.getName())
                 .username(principal.getName())
                 .credentials(null)
                 .principal(principal)

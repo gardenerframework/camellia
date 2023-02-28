@@ -1,4 +1,4 @@
-package io.gardenerframework.camellia.authentication.server.management.schema.response;
+package io.gardenerframework.camellia.authentication.server.main.management.schema.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

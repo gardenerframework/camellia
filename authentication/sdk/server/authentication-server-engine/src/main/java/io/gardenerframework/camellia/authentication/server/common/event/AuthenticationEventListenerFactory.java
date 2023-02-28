@@ -14,7 +14,7 @@ import java.lang.reflect.Method;
  * @date 2022/4/27 23:29
  */
 @AuthenticationServerEngineComponent
-public class AuthorizationServerEventListenerFactory implements EventListenerFactory, Ordered {
+public class AuthenticationEventListenerFactory implements EventListenerFactory, Ordered {
     /**
      * 支持带有{@link CareForAuthenticationServerEnginePreservedObject}注解的玩意
      *
@@ -45,7 +45,7 @@ public class AuthorizationServerEventListenerFactory implements EventListenerFac
      */
     @Override
     public ApplicationListener<?> createApplicationListener(String beanName, Class<?> type, Method method) {
-        return new AuthenticationEnginePreservedObjectEventListenerMethodAdapter(beanName, type, method);
+        return new AuthenticationEnginePreservedAnnotationSupport(beanName, type, method);
     }
 
     @Override

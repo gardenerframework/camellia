@@ -4,7 +4,7 @@ import io.gardenerframework.camellia.authentication.server.common.configuration.
 import io.gardenerframework.camellia.authentication.server.main.exception.AuthenticationServerAuthenticationExceptions;
 import io.gardenerframework.camellia.authentication.server.main.exception.OAuth2ErrorCodes;
 import io.gardenerframework.camellia.authentication.server.main.spring.AuthenticationEndpointAuthenticationFailureHandler;
-import io.gardenerframework.camellia.authentication.server.utils.AuthenticationEndpointMatcher;
+import io.gardenerframework.camellia.authentication.server.main.utils.AuthenticationEndpointMatcher;
 import io.gardenerframework.fragrans.api.standard.error.DefaultApiErrorConstants;
 import io.gardenerframework.fragrans.api.standard.error.ServletApiErrorAttributes;
 import io.gardenerframework.fragrans.api.standard.error.ServletApiErrorAttributesConfigurer;

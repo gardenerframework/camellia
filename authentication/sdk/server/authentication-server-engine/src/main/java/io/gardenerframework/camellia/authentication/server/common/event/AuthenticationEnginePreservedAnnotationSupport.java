@@ -27,7 +27,7 @@ import java.lang.reflect.Method;
  * @date 2022/4/27 23:49
  */
 @Slf4j
-public class AuthenticationEnginePreservedObjectEventListenerMethodAdapter extends ApplicationListenerMethodAdapter {
+public class AuthenticationEnginePreservedAnnotationSupport extends ApplicationListenerMethodAdapter {
     @Nullable
     private final CareForAuthenticationServerEnginePreservedPrincipal careForAuthenticationServerEnginePreservedPrincipal;
     @Nullable
@@ -40,7 +40,7 @@ public class AuthenticationEnginePreservedObjectEventListenerMethodAdapter exten
      * @param targetClass the target class that the method is declared on
      * @param method      the listener method to invoke
      */
-    public AuthenticationEnginePreservedObjectEventListenerMethodAdapter(String beanName, Class<?> targetClass, Method method) {
+    public AuthenticationEnginePreservedAnnotationSupport(String beanName, Class<?> targetClass, Method method) {
         super(beanName, targetClass, method);
         this.careForAuthenticationServerEnginePreservedPrincipal = AnnotationUtils.findAnnotation(method, CareForAuthenticationServerEnginePreservedPrincipal.class);
         this.careForAuthenticationServerEnginePreservedException = AnnotationUtils.findAnnotation(method, CareForAuthenticationServerEnginePreservedException.class);

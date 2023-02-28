@@ -7,7 +7,7 @@ import io.gardenerframework.camellia.authentication.server.common.annotation.Aut
 import io.gardenerframework.camellia.authentication.server.main.UserAuthenticationService;
 import io.gardenerframework.camellia.authentication.server.main.annotation.AuthenticationType;
 import io.gardenerframework.camellia.authentication.server.main.exception.NestedAuthenticationException;
-import io.gardenerframework.camellia.authentication.server.main.exception.client.BadMfaAuthenticationResponseException;
+import io.gardenerframework.camellia.authentication.server.main.mfa.exception.client.BadMfaAuthenticationResponseException;
 import io.gardenerframework.camellia.authentication.server.main.mfa.challenge.MfaAuthenticationChallengeResponseService;
 import io.gardenerframework.camellia.authentication.server.main.mfa.challenge.MfaAuthenticationScenario;
 import io.gardenerframework.camellia.authentication.server.main.mfa.schema.credentials.MfaResponseCredentials;
@@ -44,7 +44,7 @@ public class MfaAuthenticationService implements UserAuthenticationService {
         return new UserAuthenticationRequestToken(
                 MfaAuthenticationPrincipal.builder()
                         .name(mfaResponseParameter.getChallengeId())
-                        .authenticatorName(mfaResponseParameter.getAuthenticatorName())
+                        .authenticatorName(mfaResponseParameter.getAuthenticator())
                         .build(),
                 MfaResponseCredentials.builder().response(mfaResponseParameter.getResponse()).build()
         );

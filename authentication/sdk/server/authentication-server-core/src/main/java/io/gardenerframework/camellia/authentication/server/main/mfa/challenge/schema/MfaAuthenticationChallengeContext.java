@@ -1,6 +1,6 @@
 package io.gardenerframework.camellia.authentication.server.main.mfa.challenge.schema;
 
-import io.gardenerframework.camellia.authentication.common.client.schema.RequestingClient;
+import io.gardenerframework.camellia.authentication.common.client.schema.OAuth2RequestingClient;
 import io.gardenerframework.camellia.authentication.common.data.serialization.SerializationVersionNumber;
 import io.gardenerframework.camellia.authentication.infra.challenge.core.schema.ChallengeContext;
 import io.gardenerframework.camellia.authentication.server.main.schema.subject.principal.Principal;
@@ -25,6 +25,8 @@ public class MfaAuthenticationChallengeContext implements ChallengeContext,
     private static final long serialVersionUID = SerializationVersionNumber.version;
     /**
      * 触发当前mfa认证的登录名
+     * <p>
+     * 用于重放认证成功事件
      */
     @NonNull
     private Principal principal;
@@ -32,7 +34,7 @@ public class MfaAuthenticationChallengeContext implements ChallengeContext,
      * 当时正在请求的客户端
      */
     @Nullable
-    private RequestingClient client;
+    private OAuth2RequestingClient client;
     /**
      * 当时已经通过基本校验的用户
      */

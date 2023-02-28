@@ -3,7 +3,7 @@ package io.gardenerframework.camellia.authentication.server.main.utils;
 import io.gardenerframework.camellia.authentication.server.common.annotation.AuthenticationServerEngineComponent;
 import io.gardenerframework.camellia.authentication.server.common.annotation.AuthenticationServerEnginePreserved;
 import io.gardenerframework.camellia.authentication.server.main.UserAuthenticationService;
-import io.gardenerframework.camellia.authentication.server.main.annotation.AuthenticationEndpoint;
+import io.gardenerframework.camellia.authentication.server.main.annotation.SupportAuthenticationEndpoint;
 import io.gardenerframework.camellia.authentication.server.main.annotation.AuthenticationType;
 import io.gardenerframework.fragrans.log.GenericLoggerStaticAccessor;
 import io.gardenerframework.fragrans.log.common.schema.reason.AlreadyExisted;
@@ -124,7 +124,7 @@ public class UserAuthenticationServiceRegistry implements InitializingBean {
                                     new UserAuthenticationServiceRegistryItem(
                                             service,
                                             annotation,
-                                            AnnotationUtils.findAnnotation(ClassUtils.getUserClass(service), AuthenticationEndpoint.class),
+                                            AnnotationUtils.findAnnotation(ClassUtils.getUserClass(service), SupportAuthenticationEndpoint.class),
                                             AnnotationUtils.findAnnotation(service.getClass(), AuthenticationServerEnginePreserved.class) != null,
                                             true)
                             );
@@ -199,7 +199,7 @@ public class UserAuthenticationServiceRegistry implements InitializingBean {
          * 支持的端点类型
          */
         @Nullable
-        private final AuthenticationEndpoint authenticationEndpoint;
+        private final SupportAuthenticationEndpoint authenticationEndpoint;
         /**
          * 是否是工程自保留的
          */

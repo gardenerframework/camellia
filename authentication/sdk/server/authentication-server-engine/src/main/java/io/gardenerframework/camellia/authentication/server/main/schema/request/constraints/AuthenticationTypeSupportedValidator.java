@@ -1,8 +1,8 @@
 package io.gardenerframework.camellia.authentication.server.main.schema.request.constraints;
 
 import io.gardenerframework.camellia.authentication.server.main.utils.UserAuthenticationServiceRegistry;
-import io.gardenerframework.camellia.authentication.server.main.annotation.AuthenticationEndpoint;
-import io.gardenerframework.camellia.authentication.server.utils.AuthenticationEndpointMatcher;
+import io.gardenerframework.camellia.authentication.server.main.annotation.SupportAuthenticationEndpoint;
+import io.gardenerframework.camellia.authentication.server.main.utils.AuthenticationEndpointMatcher;
 import io.gardenerframework.fragrans.validation.constraints.AbstractConstraintValidator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,18 +33,18 @@ public class AuthenticationTypeSupportedValidator extends AbstractConstraintVali
      * @param annotation 配置的注解
      * @return 是否
      */
-    private boolean isAuthenticationEndpointSupported(HttpServletRequest request, @Nullable AuthenticationEndpoint annotation) {
-        List<AuthenticationEndpoint.Endpoint> supportedEndpoint = new LinkedList<>();
+    private boolean isAuthenticationEndpointSupported(HttpServletRequest request, @Nullable SupportAuthenticationEndpoint annotation) {
+        List<SupportAuthenticationEndpoint.Endpoint> supportedEndpoint = new LinkedList<>();
         if (annotation == null) {
-            supportedEndpoint.addAll(Arrays.asList(AuthenticationEndpoint.Endpoint.values()));
+            supportedEndpoint.addAll(Arrays.asList(SupportAuthenticationEndpoint.Endpoint.values()));
         } else {
             supportedEndpoint.addAll(Arrays.asList(annotation.value()));
         }
         if (authenticationEndpointMatcher.isTokenEndpoint(request)) {
-            return supportedEndpoint.contains(AuthenticationEndpoint.Endpoint.OAUTH2);
+            return supportedEndpoint.contains(SupportAuthenticationEndpoint.Endpoint.OAUTH2);
         }
         if (authenticationEndpointMatcher.isWebAuthenticationEndpoint(request)) {
-            return supportedEndpoint.contains(AuthenticationEndpoint.Endpoint.WEB);
+            return supportedEndpoint.contains(SupportAuthenticationEndpoint.Endpoint.WEB);
         }
         return false;
     }
@@ -60,10 +60,7 @@ public class AuthenticationTypeSupportedValidator extends AbstractConstraintVali
             HttpServletRequest request =
                     ((ServletRequestAttributes) Objects.requireNonNull(RequestContextHolder.getRequestAttributes()))
                             .getRequest();
-            if (!isAuthenticationEndpointSupported(request, Objects.requireNonNull(registry.getItem(value)).getAuthenticationEndpoint())) {
-                return false;
-            }
-            return true;
+            return isAuthenticationEndpointSupported(request, Objects.requireNonNull(registry.getItem(value)).getAuthenticationEndpoint());
         }
         return false;
     }

@@ -4,7 +4,7 @@ import io.gardenerframework.camellia.authentication.server.common.annotation.Aut
 import io.gardenerframework.camellia.authentication.server.main.exception.NestedAuthenticationException;
 import io.gardenerframework.camellia.authentication.server.main.exception.OAuth2ErrorCodes;
 import io.gardenerframework.camellia.authentication.server.main.exception.annotation.OAuth2ErrorCode;
-import io.gardenerframework.camellia.authentication.server.utils.AuthenticationEndpointMatcher;
+import io.gardenerframework.camellia.authentication.server.main.utils.AuthenticationEndpointMatcher;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.Setter;

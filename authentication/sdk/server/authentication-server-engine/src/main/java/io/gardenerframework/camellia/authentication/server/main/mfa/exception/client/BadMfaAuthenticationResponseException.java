@@ -1,4 +1,4 @@
-package io.gardenerframework.camellia.authentication.server.main.exception.client;
+package io.gardenerframework.camellia.authentication.server.main.mfa.exception.client;
 
 import io.gardenerframework.camellia.authentication.server.common.annotation.AuthenticationServerEnginePreserved;
 import io.gardenerframework.camellia.authentication.server.main.exception.AuthenticationServerAuthenticationExceptions;
