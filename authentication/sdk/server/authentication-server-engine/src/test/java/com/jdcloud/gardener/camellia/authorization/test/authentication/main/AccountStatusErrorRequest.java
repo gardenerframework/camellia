@@ -1,13 +1,13 @@
 package com.jdcloud.gardener.camellia.authorization.test.authentication.main;
 
-import com.jdcloud.gardener.camellia.authorization.authentication.main.UserAuthenticationService;
-import com.jdcloud.gardener.camellia.authorization.authentication.main.annotation.AuthenticationType;
-import com.jdcloud.gardener.camellia.authorization.authentication.main.schema.UserAuthenticationRequestToken;
-import com.jdcloud.gardener.camellia.authorization.authentication.main.schema.credentials.BasicCredentials;
-import com.jdcloud.gardener.camellia.authorization.authentication.main.user.schema.subject.User;
 import com.jdcloud.gardener.camellia.authorization.test.security.authentication.principal.AccountExpiredPrincipal;
 import com.jdcloud.gardener.camellia.authorization.test.security.authentication.principal.DisabledPrincipal;
 import com.jdcloud.gardener.camellia.authorization.test.security.authentication.principal.LockedPrincipal;
+import io.gardenerframework.camellia.authentication.server.main.UserAuthenticationService;
+import io.gardenerframework.camellia.authentication.server.main.annotation.AuthenticationType;
+import io.gardenerframework.camellia.authentication.server.main.schema.UserAuthenticationRequestToken;
+import io.gardenerframework.camellia.authentication.server.main.schema.subject.credentials.EmptyCredentials;
+import io.gardenerframework.camellia.authentication.server.main.user.schema.User;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.stereotype.Component;
 
@@ -18,7 +18,7 @@ import javax.servlet.http.HttpServletRequest;
  * @date 2022/5/13 11:21
  */
 @AuthenticationType("AccountStatusErrorRequest")
-@AuthenticationServerEngineComponent
+@Component
 public class AccountStatusErrorRequest implements UserAuthenticationService {
     @Override
     public UserAuthenticationRequestToken convert(HttpServletRequest request) throws AuthenticationException {
@@ -26,27 +26,23 @@ public class AccountStatusErrorRequest implements UserAuthenticationService {
         switch (username) {
             case "disabled":
                 return new UserAuthenticationRequestToken(
-                        new DisabledPrincipal(username),
-                        new BasicCredentials() {
-                        }
+                        DisabledPrincipal.builder().name(username).build(),
+                        new EmptyCredentials()
                 );
             case "locked":
                 return new UserAuthenticationRequestToken(
-                        new LockedPrincipal(username),
-                        new BasicCredentials() {
-                        }
+                        LockedPrincipal.builder().name(username).build(),
+                        new EmptyCredentials()
                 );
             case "expired":
                 return new UserAuthenticationRequestToken(
-                        new AccountExpiredPrincipal(username),
-                        new BasicCredentials() {
-                        }
+                        AccountExpiredPrincipal.builder().name(username).build(),
+                        new EmptyCredentials()
                 );
             default:
                 return new UserAuthenticationRequestToken(
                         null,
-                        new BasicCredentials() {
-                        }
+                        new EmptyCredentials()
                 );
         }
     }

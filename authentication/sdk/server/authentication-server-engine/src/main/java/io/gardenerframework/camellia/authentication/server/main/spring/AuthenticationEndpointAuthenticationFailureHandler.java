@@ -1,10 +1,6 @@
 package io.gardenerframework.camellia.authentication.server.main.spring;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.util.StdDateFormat;
-import com.jdcloud.gardener.camellia.authorization.authentication.mfa.exception.client.MfaAuthenticationRequiredException;
-import com.jdcloud.gardener.camellia.authorization.challenge.schema.Challenge;
-import io.gardenerframework.camellia.authentication.infra.challenge.core.schema.Challenge;
 import io.gardenerframework.camellia.authentication.server.common.annotation.AuthenticationServerEngineComponent;
 import io.gardenerframework.camellia.authentication.server.common.configuration.AuthenticationServerPathOption;
 import io.gardenerframework.camellia.authentication.server.main.exception.*;
@@ -37,7 +33,6 @@ import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
-import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -51,7 +46,6 @@ import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.nio.charset.StandardCharsets;
-import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
@@ -237,24 +231,20 @@ public class AuthenticationEndpointAuthenticationFailureHandler implements Authe
     /**
      * 跳向mfa页面
      *
-     * @param request                    请求
-     * @param response                   响应
-     * @param mfaAuthenticationChallenge mfa认证请求
+     * @param request   请求
+     * @param response  响应
+     * @param exception mfa认证请求异常
      * @throws IOException      io问题
      * @throws ServletException Servlet问题
      */
-    private void forwardToMfaWebPage(HttpServletRequest request, HttpServletResponse response, Challenge mfaAuthenticationChallenge) throws IOException, ServletException {
+    private void forwardToMfaWebPage(HttpServletRequest request, HttpServletResponse response, MfaAuthenticationRequiredException exception) throws IOException, ServletException {
         if (!response.isCommitted()) {
             UriComponentsBuilder uriComponentsBuilder = UriComponentsBuilder.fromUriString(authenticationServerPathOption.getWebMfaChallengePage());
-            uriComponentsBuilder.queryParam("authenticator", UriUtils.encode(mfaAuthenticationChallenge.getAuthenticator(), "utf-8"));
-            uriComponentsBuilder.queryParam("challengeId", UriUtils.encode(mfaAuthenticationChallenge.getId(), "utf-8"));
-            uriComponentsBuilder.queryParam("expiresAt", UriUtils.encode(new SimpleDateFormat(StdDateFormat.DATE_FORMAT_STR_ISO8601).format(mfaAuthenticationChallenge.getExpiresAt()), "utf-8"));
-            Map<String, ?> additionalPageParam = mfaAuthenticationChallenge.getParameters();
-            if (additionalPageParam != null) {
-                additionalPageParam.forEach(
-                        (key, value) -> uriComponentsBuilder.queryParam(key, UriUtils.encode(String.valueOf(value), "utf-8"))
-                );
-            }
+            Map<String, Object> details = exception.getDetails();
+            details.forEach(
+                    (k, v) -> uriComponentsBuilder.queryParam(k, UriUtils.encode(String.valueOf(v), "utf-8"))
+            );
+
             response.sendRedirect(uriComponentsBuilder.build().toString());
         }
     }
@@ -272,7 +262,7 @@ public class AuthenticationEndpointAuthenticationFailureHandler implements Authe
         if (!response.isCommitted()) {
             if (exception instanceof MfaAuthenticationRequiredException) {
                 //跳mfa认证页面
-                forwardToMfaWebPage(request, response, ((MfaAuthenticationRequiredException) exception).getMfaAuthenticationChallenge());
+                forwardToMfaWebPage(request, response, (MfaAuthenticationRequiredException) exception);
             } else {
                 UriComponentsBuilder uriComponentsBuilder = UriComponentsBuilder.fromUriString(authenticationServerPathOption.getWebAuthenticationErrorPage());
                 uriComponentsBuilder.queryParam("status", apiError.getStatus());

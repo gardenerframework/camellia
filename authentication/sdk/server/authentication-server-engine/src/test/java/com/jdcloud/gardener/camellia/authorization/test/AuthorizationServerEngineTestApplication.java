@@ -1,12 +1,12 @@
 package com.jdcloud.gardener.camellia.authorization.test;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.jdcloud.gardener.camellia.authorization.authentication.main.user.schema.subject.User;
-import com.jdcloud.gardener.camellia.authorization.client.schema.response.ClientAppearance;
-import com.jdcloud.gardener.camellia.authorization.user.schema.response.UserAppearance;
-import com.jdcloud.gardener.fragrans.api.options.persistence.ApiOptionPersistenceService;
-import com.jdcloud.gardener.fragrans.api.options.persistence.exception.ApiOptionPersistenceException;
-import com.jdcloud.gardener.fragrans.api.options.persistence.schema.ApiOptionRecordSkeleton;
+import io.gardenerframework.camellia.authentication.server.client.schema.response.ClientAppearance;
+import io.gardenerframework.camellia.authentication.server.main.user.schema.User;
+import io.gardenerframework.camellia.authentication.server.user.schema.response.UserAppearance;
+import io.gardenerframework.fragrans.api.options.persistence.ApiOptionPersistenceService;
+import io.gardenerframework.fragrans.api.options.persistence.exception.ApiOptionPersistenceException;
+import io.gardenerframework.fragrans.api.options.persistence.schema.ApiOptionRecordSkeleton;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;

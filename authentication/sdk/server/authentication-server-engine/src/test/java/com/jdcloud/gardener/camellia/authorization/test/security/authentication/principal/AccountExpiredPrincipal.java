@@ -1,14 +1,13 @@
 package com.jdcloud.gardener.camellia.authorization.test.security.authentication.principal;
 
-import com.jdcloud.gardener.camellia.authorization.authentication.main.schema.principal.BasicPrincipal;
+import io.gardenerframework.camellia.authentication.server.main.schema.subject.principal.Principal;
+import lombok.experimental.SuperBuilder;
 
 /**
  * @author ZhangHan
  * @date 2022/5/13 11:54
  */
-public class AccountExpiredPrincipal extends BasicPrincipal {
+@SuperBuilder
+public class AccountExpiredPrincipal extends Principal {
 
-    public AccountExpiredPrincipal(String name) {
-        super(name);
-    }
 }

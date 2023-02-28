@@ -1,12 +1,12 @@
 package io.gardenerframework.camellia.authentication.server.main.spring.support.oauth2;
 
-import io.gardenerframework.camellia.authentication.server.main.spring.AuthenticationEndpointExceptionAdapter;
-import com.jdcloud.gardener.camellia.authorization.authentication.main.exception.client.BadAuthenticationRequestParameterException;
+import io.gardenerframework.camellia.authentication.server.common.annotation.AuthenticationServerEngineComponent;
+import io.gardenerframework.camellia.authentication.server.main.exception.client.BadAuthenticationRequestParameterException;
 import io.gardenerframework.camellia.authentication.server.main.schema.request.OAuth2TokenParameter;
+import io.gardenerframework.camellia.authentication.server.main.spring.AuthenticationEndpointExceptionAdapter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.AuthenticationConverter;
-import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
 import javax.servlet.http.HttpServletRequest;

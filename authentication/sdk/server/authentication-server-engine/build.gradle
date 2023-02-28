@@ -9,10 +9,12 @@ dependencies {
     api "${fragrans.group}:api-group-context-path"
     api "${fragrans.group}:api-options-engine"
     api "${fragrans.group}:data-cache-core"
+    api "${fragrans.group}:data-traits-application"
     api "${group}:authentication-server-core"
     api "org.bouncycastle:bcprov-jdk15on"
     runtimeOnly "com.fasterxml.jackson.datatype:jackson-datatype-jsr310"
     testImplementation "${fragrans.group}:data-cache-spring-redis"
+    testImplementation "${group}:challenge-response-engine"
     testImplementation "com.jayway.jsonpath:json-path:2.4.0"
     //如果有人401报错拿不到消息体，用这个
     testImplementation 'org.apache.httpcomponents:httpclient:4.5.13'

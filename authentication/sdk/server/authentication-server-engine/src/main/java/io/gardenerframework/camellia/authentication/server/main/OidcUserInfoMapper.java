@@ -1,7 +1,8 @@
 package io.gardenerframework.camellia.authentication.server.main;
 
-import com.jdcloud.gardener.camellia.authorization.authentication.main.schema.UserAuthenticatedAuthentication;
 import io.gardenerframework.camellia.authentication.server.common.annotation.AuthenticationServerEngineComponent;
+import io.gardenerframework.camellia.authentication.server.main.oidc.OidcUserInfoClaimsCustomizer;
+import io.gardenerframework.camellia.authentication.server.main.schema.UserAuthenticatedAuthentication;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;

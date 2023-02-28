@@ -1,12 +1,13 @@
 package io.gardenerframework.camellia.authentication.server.main.spring.support.oauth2;
 
-import com.jdcloud.gardener.camellia.authorization.authentication.utils.JwtUtils;
-import com.jdcloud.gardener.fragrans.log.GenericLoggerStaticAccessor;
-import com.jdcloud.gardener.fragrans.log.common.schema.reason.NotFound;
-import com.jdcloud.gardener.fragrans.log.schema.content.GenericBasicLogContent;
-import com.jdcloud.gardener.fragrans.log.schema.details.Detail;
+import io.gardenerframework.camellia.authentication.server.common.annotation.AuthenticationServerEngineComponent;
 import io.gardenerframework.camellia.authentication.server.main.schema.OAuth2ClientUserAuthenticationToken;
 import io.gardenerframework.camellia.authentication.server.main.schema.UserAuthenticatedAuthentication;
+import io.gardenerframework.camellia.authentication.server.utils.JwtUtils;
+import io.gardenerframework.fragrans.log.GenericLoggerStaticAccessor;
+import io.gardenerframework.fragrans.log.common.schema.reason.NotFound;
+import io.gardenerframework.fragrans.log.schema.content.GenericBasicLogContent;
+import io.gardenerframework.fragrans.log.schema.details.Detail;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -26,7 +27,6 @@ import org.springframework.security.oauth2.server.authorization.authentication.O
 import org.springframework.security.oauth2.server.authorization.config.ProviderSettings;
 import org.springframework.security.oauth2.server.authorization.token.JwtEncodingContext;
 import org.springframework.security.oauth2.server.authorization.token.OAuth2TokenCustomizer;
-import org.springframework.stereotype.Component;
 
 import java.security.Principal;
 import java.time.Duration;

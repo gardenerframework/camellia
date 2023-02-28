@@ -1,9 +1,9 @@
 package com.jdcloud.gardener.camellia.authorization.test.authentication.main;
 
-import com.jdcloud.gardener.camellia.authorization.authentication.main.UserAuthenticationService;
-import com.jdcloud.gardener.camellia.authorization.authentication.main.annotation.AuthenticationType;
-import com.jdcloud.gardener.camellia.authorization.authentication.main.schema.UserAuthenticationRequestToken;
-import com.jdcloud.gardener.camellia.authorization.authentication.main.user.schema.subject.User;
+import io.gardenerframework.camellia.authentication.server.main.UserAuthenticationService;
+import io.gardenerframework.camellia.authentication.server.main.annotation.AuthenticationType;
+import io.gardenerframework.camellia.authentication.server.main.schema.UserAuthenticationRequestToken;
+import io.gardenerframework.camellia.authentication.server.main.user.schema.User;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.stereotype.Component;
 
@@ -14,7 +14,7 @@ import javax.servlet.http.HttpServletRequest;
  * @date 2022/5/13 11:21
  */
 @AuthenticationType("NullPrincipalRequest")
-@AuthenticationServerEngineComponent
+@Component
 public class NullPrincipalRequest implements UserAuthenticationService {
     @Override
     public UserAuthenticationRequestToken convert(HttpServletRequest request) throws AuthenticationException {

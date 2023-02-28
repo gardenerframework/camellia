@@ -1,11 +1,11 @@
 package io.gardenerframework.camellia.authentication.server.main.spring.support.oauth2;
 
-import com.jdcloud.gardener.camellia.authorization.authentication.configuration.OAuth2AuthorizationConsentOption;
-import com.jdcloud.gardener.fragrans.data.cache.client.CacheClient;
-import com.jdcloud.gardener.fragrans.data.cache.manager.BasicCacheManager;
+import io.gardenerframework.camellia.authentication.server.common.annotation.AuthenticationServerEngineComponent;
+import io.gardenerframework.camellia.authentication.server.configuration.OAuth2AuthorizationConsentOption;
+import io.gardenerframework.fragrans.data.cache.client.CacheClient;
+import io.gardenerframework.fragrans.data.cache.manager.BasicCacheManager;
 import org.springframework.security.oauth2.server.authorization.OAuth2AuthorizationConsent;
 import org.springframework.security.oauth2.server.authorization.OAuth2AuthorizationConsentService;
-import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
 import java.time.Duration;

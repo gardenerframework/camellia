@@ -2,9 +2,10 @@ package io.gardenerframework.camellia.authentication.server.configuration;
 
 import io.gardenerframework.camellia.authentication.server.common.annotation.AuthenticationServerEngineComponent;
 import io.gardenerframework.camellia.authentication.server.common.configuration.AuthenticationServerPathOption;
+import io.gardenerframework.camellia.authentication.server.main.OidcUserInfoMapper;
+import io.gardenerframework.camellia.authentication.server.main.configuration.OAuth2ClientAuthenticationFilterRequestMatherConfigurer;
 import io.gardenerframework.camellia.authentication.server.main.spring.AuthenticationEndpointAuthenticationFailureHandler;
 import io.gardenerframework.camellia.authentication.server.main.spring.LoginAuthenticationRequestConverter;
-import io.gardenerframework.camellia.authentication.server.main.OidcUserInfoMapper;
 import io.gardenerframework.camellia.authentication.server.main.spring.support.oauth2.TokenEndpointAuthenticationConverterDelegate;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -20,7 +21,6 @@ import org.springframework.security.oauth2.server.authorization.web.authenticati
 import org.springframework.security.oauth2.server.authorization.web.authentication.OAuth2ClientCredentialsAuthenticationConverter;
 import org.springframework.security.oauth2.server.authorization.web.authentication.OAuth2RefreshTokenAuthenticationConverter;
 import org.springframework.security.web.util.matcher.RequestMatcher;
-import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
 import java.lang.reflect.Field;

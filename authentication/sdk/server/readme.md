@@ -1297,14 +1297,30 @@ public class MfaAuthenticationService implements UserAuthenticationService {
 支持这一逻辑的类是`UserServiceDelegate`，它加载多个`UserSerivce`，并优先调用带有`AuthenticationServerEnginePreserved`
 的类进行用户信息加载，如果这些类都没有返回数据，才调用开发人员编写的类
 
-# AuthenticationEndpointAuthenticatedAuthenticationAdapter
+# LoginAuthenticationRequestAuthenticator需要使用的适配器
 
-在Spring Security框架中，oauth2服务器的网页认证接口和令牌接口要求返回的类型不同
+## AuthenticationEndpointAuthenticatedAuthenticationAdapter
+
+在Spring Security框架中，oauth2服务器的网页认证接口和令牌接口要求返回的类型不同。Spring oauth2要求返回的`Authentication`
+类型必须是`OAuth2AccessTokenAuthenticationToken`，而传统Spring Security显然不需要oauth2的access token等
+
+于是`AuthenticationEndpointAuthenticatedAuthenticationAdapter`作为`LoginAuthenticationRequestAuthenticator`
+的内部组件，基于`AuthenticationEndpointMatcher`判断当前请求的地址是token接口还是网页接口
+
+* token接口调用`OAuth2TokenGranter`进行令牌授予，其返回`OAuth2AccessTokenAuthenticationToken`类型的`Authentication`
+* 网页接口返回`UserAuthenticatedAuthentication`
+
+## AuthenticationEndpointExceptionAdapter
+
+同样, token接口要求抛出的是`OAuth2AuthenticationException`，所以为了开发人员的统一逻辑考虑，需要将原始的`AuthenticationException`进行转换
 
 # 认证过程失败处理
 
 在`LoginAuthenticationRequestAuthenticator`认证过程中如果捕捉到`AuthenticationException`异常，会发送`AuthenticationFailedEvent`。
-最终，捕捉到的所有异常会使用
+最终，捕捉到的所有异常会使用`AuthenticationEndpointAuthenticationFailureHandler`进行统一处理
+
+* 针对网页认证接口，会重定向到`AuthenticationServerPathOption.webAuthenticationErrorPage`的配置
+* 对于token认证接口，返回由符合oauth2标准定义的json
 
 # UserAuthenticationService管理
 

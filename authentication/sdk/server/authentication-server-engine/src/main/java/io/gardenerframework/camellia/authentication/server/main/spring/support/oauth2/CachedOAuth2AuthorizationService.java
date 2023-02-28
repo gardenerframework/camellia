@@ -22,6 +22,22 @@ import com.jdcloud.gardener.fragrans.log.common.schema.verb.Start;
 import com.jdcloud.gardener.fragrans.log.common.schema.verb.Update;
 import com.jdcloud.gardener.fragrans.log.schema.content.GenericOperationLogContent;
 import com.jdcloud.gardener.fragrans.log.schema.details.Detail;
+import io.gardenerframework.camellia.authentication.server.common.annotation.AuthenticationServerEngineComponent;
+import io.gardenerframework.camellia.authentication.server.configuration.OAuth2AuthorizationConsentOption;
+import io.gardenerframework.fragrans.data.cache.client.RedisCacheClient;
+import io.gardenerframework.fragrans.data.cache.lock.CacheLock;
+import io.gardenerframework.fragrans.data.cache.lock.context.LockContext;
+import io.gardenerframework.fragrans.data.cache.lock.context.ServletRequestLockContextHolder;
+import io.gardenerframework.fragrans.data.cache.serialize.JdkSerializer;
+import io.gardenerframework.fragrans.data.cache.serialize.LongSerializer;
+import io.gardenerframework.fragrans.data.cache.serialize.StringSerializer;
+import io.gardenerframework.fragrans.log.GenericLoggerStaticAccessor;
+import io.gardenerframework.fragrans.log.common.schema.verb.Delete;
+import io.gardenerframework.fragrans.log.common.schema.verb.Read;
+import io.gardenerframework.fragrans.log.common.schema.verb.Start;
+import io.gardenerframework.fragrans.log.common.schema.verb.Update;
+import io.gardenerframework.fragrans.log.schema.content.GenericOperationLogContent;
+import io.gardenerframework.fragrans.log.schema.details.Detail;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -53,7 +69,6 @@ import java.util.*;
  * @date 2022/1/8 3:48
  */
 @Slf4j
-@LogTarget("oauth2授权访问服务")
 @AuthenticationServerEngineComponent
 public class CachedOAuth2AuthorizationService implements OAuth2AuthorizationService {
     private static final String NAMESPACE_HEADER = "camellia:authorization:engine:token:";

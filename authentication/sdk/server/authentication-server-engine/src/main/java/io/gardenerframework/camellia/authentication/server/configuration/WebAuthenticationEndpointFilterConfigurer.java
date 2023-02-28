@@ -1,5 +1,6 @@
 package io.gardenerframework.camellia.authentication.server.configuration;
 
+import io.gardenerframework.camellia.authentication.server.common.annotation.AuthenticationServerEngineComponent;
 import io.gardenerframework.camellia.authentication.server.common.configuration.AuthenticationServerPathOption;
 import io.gardenerframework.camellia.authentication.server.main.spring.AuthenticationEndpointAuthenticationFailureHandler;
 import io.gardenerframework.camellia.authentication.server.main.spring.LoginAuthenticationRequestConverter;
@@ -19,6 +20,7 @@ import org.springframework.security.web.util.matcher.RequestMatcher;
  * @date 2022/4/26 21:51
  */
 @AllArgsConstructor
+@AuthenticationServerEngineComponent
 public class WebAuthenticationEndpointFilterConfigurer extends AuthenticationServerEngineSecurityConfigurer {
     private final AuthenticationServerPathOption authenticationServerPathOption;
     private final LoginAuthenticationRequestConverter loginAuthenticationRequestConverter;
