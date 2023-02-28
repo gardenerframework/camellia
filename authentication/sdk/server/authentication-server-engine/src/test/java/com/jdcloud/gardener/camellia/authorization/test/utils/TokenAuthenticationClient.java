@@ -21,7 +21,7 @@ import java.util.Map;
  * @author ZhangHan
  * @date 2022/5/13 13:49
  */
-@Component
+@AuthenticationServerEngineComponent
 public class TokenAuthenticationClient {
     private final String clientId = "test";
     private final String clientSecret = "123";

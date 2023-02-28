@@ -1,4 +1,4 @@
-package io.gardenerframework.camellia.authentication.server.main;
+package io.gardenerframework.camellia.authentication.server.main.spring;
 
 import io.gardenerframework.camellia.authentication.server.main.schema.OAuth2ClientUserAuthenticationToken;
 import io.gardenerframework.camellia.authentication.server.main.schema.UserAuthenticatedAuthentication;

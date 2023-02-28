@@ -14,7 +14,7 @@ import java.time.Duration;
  * @author ZhangHan
  * @date 2022/1/8 3:31
  */
-@Component
+@AuthenticationServerEngineComponent
 public class CachedOAuth2AuthorizationConsentService implements OAuth2AuthorizationConsentService {
     /**
      * 缓存名称空间

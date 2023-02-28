@@ -1,5 +1,6 @@
 package io.gardenerframework.camellia.authentication.server.utils;
 
+import io.gardenerframework.camellia.authentication.server.common.annotation.AuthenticationServerEngineComponent;
 import io.gardenerframework.camellia.authentication.server.configuration.AuthenticationServerEngineSecurityConfigurer;
 import io.gardenerframework.camellia.authentication.server.configuration.WebAuthenticationEndpointFilterConfigurer;
 import org.springframework.security.config.Customizer;
@@ -8,7 +9,6 @@ import org.springframework.security.config.annotation.web.configurers.oauth2.ser
 import org.springframework.security.config.annotation.web.configurers.oauth2.server.authorization.OAuth2EndpointConfigurerRequestMatcherAccessor;
 import org.springframework.security.config.annotation.web.configurers.oauth2.server.authorization.OAuth2TokenEndpointConfigurer;
 import org.springframework.security.web.util.matcher.RequestMatcher;
-import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -20,7 +20,7 @@ import javax.servlet.http.HttpServletRequest;
  * @author ZhangHan
  * @date 2022/5/11 23:32
  */
-@Component
+@AuthenticationServerEngineComponent
 public class AuthenticationEndpointMatcher extends AuthenticationServerEngineSecurityConfigurer {
     private RequestMatcher webAuthenticationEndpointMatcher;
     private RequestMatcher tokenAuthenticationEndpointMatcher;

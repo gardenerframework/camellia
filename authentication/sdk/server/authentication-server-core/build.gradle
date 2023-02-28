@@ -2,6 +2,8 @@ dependencies {
     api "org.springframework:spring-core"
     api "${group}:authentication-common-toolkits"
     api "${group}:challenge-response-core"
+    compileOnly "${fragrans.group}:sugar-trait"
+    annotationProcessor "${fragrans.group}:sugar-trait-apt"
     api "${fragrans.group}:api-options-common"
     api "${fragrans.group}:data-traits-security"
     api "${fragrans.group}:data-traits-generic"

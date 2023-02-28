@@ -86,7 +86,7 @@ public class UserAuthenticationServiceManagementEndpointTest {
         this.token = null;
     }
 
-    @Component
+    @AuthenticationServerEngineComponent
     @AuthenticationType(value = "AuthenticationRequestConverterEndpointTestConverter")
     public static class AuthenticationRequestConverterEndpointTestConverter implements UserAuthenticationService {
 

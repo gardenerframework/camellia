@@ -54,7 +54,7 @@ import java.util.*;
  */
 @Slf4j
 @LogTarget("oauth2授权访问服务")
-@Component
+@AuthenticationServerEngineComponent
 public class CachedOAuth2AuthorizationService implements OAuth2AuthorizationService {
     private static final String NAMESPACE_HEADER = "camellia:authorization:engine:token:";
     private final RedisCacheClient cacheClient;

@@ -1,8 +1,9 @@
 package io.gardenerframework.camellia.authentication.server.main.schema.request.constraints;
 
-import io.gardenerframework.camellia.authentication.server.main.UserAuthenticationServiceRegistry;
+import io.gardenerframework.camellia.authentication.server.main.utils.UserAuthenticationServiceRegistry;
 import io.gardenerframework.camellia.authentication.server.main.annotation.AuthenticationEndpoint;
 import io.gardenerframework.camellia.authentication.server.utils.AuthenticationEndpointMatcher;
+import io.gardenerframework.fragrans.validation.constraints.AbstractConstraintValidator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.lang.Nullable;
@@ -11,21 +12,15 @@ import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * @author ZhangHan
  * @date 2022/5/11 12:29
  */
 @Slf4j
-public class AuthenticationTypeSupportedValidator implements ConstraintValidator<AuthenticationTypeSupported, String> {
-    @Autowired
-    private AuthenticationTypeRegistry visibleTypes;
+public class AuthenticationTypeSupportedValidator extends AbstractConstraintValidator<AuthenticationTypeSupported, String> {
     @Autowired
     private AuthenticationEndpointMatcher authenticationEndpointMatcher;
     @Autowired
@@ -55,11 +50,11 @@ public class AuthenticationTypeSupportedValidator implements ConstraintValidator
     }
 
     @Override
-    public boolean isValid(String value, ConstraintValidatorContext context) {
+    protected boolean validate(String value, ConstraintValidatorContext context, Map<String, Object> data) {
         context.disableDefaultConstraintViolation();
         context.buildConstraintViolationWithTemplate(String.format("{%s}", AuthenticationTypeSupported.class.getCanonicalName())).addConstraintViolation();
         if (StringUtils.hasText(value)) {
-            if (!visibleTypes.getTypes(true, false).contains(value)) {
+            if (!registry.getRegisteredAuthenticationTypes(true, false).contains(value)) {
                 return false;
             }
             HttpServletRequest request =

@@ -2,8 +2,10 @@ package io.gardenerframework.camellia.authentication.infra.challenge.engine.test
 
 import io.gardenerframework.camellia.authentication.common.client.schema.OAuth2RequestingClient;
 import io.gardenerframework.camellia.authentication.common.client.schema.RequestingClient;
+import io.gardenerframework.camellia.authentication.infra.challenge.core.ChallengeAuthenticatorNameProvider;
 import io.gardenerframework.camellia.authentication.infra.challenge.core.ChallengeCooldownManager;
 import io.gardenerframework.camellia.authentication.infra.challenge.core.Scenario;
+import io.gardenerframework.camellia.authentication.infra.challenge.core.annotation.SaveInChallengeContext;
 import io.gardenerframework.camellia.authentication.infra.challenge.core.exception.ChallengeInCooldownException;
 import io.gardenerframework.camellia.authentication.infra.challenge.core.schema.Challenge;
 import io.gardenerframework.camellia.authentication.infra.challenge.core.schema.ChallengeContext;
@@ -43,10 +45,21 @@ public class AbstractChallengeResponseServiceTest {
         String appId = UUID.randomUUID().toString();
         RequestingClient client = OAuth2RequestingClient.builder().clientId(appId).grantType(UUID.randomUUID().toString()).scopes(Collections.EMPTY_SET).build();
         String requestId = UUID.randomUUID().toString();
-        testChallengeResponseService.sendChallenge(
+        TestChallengeRequest request = TestChallengeRequest.builder().requestId(requestId).saveInContext(UUID.randomUUID().toString()).build();
+        Challenge challenge = testChallengeResponseService.sendChallenge(
                 client,
                 AbstractChallengeResponseServiceTestScenario.class,
-                TestChallengeRequest.builder().requestId(requestId).build()
+                request
+        );
+        //读取上下文
+        TestChallengeContext context = testChallengeResponseService.getContext(
+                client,
+                AbstractChallengeResponseServiceTestScenario.class,
+                challenge.getId()
+        );
+        Assertions.assertEquals(
+                request.getSaveInContext(),
+                context.getSaveInContext()
         );
         //10秒cd
         Assertions.assertThrowsExactly(
@@ -59,7 +72,7 @@ public class AbstractChallengeResponseServiceTest {
         );
         Thread.sleep(10000);
         //再次发送成功
-        Challenge challenge = testChallengeResponseService.sendChallenge(
+        challenge = testChallengeResponseService.sendChallenge(
                 client,
                 AbstractChallengeResponseServiceTestScenario.class,
                 TestChallengeRequest.builder().requestId(requestId).build()
@@ -111,7 +124,7 @@ public class AbstractChallengeResponseServiceTest {
     public static class TestChallengeResponseService extends AbstractChallengeResponseService<
             TestChallengeRequest,
             Challenge,
-            TestChallengeContext> {
+            TestChallengeContext> implements ChallengeAuthenticatorNameProvider {
 
         public TestChallengeResponseService(@NonNull GenericCachedChallengeStore challengeStore, @NonNull ChallengeCooldownManager challengeCooldownManager, @NonNull GenericCachedChallengeContextStore challengeContextStore) {
             super(challengeStore, challengeCooldownManager, challengeContextStore.migrateType());
@@ -147,18 +160,22 @@ public class AbstractChallengeResponseServiceTest {
             return Challenge.builder()
                     .id(UUID.randomUUID().toString())
                     .expiryTime(Date.from(Instant.now().plus(Duration.ofSeconds(300))))
-                    .type(UUID.randomUUID().toString())
                     .build();
         }
 
         @Override
         protected TestChallengeContext createContext(@Nullable RequestingClient client, @NonNull Class<? extends Scenario> scenario, @NonNull TestChallengeRequest request, @NonNull Challenge challenge) {
-            return new TestChallengeContext(challenge.getId());
+            return new TestChallengeContext(challenge.getId(), null);
         }
 
         @Override
         protected boolean verifyChallengeInternally(@Nullable RequestingClient client, @NonNull Class<? extends Scenario> scenario, @NonNull String challengeId, @NonNull TestChallengeContext context, @NonNull String response) throws Exception {
             return getContext(client, scenario, challengeId).getResponse().equals(response);
+        }
+
+        @Override
+        public @NonNull String getChallengeAuthenticatorName() {
+            return "test";
         }
     }
 
@@ -168,6 +185,8 @@ public class AbstractChallengeResponseServiceTest {
     public static class TestChallengeRequest implements ChallengeRequest {
         @NonNull
         private String requestId;
+        @SaveInChallengeContext
+        private String saveInContext;
     }
 
     @Getter
@@ -177,5 +196,6 @@ public class AbstractChallengeResponseServiceTest {
     public static class TestChallengeContext implements ChallengeContext {
         @NonNull
         private String response;
+        private String saveInContext;
     }
 }

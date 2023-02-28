@@ -22,7 +22,7 @@ import java.util.Objects;
  * @author ZhangHan
  * @date 2022/5/21 1:08
  */
-@Component
+@AuthenticationServerEngineComponent
 public class EnhancedOAuth2TokenCustomizer implements OAuth2TokenCustomizer<JwtEncodingContext> {
     @Override
     public void customize(JwtEncodingContext context) {

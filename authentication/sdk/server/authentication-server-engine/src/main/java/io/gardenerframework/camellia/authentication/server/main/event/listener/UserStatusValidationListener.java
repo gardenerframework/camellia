@@ -1,5 +1,6 @@
 package io.gardenerframework.camellia.authentication.server.main.event.listener;
 
+import io.gardenerframework.camellia.authentication.server.common.annotation.AuthenticationServerEngineComponent;
 import io.gardenerframework.camellia.authentication.server.main.event.schema.UserAuthenticatedEvent;
 import io.gardenerframework.camellia.authentication.server.main.user.schema.User;
 import org.springframework.context.event.EventListener;
@@ -16,6 +17,7 @@ import java.util.Date;
  * @author ZhangHan
  * @date 2022/4/28 12:30
  */
+@AuthenticationServerEngineComponent
 public class UserStatusValidationListener implements AuthenticationEventListenerSkeleton {
 
     @Override

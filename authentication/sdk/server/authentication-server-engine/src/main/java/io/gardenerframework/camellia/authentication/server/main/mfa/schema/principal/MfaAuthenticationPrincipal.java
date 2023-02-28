@@ -1,9 +1,12 @@
-package io.gardenerframework.camellia.authentication.server.main.schema.principal;
+package io.gardenerframework.camellia.authentication.server.main.mfa.schema.principal;
 
 import io.gardenerframework.camellia.authentication.common.data.serialization.SerializationVersionNumber;
 import io.gardenerframework.camellia.authentication.server.common.annotation.AuthenticationServerEnginePreserved;
 import io.gardenerframework.camellia.authentication.server.main.schema.subject.principal.Principal;
 import io.gardenerframework.camellia.authentication.server.main.user.UserService;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NonNull;
 import lombok.experimental.SuperBuilder;
 
 /**
@@ -16,6 +19,10 @@ import lombok.experimental.SuperBuilder;
  */
 @SuperBuilder
 @AuthenticationServerEnginePreserved
-public class MfaChallengeIdPrincipal extends Principal {
+@EqualsAndHashCode(callSuper = true)
+@Getter
+public class MfaAuthenticationPrincipal extends Principal {
     private static final long serialVersionUID = SerializationVersionNumber.version;
+    @NonNull
+    private final String authenticatorName;
 }

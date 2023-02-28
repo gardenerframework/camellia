@@ -1,6 +1,7 @@
 package io.gardenerframework.camellia.authentication.server.main.event.listener;
 
 import io.gardenerframework.camellia.authentication.common.client.schema.OAuth2RequestingClient;
+import io.gardenerframework.camellia.authentication.server.common.annotation.AuthenticationServerEngineComponent;
 import io.gardenerframework.camellia.authentication.server.main.event.schema.ClientAuthenticatedEvent;
 import io.gardenerframework.camellia.authentication.server.main.exception.client.ClientNotFoundException;
 import io.gardenerframework.camellia.authentication.server.main.exception.client.UnauthorizedGrantTypeException;
@@ -19,6 +20,7 @@ import java.util.Objects;
  * @author ZhangHan
  * @date 2022/4/28 1:21
  */
+@AuthenticationServerEngineComponent
 public class OAuth2ClientValidationListener implements AuthenticationEventListenerSkeleton {
 
     @Override

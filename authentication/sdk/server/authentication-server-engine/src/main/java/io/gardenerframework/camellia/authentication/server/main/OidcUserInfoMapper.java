@@ -1,6 +1,7 @@
 package io.gardenerframework.camellia.authentication.server.main;
 
 import com.jdcloud.gardener.camellia.authorization.authentication.main.schema.UserAuthenticatedAuthentication;
+import io.gardenerframework.camellia.authentication.server.common.annotation.AuthenticationServerEngineComponent;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
@@ -10,7 +11,6 @@ import org.springframework.security.oauth2.core.oidc.OidcUserInfo;
 import org.springframework.security.oauth2.core.oidc.StandardClaimNames;
 import org.springframework.security.oauth2.server.authorization.OAuth2Authorization;
 import org.springframework.security.oauth2.server.authorization.oidc.authentication.OidcUserInfoAuthenticationContext;
-import org.springframework.stereotype.Component;
 
 import java.security.Principal;
 import java.util.*;
@@ -22,7 +22,7 @@ import java.util.function.Function;
  */
 @Slf4j
 @AllArgsConstructor
-@Component
+@AuthenticationServerEngineComponent
 public class OidcUserInfoMapper implements Function<OidcUserInfoAuthenticationContext, OidcUserInfo> {
     //以下代码都是直接从spring抄的
     private static final List<String> EMAIL_CLAIMS = Arrays.asList(

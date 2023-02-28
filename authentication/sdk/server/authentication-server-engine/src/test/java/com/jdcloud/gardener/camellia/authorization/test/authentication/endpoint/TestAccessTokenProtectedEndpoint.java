@@ -16,7 +16,7 @@ import java.util.Map;
  * @date 2022/5/17 23:16
  */
 @AuthorizationServerRestController
-@Component
+@AuthenticationServerEngineComponent
 @RequestMapping("/TestAccessTokenProtectedEndpoint")
 @AllArgsConstructor
 public class TestAccessTokenProtectedEndpoint {

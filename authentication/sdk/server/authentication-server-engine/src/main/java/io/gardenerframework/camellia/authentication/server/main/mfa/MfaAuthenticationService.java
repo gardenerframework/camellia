@@ -1,66 +1,84 @@
 package io.gardenerframework.camellia.authentication.server.main.mfa;
 
-import com.jdcloud.gardener.camellia.authorization.authentication.main.UserAuthenticationService;
-import com.jdcloud.gardener.camellia.authorization.authentication.main.annotation.AuthenticationType;
-import com.jdcloud.gardener.camellia.authorization.authentication.main.exception.NestedAuthenticationException;
-import com.jdcloud.gardener.camellia.authorization.authentication.main.exception.client.BadAuthenticationRequestParameterException;
-import com.jdcloud.gardener.camellia.authorization.authentication.main.schema.UserAuthenticationRequestToken;
-import com.jdcloud.gardener.camellia.authorization.authentication.main.schema.principal.MfaChallengeIdPrincipal;
-import com.jdcloud.gardener.camellia.authorization.authentication.main.user.schema.subject.User;
-import com.jdcloud.gardener.camellia.authorization.authentication.mfa.schema.credentials.MfaResponseCredentials;
-import com.jdcloud.gardener.camellia.authorization.authentication.mfa.schema.request.MfaResponseParameter;
-import com.jdcloud.gardener.camellia.authorization.challenge.exception.client.BadResponseException;
-import com.jdcloud.gardener.camellia.authorization.challenge.exception.client.ChallengeException;
-import com.jdcloud.gardener.camellia.authorization.common.annotation.AuthorizationEnginePreserved;
+import io.gardenerframework.camellia.authentication.common.client.schema.RequestingClient;
+import io.gardenerframework.camellia.authentication.infra.challenge.core.exception.ChallengeResponseServiceException;
+import io.gardenerframework.camellia.authentication.server.common.annotation.AuthenticationServerEngineComponent;
+import io.gardenerframework.camellia.authentication.server.common.annotation.AuthenticationServerEnginePreserved;
+import io.gardenerframework.camellia.authentication.server.main.UserAuthenticationService;
+import io.gardenerframework.camellia.authentication.server.main.annotation.AuthenticationType;
+import io.gardenerframework.camellia.authentication.server.main.exception.NestedAuthenticationException;
+import io.gardenerframework.camellia.authentication.server.main.exception.client.BadMfaAuthenticationResponseException;
+import io.gardenerframework.camellia.authentication.server.main.mfa.challenge.MfaAuthenticationChallengeResponseService;
+import io.gardenerframework.camellia.authentication.server.main.mfa.challenge.MfaAuthenticationScenario;
+import io.gardenerframework.camellia.authentication.server.main.mfa.schema.credentials.MfaResponseCredentials;
+import io.gardenerframework.camellia.authentication.server.main.mfa.schema.principal.MfaAuthenticationPrincipal;
+import io.gardenerframework.camellia.authentication.server.main.mfa.schema.request.MfaResponseParameter;
+import io.gardenerframework.camellia.authentication.server.main.mfa.utils.MfaAuthenticationChallengeResponseServiceRegistry;
+import io.gardenerframework.camellia.authentication.server.main.schema.UserAuthenticationRequestToken;
+import io.gardenerframework.camellia.authentication.server.main.user.schema.User;
+import io.gardenerframework.camellia.authentication.server.main.utils.RequestingClientHolder;
 import lombok.AllArgsConstructor;
+import lombok.NonNull;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.stereotype.Component;
-import org.springframework.util.CollectionUtils;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.validation.ConstraintViolation;
 import javax.validation.Validator;
-import java.util.Set;
+import java.util.Objects;
 
 /**
  * @author zhanghan30
  * @date 2022/5/12 9:09 下午
  */
-@Component
-@AuthorizationEnginePreserved
+@AuthenticationServerEnginePreserved
 @AuthenticationType(value = "mfa")
 @AllArgsConstructor
+@AuthenticationServerEngineComponent
 public class MfaAuthenticationService implements UserAuthenticationService {
     private final Validator validator;
-    private final MfaAuthenticationChallengeResponseService mfaAuthenticationChallengeResponseService;
+    private final MfaAuthenticationChallengeResponseServiceRegistry registry;
 
     @Override
-    public UserAuthenticationRequestToken convert(HttpServletRequest request) throws AuthenticationException {
+    public UserAuthenticationRequestToken convert(@NonNull HttpServletRequest request) throws AuthenticationException {
         MfaResponseParameter mfaResponseParameter = new MfaResponseParameter(request);
-        Set<ConstraintViolation<Object>> violations = validator.validate(mfaResponseParameter);
-        if (!CollectionUtils.isEmpty(violations)) {
-            throw new BadAuthenticationRequestParameterException(violations);
-        }
+        mfaResponseParameter.validate(validator);
         return new UserAuthenticationRequestToken(
-                new MfaChallengeIdPrincipal(mfaResponseParameter.getChallengeId()),
-                new MfaResponseCredentials(mfaResponseParameter.getResponse())
+                MfaAuthenticationPrincipal.builder()
+                        .name(mfaResponseParameter.getChallengeId())
+                        .authenticatorName(mfaResponseParameter.getAuthenticatorName())
+                        .build(),
+                MfaResponseCredentials.builder().response(mfaResponseParameter.getResponse()).build()
         );
     }
 
     @Override
-    public void authenticate(UserAuthenticationRequestToken authenticationRequest, User user) throws AuthenticationException {
-        MfaChallengeIdPrincipal principal = (MfaChallengeIdPrincipal) authenticationRequest.getPrincipal();
+    public void authenticate(@NonNull UserAuthenticationRequestToken authenticationRequest, @NonNull User user) throws AuthenticationException {
+        MfaAuthenticationPrincipal principal = (MfaAuthenticationPrincipal) authenticationRequest.getPrincipal();
         MfaResponseCredentials credential = (MfaResponseCredentials) authenticationRequest.getCredentials();
+        String authenticatorType = principal.getAuthenticatorName();
+        MfaAuthenticationChallengeResponseServiceRegistry.MfaAuthenticationChallengeResponseServiceRegistryItem item = registry.getItem(authenticatorType);
+        MfaAuthenticationChallengeResponseService service = Objects.requireNonNull(item).getService();
+        RequestingClient requestingClient = RequestingClientHolder.getClient();
         try {
-            if (!mfaAuthenticationChallengeResponseService.validateResponse(principal.getName(), credential.getResponse())) {
+            if (!service.verifyResponse(
+                    requestingClient,
+                    MfaAuthenticationScenario.class,
+                    principal.getName(), credential.getResponse())) {
                 //mfa验证没有通过
-                throw new BadResponseException(principal.getName());
+                throw new BadMfaAuthenticationResponseException(principal.getName());
             }
-        } catch (ChallengeException exception) {
+        } catch (ChallengeResponseServiceException exception) {
             throw new NestedAuthenticationException(exception);
         } finally {
             //无论成功还是失败都关闭挑战
-            mfaAuthenticationChallengeResponseService.closeChallenge(principal.getName());
+            try {
+                service.closeChallenge(
+                        requestingClient,
+                        MfaAuthenticationScenario.class,
+                        principal.getName()
+                );
+            } catch (ChallengeResponseServiceException e) {
+                //omit
+            }
         }
     }
 }

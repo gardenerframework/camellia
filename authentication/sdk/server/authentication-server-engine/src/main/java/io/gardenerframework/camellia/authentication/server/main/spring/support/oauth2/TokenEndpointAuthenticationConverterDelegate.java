@@ -21,7 +21,7 @@ import java.util.Set;
  * @author ZhangHan
  * @date 2022/5/21 10:52
  */
-@Component
+@AuthenticationServerEngineComponent
 @RequiredArgsConstructor
 public class TokenEndpointAuthenticationConverterDelegate implements AuthenticationConverter {
     private final Validator validator;

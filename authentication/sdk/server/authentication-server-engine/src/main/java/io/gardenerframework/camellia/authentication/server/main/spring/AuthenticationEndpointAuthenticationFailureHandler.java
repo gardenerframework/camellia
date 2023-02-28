@@ -4,8 +4,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.util.StdDateFormat;
 import com.jdcloud.gardener.camellia.authorization.authentication.mfa.exception.client.MfaAuthenticationRequiredException;
 import com.jdcloud.gardener.camellia.authorization.challenge.schema.Challenge;
+import io.gardenerframework.camellia.authentication.infra.challenge.core.schema.Challenge;
+import io.gardenerframework.camellia.authentication.server.common.annotation.AuthenticationServerEngineComponent;
 import io.gardenerframework.camellia.authentication.server.common.configuration.AuthenticationServerPathOption;
 import io.gardenerframework.camellia.authentication.server.main.exception.*;
+import io.gardenerframework.camellia.authentication.server.main.exception.client.MfaAuthenticationRequiredException;
 import io.gardenerframework.camellia.authentication.server.main.schema.LoginAuthenticationRequestToken;
 import io.gardenerframework.fragrans.api.standard.error.ApiErrorFactory;
 import io.gardenerframework.fragrans.api.standard.error.DefaultApiErrorConstants;
@@ -60,7 +63,7 @@ import java.util.regex.Pattern;
  */
 @Data
 @AllArgsConstructor
-@Component
+@AuthenticationServerEngineComponent
 @Slf4j
 public class AuthenticationEndpointAuthenticationFailureHandler implements AuthenticationFailureHandler, ApplicationListener<InitializingApiErrorPropertiesEvent> {
     private static final Map<String, HttpStatus> OAUTH2_ERROR_CODE_STATUS = new ConcurrentHashMap<>();

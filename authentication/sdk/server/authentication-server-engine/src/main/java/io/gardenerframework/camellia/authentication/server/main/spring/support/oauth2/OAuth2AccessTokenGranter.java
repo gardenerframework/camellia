@@ -44,7 +44,7 @@ import java.util.*;
  */
 @Slf4j
 @AllArgsConstructor
-@Component
+@AuthenticationServerEngineComponent
 public class OAuth2AccessTokenGranter {
     private static final StringKeyGenerator DEFAULT_REFRESH_TOKEN_GENERATOR =
             new Base64StringKeyGenerator(Base64.getUrlEncoder().withoutPadding(), 96);

@@ -30,7 +30,7 @@ import java.util.Objects;
  * @date 2022/5/21 2:47
  */
 @Aspect
-@Component
+@AuthenticationServerEngineComponent
 @AllArgsConstructor
 @Slf4j
 public class OAuth2AuthorizationServiceProxy {

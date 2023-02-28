@@ -2,6 +2,7 @@ package io.gardenerframework.camellia.authentication.infra.challenge.engine;
 
 import io.gardenerframework.camellia.authentication.common.client.schema.RequestingClient;
 import io.gardenerframework.camellia.authentication.infra.challenge.core.*;
+import io.gardenerframework.camellia.authentication.infra.challenge.core.annotation.SaveInChallengeContext;
 import io.gardenerframework.camellia.authentication.infra.challenge.core.exception.ChallengeInCooldownException;
 import io.gardenerframework.camellia.authentication.infra.challenge.core.exception.ChallengeResponseServiceException;
 import io.gardenerframework.camellia.authentication.infra.challenge.core.schema.Challenge;
@@ -11,9 +12,15 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NonNull;
+import org.apache.commons.lang3.reflect.FieldUtils;
+import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.lang.Nullable;
+import org.springframework.util.ReflectionUtils;
 import org.springframework.util.StringUtils;
 
+import java.io.Serializable;
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Date;
@@ -151,6 +158,51 @@ public abstract class AbstractChallengeResponseService<
             @NonNull R request,
             @NonNull C challenge
     );
+
+    /**
+     * 处理{@link SaveInChallengeContext}注解
+     *
+     * @param client   请求注解
+     * @param scenario 场景
+     * @param request  请求
+     * @param context  上下文
+     */
+    protected void copySaveInContextFields(
+            @Nullable RequestingClient client,
+            @NonNull Class<? extends Scenario> scenario,
+            @NonNull R request,
+            @NonNull X context
+    ) {
+        ReflectionUtils.doWithFields(
+                request.getClass(),
+                field -> {
+                    SaveInChallengeContext annotation = AnnotationUtils.findAnnotation(field, SaveInChallengeContext.class);
+                    if (annotation != null) {
+                        //具有当前注解
+                        Class<?> fieldType = field.getType();
+                        field.setAccessible(true);
+                        Object fieldValue = field.get(request);
+                        //在context中寻找同名的field
+                        Field fieldInContext = FieldUtils.getField(context.getClass(), field.getName(), true);
+                        if (fieldInContext != null) {
+                            Class<?> fieldTypeInContext = fieldInContext.getType();
+                            Object fieldValueInContext = null;
+                            if (
+                                //要求context的必须是请求中的父类且支持序列化
+                                    fieldTypeInContext.isAssignableFrom(fieldType) && Serializable.class.isAssignableFrom(fieldTypeInContext)
+                                            //不能已经有值
+                                            && (fieldValueInContext = fieldInContext.get(context)) == null
+                                            //不能是final和static
+                                            && !Modifier.isFinal(fieldInContext.getModifiers()) && !Modifier.isStatic(fieldInContext.getModifiers())) {
+                                //完成赋值
+                                fieldInContext.set(context, fieldValue);
+                            }
+                        }
+                    }
+                }
+        );
+    }
+
 
     /**
      * 完成校验
@@ -394,6 +446,7 @@ public abstract class AbstractChallengeResponseService<
     ) throws ChallengeResponseServiceException {
         try {
             X context = createContext(client, scenario, request, challenge);
+            copySaveInContextFields(client, scenario, request, context);
             challengeContextStore.saveContext(
                     client,
                     scenario,

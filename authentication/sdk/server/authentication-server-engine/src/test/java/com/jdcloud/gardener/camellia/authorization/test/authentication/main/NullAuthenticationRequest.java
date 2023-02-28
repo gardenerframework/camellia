@@ -14,7 +14,7 @@ import javax.servlet.http.HttpServletRequest;
  * @date 2022/5/13 11:21
  */
 @AuthenticationType("NullAuthenticationRequest")
-@Component
+@AuthenticationServerEngineComponent
 public class NullAuthenticationRequest implements UserAuthenticationService {
     @Override
     public UserAuthenticationRequestToken convert(HttpServletRequest request) throws AuthenticationException {

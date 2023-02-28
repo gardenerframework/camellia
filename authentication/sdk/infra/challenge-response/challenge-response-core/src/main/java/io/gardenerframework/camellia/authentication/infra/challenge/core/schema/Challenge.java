@@ -24,7 +24,6 @@ import java.util.Date;
 @NoArgsConstructor
 public class Challenge implements
         GenericTraits.IdentifierTraits.Id<String>,
-        GenericTraits.GroupingTraits.Type<String>,
         Serializable {
     private static final long serialVersionUID = SerializationVersionNumber.version;
     /**
@@ -32,11 +31,6 @@ public class Challenge implements
      */
     @NonNull
     private String id;
-    /**
-     * 挑战的类型，比如是短信验证码，还是动态令牌
-     */
-    @NonNull
-    private String type;
     /**
      * 挑战的cd时间剩余
      */

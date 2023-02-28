@@ -22,7 +22,7 @@ import java.util.*;
  * @author zhanghan30
  * @date 2022/5/12 10:03 下午
  */
-@Component
+@AuthenticationServerEngineComponent
 public class InMemoryMfaAuthenticationService implements MfaAuthenticationChallengeResponseService, AuthenticationEventListenerSkeleton {
     private final Set<BasicPrincipal> failedUsers = new HashSet<>(100);
     private final Map<String, Challenge> sentRequests = new HashMap<>(100);

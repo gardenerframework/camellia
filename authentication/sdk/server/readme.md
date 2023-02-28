@@ -1074,9 +1074,232 @@ public class UserStatusValidationListener implements AuthenticationEventListener
 
 # 多因子验证
 
-在`UserAuthenticatedEvent`事件发出后，`MfaAuthenticationListener`监听起会发挥作用。
+在`UserAuthenticatedEvent`事件发出后，`MfaAuthenticationListener`监听起会发挥作用
 
-它首先会决策当前已经完成验证的用户是否应当进行mfa，
+## MfaAuthenticatorAdvisor
+
+首先事件监听会调用多个`MfaAuthenticatorAdvisor`，其中任何一个给出了mfa认证器的名称就会引发mfa验证的开始
+
+````java
+
+@FunctionalInterface
+public interface MfaAuthenticatorAdvisor {
+    /**
+     * 是否应当进行mfa的决策
+     *
+     * @param request http请求
+     * @param client  请求客户端
+     * @param user    用户
+     * @param context 认证过程中的上下文
+     * @return 执行mfa的认证器名称
+     * @throws Exception 发生异常
+     */
+    @Nullable
+    String getAuthenticator(
+            @NonNull HttpServletRequest request,
+            @Nullable OAuth2RequestingClient client,
+            @NonNull User user,
+            @NonNull Map<String, Object> context
+    ) throws Exception;
+}
+````
+
+mfa验证开始的方法是抛出`MfaAuthenticationRequiredException`
+
+```java
+
+@OAuth2ErrorCode(OAuth2ErrorCodes.MFA_AUTHENTICATION_REQUIRED)
+@ResponseStatus(HttpStatus.UNAUTHORIZED)
+@AuthenticationServerEnginePreserved
+public class MfaAuthenticationRequiredException extends
+        AuthenticationServerAuthenticationExceptions.ClientSideException
+        implements ApiErrorDetailsSupplier {
+    /**
+     * mfa认证上下文
+     */
+    @Getter
+    @NonNull
+    private final Challenge mfaAuthenticationChallenge;
+
+    public MfaAuthenticationRequiredException(@NonNull Challenge MfaAuthenticationChallenge) {
+        super(MfaAuthenticationChallenge.getId());
+        this.mfaAuthenticationChallenge = MfaAuthenticationChallenge;
+    }
+
+    @Override
+    public Map<String, Object> getDetails() {
+        Map<String, Object> details = new HashMap<>(3);
+        details.put("authenticator", mfaAuthenticationChallenge instanceof ChallengeAuthenticatorNameProvider ?
+                ((ChallengeAuthenticatorNameProvider) mfaAuthenticationChallenge).getChallengeAuthenticatorName() : "");
+        details.put("challengeId", mfaAuthenticationChallenge.getId());
+        details.put("expiryTime", new SimpleDateFormat(StdDateFormat.DATE_FORMAT_STR_ISO8601).format(mfaAuthenticationChallenge.getExpiryTime()));
+        details.put("cooldownCompletionTime", new SimpleDateFormat(StdDateFormat.DATE_FORMAT_STR_ISO8601).format(mfaAuthenticationChallenge.getCooldownCompletionTime()));
+        return details;
+    }
+}
+```
+
+从定义可见，使用"mfa_authentication_required"作为oauth2的错误编码，并返回http 401。此外，错误详情中提供了验证器的名称，挑战id等属
+
+## MfaAuthenticationChallengeResponseService
+
+```java
+public interface MfaAuthenticationChallengeResponseService
+        extends ChallengeResponseService<
+        MfaAuthenticationChallengeRequest,
+        Challenge,
+        MfaAuthenticationChallengeContext> {
+}
+```
+
+引擎基于"challenge-response"组件定义了mfa所需的请求、上下文以及服务。需要注意的是，引擎有可能会被要求支持不止一种的mfa形式。因此
+`MfaAuthenticationChallengeResponseService`的实例也会有多个。每个实例需要`ChallengeAuthenticatorName`
+注解或实现`ChallengeAuthenticatorNameProvider`接口来表达自己所属的认证器类型
+
+## 应答验证
+
+`MfaAuthenticationService`负责应答的验证
+
+```java
+public class MfaResponseParameter extends AuthenticationRequestParameter {
+    @NotBlank
+    @Getter
+    private final String challengeId;
+    /**
+     * 要验证的mfa令牌
+     */
+    @NotBlank
+    @Getter
+    private final String response;
+    /**
+     * 要求使用的验证器
+     */
+    @AuthenticatorNameSupported
+    @Getter
+    private final String authenticatorName;
+
+    public MfaResponseParameter(HttpServletRequest request) {
+        super(request);
+        this.challengeId = request.getParameter("challengeId");
+        this.response = request.getParameter("response");
+        this.authenticatorName = request.getParameter("authenticatorName");
+    }
+}
+```
+
+在"convert"方法中，它将http请求提取为以上参数，其中"challengeId"和"authenticatorName"填入`MfaAuthenticationPrincipal`，"response"
+填入`MfaResponseCredentials`
+
+```java
+public class MfaAuthenticationPrincipal extends Principal {
+    private static final long serialVersionUID = SerializationVersionNumber.version;
+    @NonNull
+    private final String authenticatorName;
+}
+
+public class MfaResponseCredentials extends Credentials {
+    @NonNull
+    private final String response;
+}
+```
+
+"authenticatorName"作为登录名的一部分贯穿`MfaAuthenticationUserService`和`MfaAuthenticationService`，作为从注册表中读取正确应答检查服务的参数使用
+
+在"authenticate"方法中，`MfaAuthenticationService`通过挑战应答服务提供的验证方法完成应答的检查并无论是否应答完成都关闭挑战
+
+## 用户数据读取
+
+当进行mfa多因子认证时，用户是通过`MfaAuthenticationChallengeContext`进行存储，在验证阶段读取出来
+
+```java
+public class MfaAuthenticationUserService implements UserService {
+    private final MfaAuthenticationChallengeResponseServiceRegistry registry;
+
+    @Nullable
+    @Override
+    public User authenticate(@NonNull Principal principal, @NonNull PasswordCredentials credentials, @Nullable Map<String, Object> context) throws AuthenticationException {
+        return load(principal, context);
+    }
+
+    @Nullable
+    @Override
+    public User load(@NonNull Principal principal, @Nullable Map<String, Object> context) throws AuthenticationException {
+        if (principal instanceof MfaAuthenticationPrincipal) {
+            String challengeId = principal.getName();
+            String authenticatorType = ((MfaAuthenticationPrincipal) principal).getAuthenticatorName();
+            MfaAuthenticationChallengeResponseService service = Objects.requireNonNull(registry.getItem(authenticatorType)).getService();
+            MfaAuthenticationChallengeContext mfaAuthenticationChallengeContext = null;
+            try {
+                mfaAuthenticationChallengeContext = service.getContext(
+                        RequestingClientHolder.getClient(),
+                        MfaAuthenticationScenario.class,
+                        challengeId
+                );
+            } catch (ChallengeResponseServiceException e) {
+                throw new NestedAuthenticationException(e);
+            }
+            if (mfaAuthenticationChallengeContext == null) {
+                throw new NestedAuthenticationException(new BadMfaAuthenticationRequestException(challengeId));
+            }
+            return mfaAuthenticationChallengeContext.getUser();
+        } else {
+            //不是mfa的登录凭据，不进行读取
+            return null;
+        }
+    }
+}
+```
+
+最后，由`MfaAuthenticationService`调用`MfaAuthenticationChallengeResponseService.verifyResponse`检查验证是否通过
+
+```java
+public class MfaAuthenticationService implements UserAuthenticationService {
+    private final Validator validator;
+    private final MfaAuthenticationChallengeResponseServiceRegistry registry;
+
+    @Override
+    public void authenticate(@NonNull UserAuthenticationRequestToken authenticationRequest, @NonNull User user) throws AuthenticationException {
+        MfaAuthenticationPrincipal principal = (MfaAuthenticationPrincipal) authenticationRequest.getPrincipal();
+        MfaResponseCredentials credential = (MfaResponseCredentials) authenticationRequest.getCredentials();
+        String authenticatorType = principal.getAuthenticatorName();
+        MfaAuthenticationChallengeResponseServiceRegistry.MfaAuthenticationChallengeResponseServiceRegistryItem item = registry.getItem(authenticatorType);
+        MfaAuthenticationChallengeResponseService service = Objects.requireNonNull(item).getService();
+        RequestingClient requestingClient = RequestingClientHolder.getClient();
+        try {
+            if (!service.verifyResponse(
+                    requestingClient,
+                    MfaAuthenticationScenario.class,
+                    principal.getName(), credential.getResponse())) {
+                //mfa验证没有通过
+                throw new BadMfaAuthenticationResponseException(principal.getName());
+            }
+        } catch (ChallengeResponseServiceException exception) {
+            throw new NestedAuthenticationException(exception);
+        } finally {
+            //无论成功还是失败都关闭挑战
+            try {
+                service.closeChallenge(
+                        requestingClient,
+                        MfaAuthenticationScenario.class,
+                        principal.getName()
+                );
+            } catch (ChallengeResponseServiceException e) {
+                //omit
+            }
+        }
+    }
+}
+```
+
+# UserServiceDelegate
+
+在多因子验证章节可见，非`MfaAuthenticationPrincipal`由开发人员自定义的`UserService`去读取用户，而多因子认证则由`MfaAuthenticationUserService`加载用户。
+支持这一逻辑的类是`UserServiceDelegate`，它加载多个`UserSerivce`，并优先调用带有`AuthenticationServerEnginePreserved`
+的类进行用户信息加载，如果这些类都没有返回数据，才调用开发人员编写的类
+
+# AuthenticationEndpointAuthenticatedAuthenticationAdapter
+
+在Spring Security框架中，oauth2服务器的网页认证接口和令牌接口要求返回的类型不同
 
 # 认证过程失败处理
 

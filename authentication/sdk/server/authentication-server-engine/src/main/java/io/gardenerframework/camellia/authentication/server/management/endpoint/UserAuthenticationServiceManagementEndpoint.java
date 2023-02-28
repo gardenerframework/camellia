@@ -1,7 +1,7 @@
 package io.gardenerframework.camellia.authentication.server.management.endpoint;
 
 import io.gardenerframework.camellia.authentication.server.common.api.group.AuthenticationServerRestController;
-import io.gardenerframework.camellia.authentication.server.main.UserAuthenticationServiceRegistry;
+import io.gardenerframework.camellia.authentication.server.main.utils.UserAuthenticationServiceRegistry;
 import io.gardenerframework.camellia.authentication.server.management.schema.response.GetAvailableAuthenticationTypesResponse;
 import io.gardenerframework.fragrans.api.standard.error.exception.client.ForbiddenException;
 import lombok.AllArgsConstructor;

@@ -1,5 +1,6 @@
 package io.gardenerframework.camellia.authentication.server.common.api.group;
 
+import io.gardenerframework.camellia.authentication.server.common.annotation.AuthenticationServerEngineComponent;
 import io.gardenerframework.camellia.authentication.server.common.configuration.AuthenticationServerPathOption;
 import io.gardenerframework.fragrans.api.group.ApiGroupProvider;
 import io.gardenerframework.fragrans.api.group.policy.ApiGroupContextPathPolicy;
@@ -17,6 +18,7 @@ import java.util.Collections;
  * @date 2022/5/13 12:32 上午
  */
 @RequiredArgsConstructor
+@AuthenticationServerEngineComponent
 public class AuthorizationServerRestControllerGroupConfigurer implements ApiGroupProvider, ApiGroupPolicyProvider<ApiGroupContextPathPolicy> {
     private final AuthenticationServerPathOption authenticationServerPathOption;
 

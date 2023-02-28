@@ -16,7 +16,7 @@ import java.util.Map;
  * @author ZhangHan
  * @date 2022/5/13 11:17
  */
-@Component
+@AuthenticationServerEngineComponent
 public class WebAuthenticationClient {
     private final RestTemplate restTemplate = new RestTemplate();
 

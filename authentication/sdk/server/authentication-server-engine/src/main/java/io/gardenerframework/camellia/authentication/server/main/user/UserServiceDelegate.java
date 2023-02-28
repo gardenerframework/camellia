@@ -1,14 +1,14 @@
 package io.gardenerframework.camellia.authentication.server.main.user;
 
-import com.jdcloud.gardener.camellia.authorization.authentication.main.schema.credentials.PasswordCredentials;
-import com.jdcloud.gardener.camellia.authorization.authentication.main.schema.principal.BasicPrincipal;
-import com.jdcloud.gardener.camellia.authorization.authentication.main.user.schema.subject.User;
-import com.jdcloud.gardener.camellia.authorization.common.annotation.AuthorizationEnginePreserved;
+import io.gardenerframework.camellia.authentication.server.common.annotation.AuthenticationServerEngineComponent;
+import io.gardenerframework.camellia.authentication.server.common.annotation.AuthenticationServerEnginePreserved;
+import io.gardenerframework.camellia.authentication.server.main.schema.subject.credentials.PasswordCredentials;
+import io.gardenerframework.camellia.authentication.server.main.schema.subject.principal.Principal;
+import io.gardenerframework.camellia.authentication.server.main.user.schema.User;
 import org.springframework.context.annotation.Primary;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.lang.Nullable;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 
@@ -20,8 +20,8 @@ import java.util.Map;
  * @author ZhangHan
  * @date 2022/4/28 11:21
  */
-@AuthorizationEnginePreserved
-@Component
+@AuthenticationServerEnginePreserved
+@AuthenticationServerEngineComponent
 @Primary
 public class UserServiceDelegate implements UserService {
     /**
@@ -37,7 +37,7 @@ public class UserServiceDelegate implements UserService {
         Assert.isTrue(!CollectionUtils.isEmpty(services), "no UserService loaded");
         this.preserved = new ArrayList<>(services.size() - 1);
         for (UserService service : services) {
-            AuthorizationEnginePreserved annotation = AnnotationUtils.findAnnotation(service.getClass(), AuthorizationEnginePreserved.class);
+            AuthenticationServerEnginePreserved annotation = AnnotationUtils.findAnnotation(service.getClass(), AuthenticationServerEnginePreserved.class);
             if (annotation == null) {
                 Assert.isNull(target, "nonPreserved already existed");
                 target = service;
@@ -59,7 +59,7 @@ public class UserServiceDelegate implements UserService {
      */
     @Nullable
     @Override
-    public User authenticate(BasicPrincipal principal, PasswordCredentials credentials, Map<String, Object> context) throws AuthenticationException {
+    public User authenticate(Principal principal, PasswordCredentials credentials, Map<String, Object> context) throws AuthenticationException {
         //先执行内部逻辑
         if (!CollectionUtils.isEmpty(preserved)) {
             for (UserService userService : preserved) {
@@ -84,7 +84,7 @@ public class UserServiceDelegate implements UserService {
      */
     @Nullable
     @Override
-    public User load(BasicPrincipal principal, Map<String, Object> context) throws AuthenticationException, UnsupportedOperationException {
+    public User load(Principal principal, Map<String, Object> context) throws AuthenticationException, UnsupportedOperationException {
         if (!CollectionUtils.isEmpty(preserved)) {
             for (UserService userService : preserved) {
                 User user = userService.load(principal, context);

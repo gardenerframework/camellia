@@ -1,5 +1,6 @@
 package io.gardenerframework.camellia.authentication.server.configuration;
 
+import io.gardenerframework.camellia.authentication.server.common.annotation.AuthenticationServerEngineComponent;
 import io.gardenerframework.fragrans.api.options.schema.ApiOption;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -15,6 +16,7 @@ import javax.validation.constraints.Positive;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@AuthenticationServerEngineComponent
 public class OAuth2AuthorizationConsentOption {
     /**
      * 在批准页面多长时间不点，state过期

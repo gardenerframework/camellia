@@ -1,5 +1,6 @@
 package io.gardenerframework.camellia.authentication.server.main.spring;
 
+import io.gardenerframework.camellia.authentication.server.common.annotation.AuthenticationServerEngineComponent;
 import io.gardenerframework.camellia.authentication.server.main.exception.NestedAuthenticationException;
 import io.gardenerframework.camellia.authentication.server.main.exception.OAuth2ErrorCodes;
 import io.gardenerframework.camellia.authentication.server.main.exception.annotation.OAuth2ErrorCode;
@@ -33,6 +34,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * @date 2022/4/21 7:33 下午
  */
 @NoArgsConstructor
+@AuthenticationServerEngineComponent
 public class AuthenticationEndpointExceptionAdapter {
     private static final Map<Class<? extends Exception>, String> OAUTH2_ERROR_CODE_REGISTRY = new ConcurrentHashMap<>();
 

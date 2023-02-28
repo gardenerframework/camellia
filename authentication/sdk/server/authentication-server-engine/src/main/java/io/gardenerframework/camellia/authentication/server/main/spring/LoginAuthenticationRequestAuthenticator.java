@@ -1,10 +1,10 @@
 package io.gardenerframework.camellia.authentication.server.main.spring;
 
 import io.gardenerframework.camellia.authentication.common.client.schema.OAuth2RequestingClient;
-import io.gardenerframework.camellia.authentication.server.main.AuthenticationEndpointAuthenticatedAuthenticationAdapter;
 import io.gardenerframework.camellia.authentication.server.main.UserAuthenticationService;
 import io.gardenerframework.camellia.authentication.server.main.annotation.AuthenticationType;
 import io.gardenerframework.camellia.authentication.server.main.event.schema.*;
+import io.gardenerframework.camellia.authentication.server.main.event.support.AuthenticationEventBuilder;
 import io.gardenerframework.camellia.authentication.server.main.exception.client.UserNotFoundException;
 import io.gardenerframework.camellia.authentication.server.main.schema.LoginAuthenticationRequestToken;
 import io.gardenerframework.camellia.authentication.server.main.schema.OAuth2ClientUserAuthenticationToken;
@@ -23,13 +23,11 @@ import io.gardenerframework.fragrans.log.common.schema.verb.Process;
 import io.gardenerframework.fragrans.log.common.schema.verb.Update;
 import io.gardenerframework.fragrans.log.schema.content.GenericBasicLogContent;
 import io.gardenerframework.fragrans.log.schema.content.GenericOperationLogContent;
-import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ApplicationEventPublisherAware;
 import org.springframework.core.annotation.AnnotationUtils;
-import org.springframework.lang.Nullable;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.security.core.Authentication;
@@ -55,7 +53,9 @@ import java.util.Objects;
  */
 @Slf4j
 @RequiredArgsConstructor
-public class LoginAuthenticationRequestAuthenticator implements AuthenticationProvider, ApplicationEventPublisherAware {
+public class LoginAuthenticationRequestAuthenticator implements
+        AuthenticationProvider, ApplicationEventPublisherAware,
+        AuthenticationEventBuilder {
     private final UserServiceDelegate userService;
     private final AuthenticationEndpointExceptionAdapter authenticationEndpointExceptionAdapter;
     private final AuthenticationEndpointAuthenticatedAuthenticationAdapter authenticationEndpointAuthenticatedAuthenticationAdapter;
@@ -63,31 +63,6 @@ public class LoginAuthenticationRequestAuthenticator implements AuthenticationPr
     private final GenericOperationLogger operationLogger;
     private ApplicationEventPublisher eventPublisher;
 
-    /**
-     * 将基准事件创建完毕
-     *
-     * @param builder            事件builder
-     * @param httpServletRequest http请求
-     * @param authenticationType 认证类型
-     * @param principal          登录名
-     * @param client             请求客户端
-     * @param context            上下文
-     */
-    private <B extends AuthenticationEvent.AuthenticationEventBuilder<?, ?>> B buildAuthenticationEvent(
-            @NonNull B builder,
-            @NonNull HttpServletRequest httpServletRequest,
-            @NonNull String authenticationType,
-            @NonNull Principal principal,
-            @Nullable OAuth2RequestingClient client,
-            Map<String, Object> context
-    ) {
-        builder.request(httpServletRequest)
-                .authenticationType(authenticationType)
-                .principal(principal)
-                .client(client)
-                .context(context);
-        return builder;
-    }
 
     /**
      * 执行逻辑
@@ -127,7 +102,7 @@ public class LoginAuthenticationRequestAuthenticator implements AuthenticationPr
         try {
             //第一步，开始认证客户端
             if (clientUserAuthenticationRequestToken != null) {
-                this.eventPublisher.publishEvent(buildAuthenticationEvent(
+                this.eventPublisher.publishEvent(buildEvent(
                         ClientAuthenticatedEvent.builder(),
                         httpServletRequest,
                         authenticationType,
@@ -138,7 +113,7 @@ public class LoginAuthenticationRequestAuthenticator implements AuthenticationPr
                 clientUserAuthenticationRequestToken.getPrincipal().setAuthenticated(true);
             }
             //发布加载前事件
-            eventPublisher.publishEvent(buildAuthenticationEvent(
+            eventPublisher.publishEvent(buildEvent(
                     UserAboutToLoadEvent.builder(),
                     httpServletRequest,
                     authenticationType,
@@ -161,7 +136,7 @@ public class LoginAuthenticationRequestAuthenticator implements AuthenticationPr
             credentials = user.getCredentials();
             user.eraseCredentials();
             //用户加载事件不需要密码，以防错误的日志打印等
-            this.eventPublisher.publishEvent(buildAuthenticationEvent(
+            this.eventPublisher.publishEvent(buildEvent(
                     UserLoadedEvent.builder(),
                     httpServletRequest,
                     authenticationType,
@@ -179,7 +154,7 @@ public class LoginAuthenticationRequestAuthenticator implements AuthenticationPr
             //比如mfa还没做
             //比如账号的状态不对
             //todo 解决mfa认证通过后，正常监听器无法收到实践的问题，原因是principal是预留的
-            this.eventPublisher.publishEvent(buildAuthenticationEvent(
+            this.eventPublisher.publishEvent(buildEvent(
                     UserAuthenticatedEvent.builder(),
                     httpServletRequest,
                     authenticationType,
@@ -213,7 +188,7 @@ public class LoginAuthenticationRequestAuthenticator implements AuthenticationPr
                 );
             }
             //在这个阶段发生了认证异常
-            eventPublisher.publishEvent(buildAuthenticationEvent(
+            eventPublisher.publishEvent(buildEvent(
                     AuthenticationFailedEvent.builder(),
                     httpServletRequest,
                     authenticationType,
@@ -226,7 +201,7 @@ public class LoginAuthenticationRequestAuthenticator implements AuthenticationPr
         //todo 管理登录态
         //用户加载成功了、状态验证了、访问上下文也有了，且插件认为已经有了其它上下文也无所谓，没有什么好检查得了
         try {
-            this.eventPublisher.publishEvent(buildAuthenticationEvent(
+            this.eventPublisher.publishEvent(buildEvent(
                     AuthenticationSuccessEvent.builder(),
                     httpServletRequest,
                     authenticationType,

@@ -1,5 +1,6 @@
 package io.gardenerframework.camellia.authentication.server.configuration;
 
+import io.gardenerframework.camellia.authentication.server.common.annotation.AuthenticationServerEngineComponent;
 import io.gardenerframework.camellia.authentication.server.common.configuration.AuthenticationServerPathOption;
 import io.gardenerframework.camellia.authentication.server.main.spring.AuthenticationEndpointAuthenticationFailureHandler;
 import io.gardenerframework.camellia.authentication.server.main.spring.LoginAuthenticationRequestConverter;
@@ -35,7 +36,7 @@ import java.util.Map;
  * @date 2022/5/12 11:04 下午
  */
 @RequiredArgsConstructor
-@Component
+@AuthenticationServerEngineComponent
 public class OAuth2AuthorizationServerConfigurerProxy extends AuthenticationServerEngineSecurityConfigurer {
     private final AuthenticationServerPathOption authenticationServerPathOption;
     private final OAuth2AuthorizationConsentService oAuth2AuthorizationConsentService;

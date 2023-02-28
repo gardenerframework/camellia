@@ -38,9 +38,6 @@ import java.util.UUID;
  */
 @Configuration
 @AllArgsConstructor
-@Import({
-        OAuth2AuthorizationConsentOption.class
-})
 public class AuthenticationServerEngineOAuth2Configuration {
     private final AuthenticationServerPathOption authenticationServerPathOption;
 

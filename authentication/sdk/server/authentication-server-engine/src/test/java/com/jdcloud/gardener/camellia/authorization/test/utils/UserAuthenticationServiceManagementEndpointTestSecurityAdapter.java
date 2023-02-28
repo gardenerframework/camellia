@@ -13,7 +13,7 @@ import java.util.Objects;
  * @author ZhangHan
  * @date 2022/5/15 0:00
  */
-@Component
+@AuthenticationServerEngineComponent
 @AllArgsConstructor
 public class UserAuthenticationServiceManagementEndpointTestSecurityAdapter extends EndpointHandlerMethodBeforeAdviceAdapter implements UserAuthenticationServiceManagementEndpointSkeleton {
     private final AccessTokenDetails accessTokenDetails;

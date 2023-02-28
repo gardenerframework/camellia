@@ -22,7 +22,7 @@ import java.util.Map;
  * @author ZhangHan
  * @date 2022/4/23 1:53
  */
-@Component
+@AuthenticationServerEngineComponent
 public class TestUserService implements UserService {
 
     @Override

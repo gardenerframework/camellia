@@ -1,6 +1,7 @@
-package io.gardenerframework.camellia.authentication.server.main;
+package io.gardenerframework.camellia.authentication.server.main.utils;
 
 import io.gardenerframework.camellia.authentication.server.common.annotation.AuthenticationServerEnginePreserved;
+import io.gardenerframework.camellia.authentication.server.main.UserAuthenticationService;
 import io.gardenerframework.camellia.authentication.server.main.annotation.AuthenticationEndpoint;
 import io.gardenerframework.camellia.authentication.server.main.annotation.AuthenticationType;
 import io.gardenerframework.fragrans.log.GenericLoggerStaticAccessor;

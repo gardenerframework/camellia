@@ -1,24 +1,33 @@
 package io.gardenerframework.camellia.authentication.server.main.mfa.event.listener;
 
-import com.jdcloud.gardener.camellia.authorization.authentication.main.event.listener.annotation.CareForAuthorizationEnginePreservedPrincipal;
-import com.jdcloud.gardener.camellia.authorization.authentication.main.exception.NestedAuthenticationException;
-import com.jdcloud.gardener.camellia.authorization.authentication.mfa.MfaAuthenticationChallengeResponseService;
-import com.jdcloud.gardener.camellia.authorization.authentication.mfa.exception.client.MfaAuthenticationRequiredException;
-import com.jdcloud.gardener.camellia.authorization.authentication.mfa.schema.MfaAuthenticationChallengeContext;
-import com.jdcloud.gardener.camellia.authorization.authentication.mfa.schema.MfaAuthenticationChallengeRequest;
-import com.jdcloud.gardener.camellia.authorization.challenge.exception.client.ChallengeException;
-import com.jdcloud.gardener.camellia.authorization.challenge.schema.Challenge;
+import io.gardenerframework.camellia.authentication.infra.challenge.core.exception.ChallengeInCooldownException;
+import io.gardenerframework.camellia.authentication.infra.challenge.core.schema.Challenge;
+import io.gardenerframework.camellia.authentication.server.common.annotation.AuthenticationServerEngineComponent;
 import io.gardenerframework.camellia.authentication.server.main.event.listener.AuthenticationEventListenerSkeleton;
+import io.gardenerframework.camellia.authentication.server.main.event.listener.annotation.CareForAuthenticationServerEnginePreservedPrincipal;
 import io.gardenerframework.camellia.authentication.server.main.event.schema.AuthenticationSuccessEvent;
 import io.gardenerframework.camellia.authentication.server.main.event.schema.UserAuthenticatedEvent;
-import io.gardenerframework.camellia.authentication.server.main.schema.principal.MfaChallengeIdPrincipal;
+import io.gardenerframework.camellia.authentication.server.main.event.support.AuthenticationEventBuilder;
+import io.gardenerframework.camellia.authentication.server.main.exception.NestedAuthenticationException;
+import io.gardenerframework.camellia.authentication.server.main.exception.client.MfaAuthenticationRequiredException;
+import io.gardenerframework.camellia.authentication.server.main.mfa.advisor.MfaAuthenticatorAdvisor;
+import io.gardenerframework.camellia.authentication.server.main.mfa.challenge.MfaAuthenticationChallengeResponseService;
+import io.gardenerframework.camellia.authentication.server.main.mfa.challenge.MfaAuthenticationScenario;
+import io.gardenerframework.camellia.authentication.server.main.mfa.challenge.schema.MfaAuthenticationChallengeRequest;
+import io.gardenerframework.camellia.authentication.server.main.mfa.exception.client.MfaAuthenticationInCooldownException;
+import io.gardenerframework.camellia.authentication.server.main.mfa.schema.principal.MfaAuthenticationPrincipal;
+import io.gardenerframework.camellia.authentication.server.main.mfa.utils.MfaAuthenticationChallengeResponseServiceRegistry;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ApplicationEventPublisherAware;
 import org.springframework.context.event.EventListener;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.util.Assert;
+import org.springframework.util.StringUtils;
+
+import java.util.Collection;
+import java.util.Objects;
 
 /**
  * 在监听事件是
@@ -28,10 +37,20 @@ import org.springframework.util.Assert;
  */
 @Slf4j
 @RequiredArgsConstructor
-public class MfaAuthenticationListener implements AuthenticationEventListenerSkeleton, ApplicationEventPublisherAware {
-    private final MfaAuthenticationChallengeResponseService mfaAuthenticationChallengeResponseService;
+@AuthenticationServerEngineComponent
+public class MfaAuthenticationListener implements
+        AuthenticationEventListenerSkeleton,
+        ApplicationEventPublisherAware,
+        AuthenticationEventBuilder {
+    /**
+     * 获取mfa认证器的组件
+     */
+    @NonNull
+    private final Collection<MfaAuthenticatorAdvisor> mfaAuthenticationAdvisors;
+    @NonNull
+    private final MfaAuthenticationChallengeResponseServiceRegistry registry;
+    @NonNull
     private ApplicationEventPublisher eventPublisher;
-
 
     @Override
     @EventListener
@@ -42,49 +61,64 @@ public class MfaAuthenticationListener implements AuthenticationEventListenerSke
         //用户不完成mfa挑战一直无脑刷登录
         //此时mfa服务应当返回上一次的mfa挑战id直到ttl到达后再做决策
         try {
-            Challenge mfaAuthenticationChallenge = mfaAuthenticationChallengeResponseService.sendChallenge(
-                    new MfaAuthenticationChallengeRequest(
-                            event.getHeaders(),
-                            event.getClientGroup(),
-                            event.getClient(),
-                            event.getUser(),
-                            //added, 增加当前需要决策触发挑战的登录名
-                            event.getPrincipal(),
-                            event.getContext()
-                    )
-            );
-            if (mfaAuthenticationChallenge == null) {
-                return;
+            String authenticator = null;
+            for (MfaAuthenticatorAdvisor advisor : mfaAuthenticationAdvisors) {
+                authenticator = advisor.getAuthenticator(
+                        event.getRequest(),
+                        event.getClient(),
+                        event.getUser(),
+                        event.getContext()
+                );
+                if (StringUtils.hasText(authenticator)) {
+                    //当前要求执行mfa认证
+                    break;
+                }
             }
-            throw new MfaAuthenticationRequiredException(mfaAuthenticationChallenge);
-        } catch (ChallengeException exception) {
+            if (StringUtils.hasText(authenticator)) {
+                MfaAuthenticationChallengeResponseServiceRegistry.MfaAuthenticationChallengeResponseServiceRegistryItem item = registry.getItem(authenticator);
+                //这部分找不到是服务端的问题，不单独开异常
+                MfaAuthenticationChallengeResponseService service = Objects.requireNonNull(item).getService();
+                //执行mfa认证
+                Challenge mfaAuthenticationChallenge = service.sendChallenge(
+                        event.getClient(),
+                        MfaAuthenticationScenario.class,
+                        MfaAuthenticationChallengeRequest.builder()
+                                .user(event.getUser())
+                                .context(event.getContext())
+                                .principal(event.getPrincipal())
+                                .build()
+                );
+                throw new MfaAuthenticationRequiredException(mfaAuthenticationChallenge);
+            }
+        } catch (MfaAuthenticationRequiredException exception) {
+            throw exception;
+        } catch (ChallengeInCooldownException exception) {
+            throw new MfaAuthenticationInCooldownException(exception.getTimeRemaining());
+        } catch (Exception exception) {
             throw new NestedAuthenticationException(exception);
         }
     }
 
     @Override
     @EventListener
-    @CareForAuthorizationEnginePreservedPrincipal
+    @CareForAuthenticationServerEnginePreservedPrincipal
     public void onAuthenticationSuccess(AuthenticationSuccessEvent event) {
-        if (event.getPrincipal() instanceof MfaChallengeIdPrincipal) {
-            MfaAuthenticationChallengeContext context = (MfaAuthenticationChallengeContext) event.getContext().get(MfaAuthenticationChallengeContext.class.getName());
-            Assert.notNull(context, "MfaAuthenticationChallengeContext must not be null, check MfaChallengeAuthenticationUserService::load");
-            AuthenticationSuccessEvent replay = new AuthenticationSuccessEvent(
-                    event.getHeaders(),
+        if (event.getPrincipal() instanceof MfaAuthenticationPrincipal) {
+            AuthenticationSuccessEvent replay = buildEvent(
+                    AuthenticationSuccessEvent.builder(),
+                    event.getRequest(),
                     event.getAuthenticationType(),
-                    context.getPrincipal(),
-                    event.getClientGroup(),
+                    event.getPrincipal(),
                     event.getClient(),
-                    event.getContext(),
-                    event.getUser()
-            );
+                    event.getContext()
+            ).user(event.getUser()).build();
             //重放一个假的登录成功事件从而解决mfa认证成功后一般监听器收不到登录成功事件的问题
             eventPublisher.publishEvent(replay);
         }
     }
 
     @Override
-    public void setApplicationEventPublisher(ApplicationEventPublisher applicationEventPublisher) {
+    public void setApplicationEventPublisher(@NonNull ApplicationEventPublisher applicationEventPublisher) {
         this.eventPublisher = applicationEventPublisher;
     }
 }

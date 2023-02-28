@@ -1,7 +1,7 @@
-package io.gardenerframework.camellia.authentication.server.main.mfa.exception.client;
+package io.gardenerframework.camellia.authentication.server.main.exception.client;
 
 import com.fasterxml.jackson.databind.util.StdDateFormat;
-import com.jdcloud.gardener.camellia.authorization.challenge.schema.Challenge;
+import io.gardenerframework.camellia.authentication.infra.challenge.core.ChallengeAuthenticatorNameProvider;
 import io.gardenerframework.camellia.authentication.infra.challenge.core.schema.Challenge;
 import io.gardenerframework.camellia.authentication.server.common.annotation.AuthenticationServerEnginePreserved;
 import io.gardenerframework.camellia.authentication.server.main.exception.AuthenticationServerAuthenticationExceptions;
@@ -9,6 +9,7 @@ import io.gardenerframework.camellia.authentication.server.main.exception.OAuth2
 import io.gardenerframework.camellia.authentication.server.main.exception.annotation.OAuth2ErrorCode;
 import io.gardenerframework.fragrans.api.standard.error.exception.ApiErrorDetailsSupplier;
 import lombok.Getter;
+import lombok.NonNull;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
@@ -28,9 +29,10 @@ public class MfaAuthenticationRequiredException extends AuthenticationServerAuth
      * mfa认证上下文
      */
     @Getter
+    @NonNull
     private final Challenge mfaAuthenticationChallenge;
 
-    public MfaAuthenticationRequiredException(Challenge MfaAuthenticationChallenge) {
+    public MfaAuthenticationRequiredException(@NonNull Challenge MfaAuthenticationChallenge) {
         super(MfaAuthenticationChallenge.getId());
         this.mfaAuthenticationChallenge = MfaAuthenticationChallenge;
     }
@@ -38,10 +40,11 @@ public class MfaAuthenticationRequiredException extends AuthenticationServerAuth
     @Override
     public Map<String, Object> getDetails() {
         Map<String, Object> details = new HashMap<>(3);
-        details.put("authenticator", mfaAuthenticationChallenge.getAuthenticator());
+        details.put("authenticator", mfaAuthenticationChallenge instanceof ChallengeAuthenticatorNameProvider ?
+                ((ChallengeAuthenticatorNameProvider) mfaAuthenticationChallenge).getChallengeAuthenticatorName() : "");
         details.put("challengeId", mfaAuthenticationChallenge.getId());
-        details.put("expiresAt", new SimpleDateFormat(StdDateFormat.DATE_FORMAT_STR_ISO8601).format(mfaAuthenticationChallenge.getExpiresAt()));
-        details.put("parameters", mfaAuthenticationChallenge.getParameters());
+        details.put("expiryTime", new SimpleDateFormat(StdDateFormat.DATE_FORMAT_STR_ISO8601).format(mfaAuthenticationChallenge.getExpiryTime()));
+        details.put("cooldownCompletionTime", new SimpleDateFormat(StdDateFormat.DATE_FORMAT_STR_ISO8601).format(mfaAuthenticationChallenge.getCooldownCompletionTime()));
         return details;
     }
 }

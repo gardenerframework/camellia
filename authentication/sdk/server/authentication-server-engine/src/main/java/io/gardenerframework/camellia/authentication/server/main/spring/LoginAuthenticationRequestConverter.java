@@ -1,7 +1,7 @@
 package io.gardenerframework.camellia.authentication.server.main.spring;
 
 import io.gardenerframework.camellia.authentication.server.main.UserAuthenticationService;
-import io.gardenerframework.camellia.authentication.server.main.UserAuthenticationServiceRegistry;
+import io.gardenerframework.camellia.authentication.server.main.utils.UserAuthenticationServiceRegistry;
 import io.gardenerframework.camellia.authentication.server.main.schema.LoginAuthenticationRequestContext;
 import io.gardenerframework.camellia.authentication.server.main.schema.LoginAuthenticationRequestToken;
 import io.gardenerframework.camellia.authentication.server.main.schema.OAuth2ClientUserAuthenticationToken;
