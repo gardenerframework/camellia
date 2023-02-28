@@ -1,6 +1,7 @@
 package io.gardenerframework.camellia.authentication.server.main.spring;
 
 import io.gardenerframework.camellia.authentication.common.client.schema.OAuth2RequestingClient;
+import io.gardenerframework.camellia.authentication.server.common.annotation.AuthenticationServerEngineComponent;
 import io.gardenerframework.camellia.authentication.server.main.UserAuthenticationService;
 import io.gardenerframework.camellia.authentication.server.main.annotation.AuthenticationType;
 import io.gardenerframework.camellia.authentication.server.main.event.schema.*;
@@ -53,6 +54,7 @@ import java.util.Objects;
  */
 @Slf4j
 @RequiredArgsConstructor
+@AuthenticationServerEngineComponent
 public class LoginAuthenticationRequestAuthenticator implements
         AuthenticationProvider, ApplicationEventPublisherAware,
         AuthenticationEventBuilder {

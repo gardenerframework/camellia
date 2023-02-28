@@ -5,7 +5,7 @@ import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.proc.SecurityContext;
 import io.gardenerframework.camellia.authentication.server.common.configuration.AuthenticationServerPathOption;
-import io.gardenerframework.camellia.authentication.server.main.spring.support.oauth2.OAuth2AuthorizationIdModifier;
+import io.gardenerframework.camellia.authentication.server.main.spring.support.oidc.OAuth2AuthorizationIdModifier;
 import lombok.AllArgsConstructor;
 import org.bouncycastle.util.io.pem.PemReader;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
@@ -38,7 +38,7 @@ import java.util.UUID;
  */
 @Configuration
 @AllArgsConstructor
-public class AuthenticationServerEngineOAuth2Configuration {
+public class AuthenticationServerEngineOAuth2ComponentConfiguration {
     private final AuthenticationServerPathOption authenticationServerPathOption;
 
     @Bean

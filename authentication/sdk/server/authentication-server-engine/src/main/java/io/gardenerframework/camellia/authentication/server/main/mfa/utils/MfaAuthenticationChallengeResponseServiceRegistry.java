@@ -44,6 +44,15 @@ public class MfaAuthenticationChallengeResponseServiceRegistry implements Initia
     private final Collection<MfaAuthenticationChallengeResponseService> services;
 
     /**
+     * 是否没有任何mfa服务注册
+     *
+     * @return 返回是否为空的标记
+     */
+    public boolean isEmpty() {
+        return registry.isEmpty();
+    }
+
+    /**
      * 返回指定类型的条目
      *
      * @param name 名称
@@ -93,7 +102,8 @@ public class MfaAuthenticationChallengeResponseServiceRegistry implements Initia
                             .build(),
                     null
             );
-            throw new IllegalStateException("empty services");
+            //返回
+            return;
         }
         services.forEach(
                 service -> {

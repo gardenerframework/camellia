@@ -21,7 +21,7 @@ import org.springframework.lang.Nullable;
 @SuperBuilder
 @NoArgsConstructor
 public class MfaAuthenticationChallengeContext implements ChallengeContext,
-        MfaAuthenticationChallengeContextAutoSavingContract{
+        MfaAuthenticationChallengeContextAutoSavingContract {
     private static final long serialVersionUID = SerializationVersionNumber.version;
     /**
      * 触发当前mfa认证的登录名
@@ -33,11 +33,6 @@ public class MfaAuthenticationChallengeContext implements ChallengeContext,
      */
     @Nullable
     private RequestingClient client;
-    /**
-     * 认证器
-     */
-    @NonNull
-    private String authenticator;
     /**
      * 当时已经通过基本校验的用户
      */

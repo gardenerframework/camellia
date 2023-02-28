@@ -19,7 +19,7 @@ import org.springframework.context.annotation.Import;
 @Import({
         //配置累
         AuthenticationServerEngineSecurityConfiguration.class,
-        AuthenticationServerEngineOAuth2Configuration.class,
+        AuthenticationServerEngineOAuth2ComponentConfiguration.class,
         //配置类
         AuthenticationServerPathOption.class,
         //工具类

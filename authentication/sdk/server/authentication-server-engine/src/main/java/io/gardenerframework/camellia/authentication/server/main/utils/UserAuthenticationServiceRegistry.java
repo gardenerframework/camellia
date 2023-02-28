@@ -1,5 +1,6 @@
 package io.gardenerframework.camellia.authentication.server.main.utils;
 
+import io.gardenerframework.camellia.authentication.server.common.annotation.AuthenticationServerEngineComponent;
 import io.gardenerframework.camellia.authentication.server.common.annotation.AuthenticationServerEnginePreserved;
 import io.gardenerframework.camellia.authentication.server.main.UserAuthenticationService;
 import io.gardenerframework.camellia.authentication.server.main.annotation.AuthenticationEndpoint;
@@ -34,6 +35,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 @Slf4j
 @RequiredArgsConstructor
+@AuthenticationServerEngineComponent
 public class UserAuthenticationServiceRegistry implements InitializingBean {
     private final Map<String, UserAuthenticationServiceRegistryItem> registry = new ConcurrentHashMap<>();
     @NonNull

@@ -1,8 +1,9 @@
 package io.gardenerframework.camellia.authentication.server.main.spring;
 
+import io.gardenerframework.camellia.authentication.server.common.annotation.AuthenticationServerEngineComponent;
 import io.gardenerframework.camellia.authentication.server.main.schema.OAuth2ClientUserAuthenticationToken;
 import io.gardenerframework.camellia.authentication.server.main.schema.UserAuthenticatedAuthentication;
-import io.gardenerframework.camellia.authentication.server.main.spring.support.oauth2.OAuth2AccessTokenGranter;
+import io.gardenerframework.camellia.authentication.server.main.spring.support.oidc.OAuth2AccessTokenGranter;
 import io.gardenerframework.camellia.authentication.server.utils.AuthenticationEndpointMatcher;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
@@ -24,6 +25,7 @@ import javax.servlet.http.HttpServletRequest;
  * @date 2022/5/12 5:21 下午
  */
 @AllArgsConstructor
+@AuthenticationServerEngineComponent
 public class AuthenticationEndpointAuthenticatedAuthenticationAdapter {
     @NonNull
     private final AuthenticationEndpointMatcher authenticationEndpointMatcher;

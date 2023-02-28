@@ -59,7 +59,11 @@ public class AuthenticationServerEngineSecurityConfiguration extends WebSecurity
         );
         //默认不拦截api接口的请求
         //相关权限验证由api自己完成
-        http.authorizeRequests().antMatchers(String.format("%s/**", authenticationServerPathOption.getRestApiContextPath()), authenticationServerPathOption.getWebAuthenticationErrorPage(), authenticationServerPathOption.getWebMfaChallengePage()).permitAll();
+        http.authorizeRequests().antMatchers(String.format("%s/**",
+                authenticationServerPathOption.getRestApiContextPath()),
+                authenticationServerPathOption.getWebAuthenticationErrorPage(),
+                authenticationServerPathOption.getWebMfaChallengePage()
+        ).permitAll();
         http.authorizeRequests().anyRequest().authenticated().and()
 //todo 改造完登录态再看这个
 //                .addFilterAfter(accessContextCheckFilter(), SecurityContextPersistenceFilter.class)

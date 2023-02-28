@@ -16,7 +16,7 @@ import javax.validation.constraints.Positive;
  * @author zhanghan30
  * @date 2022/5/20 4:11 下午
  */
-public class OAuth2TokenParameter extends AbstractAuthenticationRequestParameter {
+public class OAuth2TokenParameter extends AuthenticationRequestParameter {
     @Positive
     @Getter(AccessLevel.NONE)
     @Nullable

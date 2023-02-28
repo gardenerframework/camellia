@@ -1,5 +1,6 @@
 package io.gardenerframework.camellia.authentication.server.main.spring;
 
+import io.gardenerframework.camellia.authentication.server.common.annotation.AuthenticationServerEngineComponent;
 import io.gardenerframework.camellia.authentication.server.common.configuration.AuthenticationServerPathOption;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler;
@@ -15,6 +16,7 @@ import java.io.IOException;
  * @author zhanghan30
  * @date 2021/12/27 10:37 下午
  */
+@AuthenticationServerEngineComponent
 public class WebAuthenticationSuccessHandler extends SavedRequestAwareAuthenticationSuccessHandler {
     public WebAuthenticationSuccessHandler(AuthenticationServerPathOption authenticationServerPathOption) {
         super();

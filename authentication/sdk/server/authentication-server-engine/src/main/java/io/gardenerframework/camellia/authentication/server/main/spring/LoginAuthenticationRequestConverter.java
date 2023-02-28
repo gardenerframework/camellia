@@ -1,5 +1,6 @@
 package io.gardenerframework.camellia.authentication.server.main.spring;
 
+import io.gardenerframework.camellia.authentication.server.common.annotation.AuthenticationServerEngineComponent;
 import io.gardenerframework.camellia.authentication.server.main.UserAuthenticationService;
 import io.gardenerframework.camellia.authentication.server.main.utils.UserAuthenticationServiceRegistry;
 import io.gardenerframework.camellia.authentication.server.main.schema.LoginAuthenticationRequestContext;
@@ -44,6 +45,7 @@ import java.util.Set;
  */
 @Slf4j
 @RequiredArgsConstructor
+@AuthenticationServerEngineComponent
 public class LoginAuthenticationRequestConverter implements AuthenticationConverter {
     private final Validator validator;
     private final UserAuthenticationServiceRegistry userAuthenticationServiceRegistry;

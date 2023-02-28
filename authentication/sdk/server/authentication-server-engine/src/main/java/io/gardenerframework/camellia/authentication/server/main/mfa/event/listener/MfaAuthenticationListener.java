@@ -55,6 +55,10 @@ public class MfaAuthenticationListener implements
     @Override
     @EventListener
     public void onUserAuthenticated(UserAuthenticatedEvent event) throws AuthenticationException {
+        //fix - 支持空注册表，没有任何服务则不需要执行mfa
+        if (registry.isEmpty()) {
+            return;
+        }
         //用户认证结束后看看是否要发mfa请求
         //这里肯定是不关注保留登录名引发的用户登录行为的
         //这里还有一个逻辑

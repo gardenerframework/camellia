@@ -1322,6 +1322,62 @@ public class MfaAuthenticationService implements UserAuthenticationService {
 * 针对网页认证接口，会重定向到`AuthenticationServerPathOption.webAuthenticationErrorPage`的配置
 * 对于token认证接口，返回由符合oauth2标准定义的json
 
+# 认证服务器的配置类
+
+## AuthenticationServerEngineSecurityConfiguration
+
+`AuthenticationServerEngineSecurityConfiguration`主要完成对Spring Security Filter Chain的配置。
+
+其主要逻辑有
+
+* 将`WebAuthenticationEndpointFilterConfigurer`和`OAuth2AuthorizationServerConfigurerProxy`引入filter chain的配置过程
+* 对`AuthenticationServerPathOption.restApiContextPath`路径下的所有url忽略csrf检查
+* 对`AuthenticationServerPathOption.restApiContextPath`路径下的所有url以及错误页面和mfa页面不校验用户是否已经登录
+* 按`AuthenticationServerPathOption`的路径设置登录页面地址以及登出页面地址
+
+## WebAuthenticationEndpointFilterConfigurer
+
+```java
+public class WebAuthenticationEndpointFilterConfigurer extends AuthenticationServerEngineSecurityConfigurer {
+    private final AuthenticationServerPathOption authenticationServerPathOption;
+    private final LoginAuthenticationRequestConverter loginAuthenticationRequestConverter;
+    private final AuthenticationEndpointAuthenticationFailureHandler authenticationEndpointAuthenticationFailureHandler;
+    private final WebAuthenticationSuccessHandler webAuthenticationSuccessHandler;
+    private final ObjectPostProcessor<Object> postProcessor;
+
+    @Override
+    public void configure(HttpSecurity builder) throws Exception {
+        //登录接口不需要csrf
+        builder.csrf().ignoringRequestMatchers(getEndpointMatcher());
+
+        builder.addFilterBefore(this.postProcessor.postProcess(new WebAuthenticationEntryProcessingFilter(
+                getEndpointMatcher(),
+                loginAuthenticationRequestConverter,
+                authenticationEndpointAuthenticationFailureHandler,
+                webAuthenticationSuccessHandler,
+                builder.getSharedObject(AuthenticationManager.class)
+        )), UsernamePasswordAuthenticationFilter.class);
+    }
+
+    public RequestMatcher getEndpointMatcher() {
+        return new AntPathRequestMatcher(authenticationServerPathOption.getWebAuthenticationEndpoint(), HttpMethod.POST.name());
+    }
+}
+```
+
+生成`WebAuthenticationEntryProcessingFilter`并声明支持`AuthenticationServerPathOption`的"getWebAuthenticationEndpoint"，以及需要POST。
+将`LoginAuthenticationRequestConverter`、`AuthenticationEndpointAuthenticationFailureHandler`
+、`WebAuthenticationSuccessHandler`配置到过滤器中
+
+## OAuth2AuthorizationServerConfigurerProxy
+
+主要也是配置spring security的oauth2的一系列filter去支持`AuthenticationServerPathOption`，并将`LoginAuthenticationRequestConverter`
+加入到认证请求的转换器清单中
+
+## AuthenticationServerEngineOAuth2ComponentConfiguration
+
+生成一系列jwt的相关bean，它会检查"authentication-server-engine/pki/private.pem(public.pem)"，如果存在rsa key对，则会自动生成jwt加密用的bean
+
 # UserAuthenticationService管理
 
 ## UserAuthenticationServiceRegistry

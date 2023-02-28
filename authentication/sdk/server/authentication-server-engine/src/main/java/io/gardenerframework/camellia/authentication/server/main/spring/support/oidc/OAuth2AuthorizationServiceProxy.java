@@ -1,10 +1,9 @@
-package io.gardenerframework.camellia.authentication.server.main.spring.support.oauth2;
+package io.gardenerframework.camellia.authentication.server.main.spring.support.oidc;
 
-import com.jdcloud.gardener.camellia.authorization.authentication.main.client.ClientGroupProvider;
-import com.jdcloud.gardener.camellia.authorization.authentication.main.client.schema.Client;
-import com.jdcloud.gardener.camellia.authorization.authentication.main.schema.UserAuthenticatedAuthentication;
-import com.jdcloud.gardener.camellia.authorization.authentication.main.user.schema.subject.User;
-import com.jdcloud.gardener.camellia.authorization.common.utils.HttpRequestUtils;
+import io.gardenerframework.camellia.authentication.common.client.schema.OAuth2RequestingClient;
+import io.gardenerframework.camellia.authentication.server.common.annotation.AuthenticationServerEngineComponent;
+import io.gardenerframework.camellia.authentication.server.main.schema.UserAuthenticatedAuthentication;
+import io.gardenerframework.camellia.authentication.server.main.user.schema.User;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -17,7 +16,6 @@ import org.springframework.security.oauth2.server.authorization.OAuth2Authorizat
 import org.springframework.security.oauth2.server.authorization.OAuth2AuthorizationService;
 import org.springframework.security.oauth2.server.authorization.authentication.OAuth2ClientAuthenticationToken;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClient;
-import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
@@ -36,7 +34,6 @@ import java.util.Objects;
 public class OAuth2AuthorizationServiceProxy {
     private final EnhancedOAuth2TokenCustomizer tokenCustomizer;
     private final OAuth2AuthorizationIdModifier idModifier;
-    private final ClientGroupProvider clientGroupProvider;
 
     /**
      * 拦截{@link OAuth2AuthorizationService#save(OAuth2Authorization)}方法
@@ -62,20 +59,16 @@ public class OAuth2AuthorizationServiceProxy {
                 String originalId = authorization.getId();
                 UserAuthenticatedAuthentication authenticatedUser = authorization.getAttribute(Principal.class.getName());
                 User user = authenticatedUser == null ? null : authenticatedUser.getUser();
-                Client client = null;
+                OAuth2RequestingClient client = null;
                 Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
                 RegisteredClient registeredClient = null;
                 if (authentication instanceof OAuth2ClientAuthenticationToken) {
                     //是在token接口或有client的认证
                     registeredClient = ((OAuth2ClientAuthenticationToken) authentication).getRegisteredClient();
-                    client = new Client(
-                            Objects.requireNonNull(registeredClient).getClientId(),
-                            authorization.getAuthorizationGrantType().getValue(),
-                            null
-                    );
                 }
                 HttpServletRequest request = ((ServletRequestAttributes) Objects.requireNonNull(RequestContextHolder.getRequestAttributes())).getRequest();
-                String modified = idModifier.modify(originalId, HttpRequestUtils.getSafeHttpHeaders(request), clientGroupProvider.getClientGroup(registeredClient), client, user);
+                String modified = originalId;
+                //idModifier.modify(originalId, request, clientGroupProvider.getClientGroup(registeredClient), client, user);
                 //总而言之重新弄一下并标记以下已经折腾过了
                 OAuth2Authorization.Builder builder = OAuth2Authorization.from(authorization).attribute(OAuth2AuthorizationServiceProxy.class.getName(), true);
                 if (!Objects.equals(modified, originalId)) {

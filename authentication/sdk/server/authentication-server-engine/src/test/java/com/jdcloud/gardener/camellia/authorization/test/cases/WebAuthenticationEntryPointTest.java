@@ -2,13 +2,17 @@ package com.jdcloud.gardener.camellia.authorization.test.cases;
 
 import com.jdcloud.gardener.camellia.authorization.test.AuthorizationServerEngineTestApplication;
 import com.jdcloud.gardener.camellia.authorization.test.authentication.main.AccountStatusErrorRequest;
+import com.jdcloud.gardener.camellia.authorization.test.authentication.main.MfaTriggerRequest;
 import com.jdcloud.gardener.camellia.authorization.test.authentication.main.NullAuthenticationRequest;
 import com.jdcloud.gardener.camellia.authorization.test.authentication.main.NullPrincipalRequest;
 import com.jdcloud.gardener.camellia.authorization.test.utils.WebAuthenticationClient;
 import io.gardenerframework.camellia.authentication.server.main.annotation.AuthenticationType;
+import io.gardenerframework.camellia.authentication.server.main.mfa.MfaAuthenticationService;
+import io.gardenerframework.camellia.authentication.server.main.mfa.exception.client.BadMfaAuthenticationRequestException;
 import io.gardenerframework.fragrans.api.standard.error.DefaultApiErrorConstants;
 import io.gardenerframework.fragrans.messages.EnhancedMessageSource;
 import lombok.Data;
+import lombok.SneakyThrows;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -18,8 +22,11 @@ import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AccountExpiredException;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.LockedException;
+import org.springframework.web.util.UriComponents;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
@@ -98,58 +105,58 @@ public class WebAuthenticationEntryPointTest {
         request.put("password", password);
     }
 
-//    @Test
-//    @DisplayName("触发mfa测试")
-//    public void testTriggerMfa() throws UnsupportedEncodingException {
-//        Map<String, Object> request = new HashMap<>();
-//        String username = UUID.randomUUID().toString();
-//        String password = UUID.randomUUID().toString();
-//        request.put("username", username);
-//        request.put("password", null);
-//
-//        //先弄出来一个错误密码
-//        WebAuthenticationError error = new WebAuthenticationError(authenticationClient.login(AnnotationUtils.findAnnotation(MfaTriggerRequest.class, AuthenticationType.class).value(), request));
-//        Assertions.assertEquals(HttpStatus.UNAUTHORIZED.value(), error.getStatus());
-//        Assertions.assertEquals(HttpStatus.UNAUTHORIZED.getReasonPhrase(), error.getPhrase());
-//        Assertions.assertEquals(messageSource.getMessage(new BadCredentialsException(""), Locale.getDefault()), error.getMessage());
-//
-//        //正确登录要求mfa
-//        request.put("password", password);
-//        MfaAuthenticationRequest mfaAuthenticationRequest = new MfaAuthenticationRequest(authenticationClient.login(AnnotationUtils.findAnnotation(MfaTriggerRequest.class, AuthenticationType.class).value(), request));
-//        Assertions.assertEquals(WellKnownChallengeType.GOOGLE_AUTHENTICATOR, mfaAuthenticationRequest.getAuthenticator());
-//        Assertions.assertNotNull(mfaAuthenticationRequest.getChallengeId());
-//        String challengeId = mfaAuthenticationRequest.getChallengeId();
-//
-//        //不进行mfa认证依然要求mfa
-//        mfaAuthenticationRequest = new MfaAuthenticationRequest(authenticationClient.login(AnnotationUtils.findAnnotation(MfaTriggerRequest.class, AuthenticationType.class).value(), request));
-//        Assertions.assertEquals(WellKnownChallengeType.GOOGLE_AUTHENTICATOR, mfaAuthenticationRequest.getAuthenticator());
-//        Assertions.assertEquals(challengeId, mfaAuthenticationRequest.getChallengeId());
-//
-//        //给一个错误的challengeId
-//        request.put("challengeId", UUID.randomUUID().toString());
-//        request.put("response", UUID.randomUUID().toString());
-//        error = new WebAuthenticationError(authenticationClient.login(AnnotationUtils.findAnnotation(MfaAuthenticationService.class, AuthenticationType.class).value(), request));
-//        Assertions.assertEquals(HttpStatus.BAD_REQUEST.value(), error.getStatus());
-//        Assertions.assertEquals(HttpStatus.BAD_REQUEST.getReasonPhrase(), error.getPhrase());
-//        Assertions.assertEquals(messageSource.getMessage(new InvalidChallengeException(""), Locale.getDefault()), error.getMessage());
-//
-//        //执行认证
-//        request.put("challengeId", challengeId);
-//        request.put("response", UUID.randomUUID().toString());
-//        assertLoginSuccess(authenticationClient.login(AnnotationUtils.findAnnotation(MfaAuthenticationService.class, AuthenticationType.class).value(), request));
-//
-//        //再来一遍报错
-//        error = new WebAuthenticationError(authenticationClient.login(AnnotationUtils.findAnnotation(MfaAuthenticationService.class, AuthenticationType.class).value(), request));
-//        Assertions.assertEquals(HttpStatus.BAD_REQUEST.value(), error.getStatus());
-//        Assertions.assertEquals(HttpStatus.BAD_REQUEST.getReasonPhrase(), error.getPhrase());
-//        Assertions.assertEquals(messageSource.getMessage(new InvalidChallengeException(""), Locale.getDefault()), error.getMessage());
-//
-//        //之后正常登录也没问题
-//        request.put("username", username);
-//        request.put("password", password);
-//        assertLoginSuccess(authenticationClient.login(AnnotationUtils.findAnnotation(MfaTriggerRequest.class, AuthenticationType.class).value(), request));
-//
-//    }
+    @Test
+    @DisplayName("触发mfa测试")
+    public void testTriggerMfa() throws UnsupportedEncodingException {
+        Map<String, Object> request = new HashMap<>();
+        String username = UUID.randomUUID().toString();
+        String password = UUID.randomUUID().toString();
+        request.put("username", username);
+        request.put("password", null);
+
+        //先弄出来一个错误密码
+        WebAuthenticationError error = new WebAuthenticationError(authenticationClient.login(AnnotationUtils.findAnnotation(MfaTriggerRequest.class, AuthenticationType.class).value(), request));
+        Assertions.assertEquals(HttpStatus.UNAUTHORIZED.value(), error.getStatus());
+        Assertions.assertEquals(HttpStatus.UNAUTHORIZED.getReasonPhrase(), error.getPhrase());
+        Assertions.assertEquals(messageSource.getMessage(new BadCredentialsException(""), Locale.getDefault()), error.getMessage());
+
+        //正确登录要求mfa
+        request.put("password", password);
+        MfaAuthenticationRequest mfaAuthenticationRequest = new MfaAuthenticationRequest(authenticationClient.login(AnnotationUtils.findAnnotation(MfaTriggerRequest.class, AuthenticationType.class).value(), request));
+        Assertions.assertEquals("test", mfaAuthenticationRequest.getAuthenticator());
+        Assertions.assertNotNull(mfaAuthenticationRequest.getChallengeId());
+        String challengeId = mfaAuthenticationRequest.getChallengeId();
+
+        //不进行mfa认证依然要求mfa
+        mfaAuthenticationRequest = new MfaAuthenticationRequest(authenticationClient.login(AnnotationUtils.findAnnotation(MfaTriggerRequest.class, AuthenticationType.class).value(), request));
+        Assertions.assertEquals("test", mfaAuthenticationRequest.getAuthenticator());
+        Assertions.assertEquals(challengeId, mfaAuthenticationRequest.getChallengeId());
+
+        //给一个错误的challengeId
+        request.put("challengeId", UUID.randomUUID().toString());
+        request.put("response", UUID.randomUUID().toString());
+        error = new WebAuthenticationError(authenticationClient.login(AnnotationUtils.findAnnotation(MfaAuthenticationService.class, AuthenticationType.class).value(), request));
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST.value(), error.getStatus());
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST.getReasonPhrase(), error.getPhrase());
+        Assertions.assertEquals(messageSource.getMessage(new BadMfaAuthenticationRequestException(""), Locale.getDefault()), error.getMessage());
+
+        //执行认证
+        request.put("challengeId", challengeId);
+        request.put("response", UUID.randomUUID().toString());
+        assertLoginSuccess(authenticationClient.login(AnnotationUtils.findAnnotation(MfaAuthenticationService.class, AuthenticationType.class).value(), request));
+
+        //再来一遍报错
+        error = new WebAuthenticationError(authenticationClient.login(AnnotationUtils.findAnnotation(MfaAuthenticationService.class, AuthenticationType.class).value(), request));
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST.value(), error.getStatus());
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST.getReasonPhrase(), error.getPhrase());
+        Assertions.assertEquals(messageSource.getMessage(new BadMfaAuthenticationRequestException(""), Locale.getDefault()), error.getMessage());
+
+        //之后正常登录也没问题
+        request.put("username", username);
+        request.put("password", password);
+        assertLoginSuccess(authenticationClient.login(AnnotationUtils.findAnnotation(MfaTriggerRequest.class, AuthenticationType.class).value(), request));
+
+    }
 
 
     @Data
@@ -170,15 +177,14 @@ public class WebAuthenticationEntryPointTest {
 
     @Data
     public static class MfaAuthenticationRequest {
-        private final Pattern pattern = Pattern.compile("^http://localhost:19090/mfa\\?authenticator=(.+?)&challengeId=(.+?)&(.+?)$");
         private final String authenticator;
         private final String challengeId;
 
+        @SneakyThrows
         public MfaAuthenticationRequest(ResponseEntity<Void> response) {
-            Matcher matcher = pattern.matcher(response.getHeaders().get("Location").get(0));
-            matcher.find();
-            this.authenticator = matcher.group(1);
-            this.challengeId = matcher.group(2);
+            UriComponents url = UriComponentsBuilder.fromHttpUrl(response.getHeaders().get("Location").get(0)).build();
+            this.authenticator = url.getQueryParams().get("authenticator").get(0);
+            this.challengeId = url.getQueryParams().get("challengeId").get(0);
         }
     }
 }
