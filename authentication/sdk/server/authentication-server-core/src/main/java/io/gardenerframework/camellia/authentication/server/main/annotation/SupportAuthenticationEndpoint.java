@@ -11,7 +11,7 @@ import io.gardenerframework.camellia.authentication.server.main.UserAuthenticati
  * @date 2022/5/11 10:32
  * @see UserAuthenticationService
  */
-public @interface AuthenticationEndpoint {
+public @interface SupportAuthenticationEndpoint {
     Endpoint[] value() default {Endpoint.WEB, Endpoint.OAUTH2};
 
     /**

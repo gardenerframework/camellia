@@ -430,7 +430,7 @@ public abstract class AbstractUserAuthenticationService<P extends Authentication
 等验证注解而不需要自行在逻辑中进行判断。验证失败抛出`BadAuthenticationRequestParameterException`
 ，它是`AuthenticationException`的一个子类。会被Spring Security框架处理。
 
-## AuthenticationType & AuthenticationEndpoint
+## AuthenticationType & SupportAuthenticationEndpoint
 
 每一个`UserAuthenticationService`对应着一个认证类型以及匹配的认证参数。引擎中包含了多个`UserAuthenticationService`来支持多种多样的认证方法。
 那么为了引擎能够在接收到认证请求时找到合适的认证服务，`UserAuthenticationService`就必须指明自己的认证方法类型。
@@ -440,7 +440,7 @@ username"、"sms"、"qrcode"等。 不同类型的认证服务器将通过提交
 authentication_type"
 属性来进行请求路由。引擎将确保调用类型对应的认证服务。目前类型与服务是1:1对应关系
 
-`AuthenticationEndpoint`注解则使得认证服务能够声明自己支持的认证端点。认证服务器引擎有2个端点，如下图所示
+`SupportAuthenticationEndpoint`注解则使得认证服务能够声明自己支持的认证端点。认证服务器引擎有2个端点，如下图所示
 
 ```plantuml
 @startuml
@@ -462,14 +462,14 @@ app认证端点 --> 认证服务
 @enduml
 ```
 
-2个端点在Spring Security中对应着不同的Filter，在Filter中则调用相同的认证服务。那么，为了使得认证服务器能够声明自己支持的端点，可以标记上`AuthenticationEndpoint`
+2个端点在Spring Security中对应着不同的Filter，在Filter中则调用相同的认证服务。那么，为了使得认证服务器能够声明自己支持的端点，可以标记上`SupportAuthenticationEndpoint`
 
 比如需求上人脸识别仅仅支持app端，那么就可以如下声明
 
 ```java
 
 @AuthenticationType("face")
-@AuthenticationEndpoint(Endpoint.OAUTH2)
+@SupportAuthenticationEndpoint(Endpoint.OAUTH2)
 public class FaceAuthenticationService implements UserAuthenticationService {
     //...
 }
@@ -1384,7 +1384,7 @@ public class WebAuthenticationEndpointFilterConfigurer extends AuthenticationSer
 
 在`LoginAuthenticationRequestConverter`
 的转换逻辑中使用到了用户认证服务的注册表。注册表收取所有`UserAuthenticationService`
-类型的bean，提取`AuthenticationType`注解中表达的类型，以及`AuthenticationEndpoint`
+类型的bean，提取`AuthenticationType`注解中表达的类型，以及`SupportAuthenticationEndpoint`
 注解中表达的支持的认证接口，并最后判断是否具有`AuthorizationEnginePreserved`
 注解。 注册表在注册的过程中会检查`AuthenticationType`是否已经被注册，如果已经被注册则会阻止引擎启动
 
