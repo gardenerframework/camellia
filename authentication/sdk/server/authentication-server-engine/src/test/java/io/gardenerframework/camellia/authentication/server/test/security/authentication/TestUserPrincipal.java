@@ -1,4 +1,4 @@
-package com.jdcloud.gardener.camellia.authorization.test.security.authentication;
+package io.gardenerframework.camellia.authentication.server.test.security.authentication;
 
 
 import io.gardenerframework.camellia.authentication.server.main.user.schema.User;

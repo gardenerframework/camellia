@@ -1,4 +1,4 @@
-package com.jdcloud.gardener.camellia.authorization.test;
+package io.gardenerframework.camellia.authentication.server.test;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.gardenerframework.camellia.authentication.server.client.schema.response.ClientAppearance;

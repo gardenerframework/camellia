@@ -1,4 +1,4 @@
-package com.jdcloud.gardener.camellia.authorization.test.utils;
+package io.gardenerframework.camellia.authentication.server.test.utils;
 
 import lombok.Setter;
 import org.springframework.http.HttpEntity;

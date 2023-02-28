@@ -1,4 +1,4 @@
-package com.jdcloud.gardener.camellia.authorization.test.mfa;
+package io.gardenerframework.camellia.authentication.server.test.mfa;
 
 import io.gardenerframework.camellia.authentication.common.client.schema.OAuth2RequestingClient;
 import io.gardenerframework.camellia.authentication.common.client.schema.RequestingClient;

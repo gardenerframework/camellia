@@ -1,11 +1,11 @@
-package com.jdcloud.gardener.camellia.authorization.test.cases;
+package io.gardenerframework.camellia.authentication.server.test.cases;
 
-import com.jdcloud.gardener.camellia.authorization.test.AuthorizationServerEngineTestApplication;
-import com.jdcloud.gardener.camellia.authorization.test.authentication.main.AccountStatusErrorRequest;
-import com.jdcloud.gardener.camellia.authorization.test.authentication.main.MfaTriggerRequest;
-import com.jdcloud.gardener.camellia.authorization.test.authentication.main.NullAuthenticationRequest;
-import com.jdcloud.gardener.camellia.authorization.test.authentication.main.NullPrincipalRequest;
-import com.jdcloud.gardener.camellia.authorization.test.utils.WebAuthenticationClient;
+import io.gardenerframework.camellia.authentication.server.test.AuthorizationServerEngineTestApplication;
+import io.gardenerframework.camellia.authentication.server.test.authentication.main.AccountStatusErrorRequest;
+import io.gardenerframework.camellia.authentication.server.test.authentication.main.MfaTriggerRequest;
+import io.gardenerframework.camellia.authentication.server.test.authentication.main.NullAuthenticationRequest;
+import io.gardenerframework.camellia.authentication.server.test.authentication.main.NullPrincipalRequest;
+import io.gardenerframework.camellia.authentication.server.test.utils.WebAuthenticationClient;
 import io.gardenerframework.camellia.authentication.server.main.annotation.AuthenticationType;
 import io.gardenerframework.camellia.authentication.server.main.mfa.MfaAuthenticationService;
 import io.gardenerframework.camellia.authentication.server.main.mfa.exception.client.BadMfaAuthenticationRequestException;

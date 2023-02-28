@@ -1,4 +1,4 @@
-package com.jdcloud.gardener.camellia.authorization.test.security.oauth2;
+package io.gardenerframework.camellia.authentication.server.test.security.oauth2;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

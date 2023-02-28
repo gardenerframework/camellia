@@ -1,4 +1,4 @@
-package com.jdcloud.gardener.camellia.authorization.test.utils;
+package io.gardenerframework.camellia.authentication.server.test.utils;
 
 import org.springframework.http.HttpEntity;
 import org.springframework.http.ResponseEntity;

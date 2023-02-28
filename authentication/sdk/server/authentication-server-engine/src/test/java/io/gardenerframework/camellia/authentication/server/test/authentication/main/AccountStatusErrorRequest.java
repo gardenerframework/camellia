@@ -1,8 +1,8 @@
-package com.jdcloud.gardener.camellia.authorization.test.authentication.main;
+package io.gardenerframework.camellia.authentication.server.test.authentication.main;
 
-import com.jdcloud.gardener.camellia.authorization.test.security.authentication.principal.AccountExpiredPrincipal;
-import com.jdcloud.gardener.camellia.authorization.test.security.authentication.principal.DisabledPrincipal;
-import com.jdcloud.gardener.camellia.authorization.test.security.authentication.principal.LockedPrincipal;
+import io.gardenerframework.camellia.authentication.server.test.security.authentication.principal.AccountExpiredPrincipal;
+import io.gardenerframework.camellia.authentication.server.test.security.authentication.principal.DisabledPrincipal;
+import io.gardenerframework.camellia.authentication.server.test.security.authentication.principal.LockedPrincipal;
 import io.gardenerframework.camellia.authentication.server.main.UserAuthenticationService;
 import io.gardenerframework.camellia.authentication.server.main.annotation.AuthenticationType;
 import io.gardenerframework.camellia.authentication.server.main.schema.UserAuthenticationRequestToken;
