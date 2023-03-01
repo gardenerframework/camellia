@@ -38,7 +38,6 @@ public class TestUserService implements UserService {
         return TestUserPrincipal.builder()
                 .id(principal.getName())
                 .username(principal.getName())
-                .credentials(null)
                 .principal(principal)
                 .enabled(!(principal instanceof DisabledPrincipal))
                 .locked(principal instanceof LockedPrincipal)
