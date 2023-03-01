@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.HashMap;
 
 /**
  * @author zhanghan30
@@ -48,10 +49,10 @@ public class AbstractUserAuthenticationServiceTest {
             this.authenticationService.setNullUsername(true);
             Assertions.assertThrowsExactly(
                     BadAuthenticationRequestParameterException.class,
-                    () -> authenticationService.convert(request)
+                    () -> authenticationService.convert(request, null, new HashMap<>())
             );
             this.authenticationService.setNullUsername(false);
-            authenticationService.convert(request);
+            authenticationService.convert(request, null, new HashMap<>());
         }
     }
 }

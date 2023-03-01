@@ -33,12 +33,11 @@ import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.oauth2.server.authorization.client.RegisteredClient;
 import org.springframework.security.oauth2.server.authorization.web.OAuth2TokenEndpointFilter;
 import org.springframework.util.ClassUtils;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.LinkedHashMap;
+import java.util.Collection;
 import java.util.Map;
 import java.util.Objects;
 
@@ -86,17 +85,9 @@ public class LoginAuthenticationRequestAuthenticator implements
         UserAuthenticationService userAuthenticationService = loginAuthenticationRequestToken.getContext().getUserAuthenticationService();
         HttpServletRequest httpServletRequest = loginAuthenticationRequestToken.getContext().getHttpServletRequest();
         //设置当前登录的客户端
-        OAuth2RequestingClient client = clientUserAuthenticationRequestToken == null ?
-                null : OAuth2RequestingClient.builder()
-                .clientId(clientUserAuthenticationRequestToken.getClientId())
-                .grantType(clientUserAuthenticationRequestToken.getGrantType().getValue())
-                .scopes(clientUserAuthenticationRequestToken.getScopes())
-                .build();
+        OAuth2RequestingClient client = loginAuthenticationRequestToken.getContext().getClient();
         //生成验证上下文
-        Map<String, Object> context = new LinkedHashMap<>();
-        context.put(RegisteredClient.class.getCanonicalName(),
-                clientUserAuthenticationRequestToken == null ?
-                        null : clientUserAuthenticationRequestToken.getRegisteredClient());
+        Map<String, Object> context = loginAuthenticationRequestToken.getContext().getContext();
         //准备读取用户
         User user = null;
         //标识位，用来标记用户服务是否没有受到任何异常的被调用了
@@ -135,7 +126,7 @@ public class LoginAuthenticationRequestAuthenticator implements
                 throw new UserNotFoundException(principal.getName());
             }
             //临时hold一下密码
-            credentials = user.getCredentials();
+            Collection<Credentials> credentialsHolder = user.getCredentials();
             user.eraseCredentials();
             //用户加载事件不需要密码，以防错误的日志打印等
             this.eventPublisher.publishEvent(buildEvent(
@@ -146,9 +137,14 @@ public class LoginAuthenticationRequestAuthenticator implements
                     client,
                     context
             ).user(user).build());
-            user.setCredentials(credentials);
+            user.setCredentials(credentialsHolder);
             //现在是任何类型的认证都需要认证
-            userAuthenticationService.authenticate(userAuthenticationRequestToken, user);
+            userAuthenticationService.authenticate(
+                    userAuthenticationRequestToken,
+                    client,
+                    user,
+                    context
+            );
             //用户认证已经完成，读取出的用户不需要密码
             user.eraseCredentials();
             //发送认证后事件

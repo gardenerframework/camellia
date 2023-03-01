@@ -46,7 +46,8 @@ public abstract class Subject implements Serializable,
      * 因此可以将登录凭据写成用户输入的那个
      */
     @Nullable
-    private transient Credentials credentials;
+    @Singular
+    private transient Collection<@NonNull Credentials> credentials;
     /**
      * 用户的所有可用登录名
      */

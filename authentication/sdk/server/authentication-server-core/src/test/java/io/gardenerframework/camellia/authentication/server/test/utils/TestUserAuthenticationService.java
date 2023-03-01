@@ -1,5 +1,6 @@
 package io.gardenerframework.camellia.authentication.server.test.utils;
 
+import io.gardenerframework.camellia.authentication.common.client.schema.OAuth2RequestingClient;
 import io.gardenerframework.camellia.authentication.server.main.AbstractUserAuthenticationService;
 import io.gardenerframework.camellia.authentication.server.main.schema.UserAuthenticationRequestToken;
 import io.gardenerframework.camellia.authentication.server.main.schema.subject.principal.UsernamePrincipal;
@@ -7,11 +8,13 @@ import io.gardenerframework.camellia.authentication.server.main.user.schema.User
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
+import org.springframework.lang.Nullable;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Validator;
+import java.util.Map;
 import java.util.UUID;
 
 /**
@@ -39,14 +42,14 @@ public class TestUserAuthenticationService extends AbstractUserAuthenticationSer
     }
 
     @Override
-    protected UserAuthenticationRequestToken doConvert(@NonNull UsernamePasswordAuthenticationParameter authenticationParameter) {
+    protected UserAuthenticationRequestToken doConvert(@NonNull UsernamePasswordAuthenticationParameter authenticationParameter, @Nullable OAuth2RequestingClient client, @NonNull Map<String, Object> context) {
         return new UserAuthenticationRequestToken(UsernamePrincipal.builder()
                 .name(authenticationParameter.getUsername())
                 .build());
     }
 
     @Override
-    public void authenticate(@NonNull UserAuthenticationRequestToken authenticationRequest, @NonNull User user) throws AuthenticationException {
+    public void authenticate(@NonNull UserAuthenticationRequestToken authenticationRequest, @Nullable OAuth2RequestingClient client,  @NonNull User user, @NonNull Map<String, Object> context) throws AuthenticationException {
 
     }
 }

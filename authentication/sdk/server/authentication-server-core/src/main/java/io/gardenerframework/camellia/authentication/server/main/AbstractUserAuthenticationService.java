@@ -1,15 +1,19 @@
 package io.gardenerframework.camellia.authentication.server.main;
 
+import io.gardenerframework.camellia.authentication.common.client.schema.OAuth2RequestingClient;
+import io.gardenerframework.camellia.authentication.server.main.exception.NestedAuthenticationException;
 import io.gardenerframework.camellia.authentication.server.main.schema.UserAuthenticationRequestToken;
 import io.gardenerframework.camellia.authentication.server.main.schema.request.AuthenticationRequestParameter;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NonNull;
+import org.springframework.lang.Nullable;
 import org.springframework.security.core.AuthenticationException;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Validator;
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -37,14 +41,29 @@ public abstract class AbstractUserAuthenticationService<P extends Authentication
      * 从转换的参数中进行转换
      *
      * @param authenticationParameter 认证参数
+     * @param context                 上下文
      * @return 认证请求
+     * @throws Exception 在转换过程中出现的问题
      */
-    protected abstract UserAuthenticationRequestToken doConvert(@NonNull P authenticationParameter);
+    protected abstract UserAuthenticationRequestToken doConvert(
+            @NonNull P authenticationParameter,
+            @Nullable OAuth2RequestingClient client,
+            @NonNull Map<String, Object> context
+    ) throws Exception;
 
     @Override
-    public UserAuthenticationRequestToken convert(@NonNull HttpServletRequest request) throws AuthenticationException {
+    public UserAuthenticationRequestToken convert(
+            @NonNull HttpServletRequest request,
+            @Nullable OAuth2RequestingClient client,
+            @NonNull Map<String, Object> context) throws AuthenticationException {
         P authenticationParameter = Objects.requireNonNull(getAuthenticationParameter(request));
         authenticationParameter.validate(validator);
-        return Objects.requireNonNull(doConvert(authenticationParameter));
+        try {
+            return Objects.requireNonNull(doConvert(authenticationParameter, client, context));
+        } catch (AuthenticationException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new NestedAuthenticationException(e);
+        }
     }
 }

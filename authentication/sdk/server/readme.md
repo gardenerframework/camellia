@@ -76,15 +76,34 @@ Boundary(认证服务引擎, 认证服务引擎, sdk) {
 @enduml
 ```
 
-打开引擎的内部，主要由事件监听器、多因子认证组件以及核心的基本认证组件构成，基本认证组件基于Spring
-Security的功能完成用户登录凭据的校验；多因子认证组件则基于挑战与应答实现用户登录确认前的最终验证；
+打开引擎的内部，主要由事件监听器、多因子认证组件以及核心的基本认证组件构成，基本认证组件基于Spring Security的功能完成用户登录凭据的校验；多因子认证组件则基于挑战与应答实现用户登录确认前的最终验证；
 事件监听器负责监听认证主流程中发出的事件，并通过抛出异常的方式中断认证流程
 
-# 基本数据结构和核心接口
+# 登录名、登录凭据、主体与用户
 
-## Subject
+在下文中，大量的会出现登录名、登录凭据、主体以及用户的概念。下图是这些概念在java类层面上的一个体现
 
-主体是代表即将认证的东西，可能是个客户端，可能是个用户。不过由于Spring Security中对于客户端有独立的对象表达，因此在此基本用来表达待认证的用户
+```plantuml
+@startuml
+class Subject {
+}
+class Principal {
+}
+class Credentials {
+}
+
+class User {
+}
+
+Subject o-- Principal
+Subject o-- Credentials
+User --|> Subject
+@enduml
+```
+
+## 主体: Subject
+
+主体是代表即将认证的东西，可能是个客户端，可能是个用户，通常来说是数据库存储或接口读取出来的一个记录。
 
 ```java
 
@@ -111,7 +130,8 @@ public abstract class Subject implements Serializable,
      * 因此可以将登录凭据写成用户输入的那个
      */
     @Nullable
-    private transient Credentials credentials;
+    @Singular
+    private transient Collection<@NonNull Credentials> credentials;
     /**
      * 用户的所有可用登录名
      */
@@ -149,13 +169,12 @@ public abstract class Subject implements Serializable,
 }
 ```
 
-从类型定义上可以看到，主体包含了一组登录名(Principal)和一个登录凭据(Credentials)，对于哪种本身就从不需要用户名密码的系统，主体可以没有登录凭据。
-此外主体有一些基本的属性，包含是否锁定，是否启用，主体的过期时间，登录凭据的过期时间。这些属性都是Spring
-Security框架所需的，且也是认证系统常见的属性
+从类型定义上可以看到，主体包含了一组登录名(Principal)和一组登录凭据(Credentials)，对于哪种本身就从不需要用户名密码的系统，主体可以没有登录凭据。
+此外主体有一些基本的属性，包含是否锁定，是否启用，主体的过期时间，登录凭据的过期时间。这些属性都是Spring Security框架所需的，且也是认证系统常见的属性
 
-## Principal
+## 登录名: Principal
 
-`Principal`代表的是用户提交的登录名称或识别符号，如用户名、员工卡号、会员卡号、手机号等。不同的类型用这个类型的子类代表。
+`Principal`代表的是主体能够被用来登录使用的名称，如用户名、员工卡号、会员卡号、手机号等。不同的类型用这个类型的子类代表。
 
 ```java
 
@@ -180,9 +199,9 @@ public abstract class Principal implements
 其中的主要属性是名称。引擎提供了一系列常用的登录名类型，比如`UsernamePrincipal`或者`MobilePhoneNumberPrincipal`等。
 `Principal`实际上通过属性计算hash code，从而实现在`Collection`中通过"contains"可以判断是否包含当前登录名的实例
 
-## Credentials
+## 登录凭据: Credentials
 
-`Credentials`代表用户提交的登录凭据，比如密码，短信验证码等，同样不同的类型也需要使用子类来表达
+`Credentials`代表主体能够使用或比对的登录凭据，比如密码，短信验证码等，同样不同的类型也需要使用子类来表达
 
 ```java
 
@@ -193,7 +212,7 @@ public abstract class Credentials {
 }
 ```
 
-已经预置的子类有`PasswordCredentials`
+已经预置的子类有`PasswordCredentials`，当然还有可能诸如证书序列号等多种多样可预先采集的登录凭据。
 
 ```java
 
@@ -213,7 +232,7 @@ public class PasswordCredentials extends Credentials implements SecurityTraits.S
 
 其中因为实现了equals方法，因此可以在两个`Credentials`对象间进行判等
 
-## User
+## 用户: User
 
 用户`User`是主体的一个类型
 
@@ -244,7 +263,23 @@ public class User extends Subject implements
 
 除去主体的基本属性外，额外扩展了名字和头像。头像如果用户没有上传可能是空的，而名字一般不会是空的。
 
-## AuthenticationRequestParameter
+# OAuth2RequestingClient、RegisteredClient
+
+在部分接口中会发现有类型为`OAuth2RequestingClient`的参数
+
+`OAuth2RequestingClient`是指当前正在访问认证接口的客户端，其包含了最简的属性，主要是id、要求的授权方法和授权范围
+
+`RegisteredClient`是Spring
+Security使用个一个类，其含义是从客户端存储接口或设施读取出来的客户端的详细数据，包含了客户端的id、密码以及客户端被系统后台赋予的其它属性，比如能够使用的请求范围，能够使用的授权方法等。可以被理解为客户端的数据记录。
+
+由于`RegisteredClient`要求必须引入授权服务器的组件才能使用，因此如果一个java接口的参数需要`RegisteredClient`
+，原则上开发人员就需要引入认证服务器引擎组件而不是core才能访问到，core组件倾向于不引入整个spring security的oauth2授权服务器组件
+
+# 认证流程涉及的核心接口
+
+从开始认证流程到客户端调用oauth2的接口读取用户信息的过程中使用到的所有类均位于"io.gardenerframework.camellia.authentication.server.main"程序包内
+
+## 登录认证请求基本型: AuthenticationRequestParameter
 
 ```java
 public abstract class AuthenticationRequestParameter {
@@ -270,7 +305,7 @@ public abstract class AuthenticationRequestParameter {
 ，意思是告诉各个认证组件的开发人员从请求中直接解析参数。同时它提供了验证方法，要求输入javax的验证器，并在参数不合法的情况下抛出`BadAuthenticationRequestParameterException`
 异常
 
-## UserAuthenticationService
+## 用户认证服务接口: UserAuthenticationService
 
 ```java
 public interface UserAuthenticationService {
@@ -282,29 +317,44 @@ public interface UserAuthenticationService {
      * 其它类型的异常都将被解释为认证服务内部错误
      *
      * @param request http 请求
+     * @param client  客户端
+     * @param context 认证上下文，用于存储开发人员自定义的数据
      * @return 登录请求对象
      * @throws AuthenticationException 如果认为当前认证过程应当中断，则抛出异常，
      *                                 比如{@link BadAuthenticationRequestParameterException}来表示参数有问题
      */
-    UserAuthenticationRequestToken convert(@NonNull HttpServletRequest request) throws AuthenticationException;
+    UserAuthenticationRequestToken convert(
+            @NonNull HttpServletRequest request,
+            @Nullable OAuth2RequestingClient client,
+            @NonNull Map<String, Object> context
+    ) throws AuthenticationException;
 
     /**
      * 执行认证
      *
      * @param authenticationRequest 页面发来的认证请求
+     * @param client                请求客户端
      * @param user                  用户详情
+     * @param context               认证上下文
      * @throws AuthenticationException 有问题抛异常
      */
-    void authenticate(@NonNull UserAuthenticationRequestToken authenticationRequest, @NonNull User user) throws AuthenticationException;
+    void authenticate(
+            @NonNull UserAuthenticationRequestToken authenticationRequest,
+            @Nullable OAuth2RequestingClient client,
+            @NonNull User user,
+            @NonNull Map<String, Object> context
+    ) throws AuthenticationException;
 }
 ```
 
-用户认证服务是IAM认证系统的核心接口，它表达两个意图
+用户认证服务是认证服务器的核心接口，它表达两个意图
 
 * 将http请求转为用户认证请求
 * 执行认证，如果没有抛出任何异常则认为认证通过
 
-## UserAuthenticationRequestToken
+其中还有一个公共参数`Map<String, Object> context`，其贯穿1次认证接口的调用的生命周期，可以认为是request scope的对象。其会在大部分认证请求处理过程中的接口和事件中出现。
+
+## 用户认证请求: UserAuthenticationRequestToken
 
 ```java
 public class UserAuthenticationRequestToken {
@@ -333,9 +383,11 @@ public class UserAuthenticationRequestToken {
 }
 ```
 
-`UserAuthenticationRequestToken`是`UserAuthenticationService`要求转换的登录认证请求，其实就是包含登录名和登录凭据
+`UserAuthenticationRequestToken`是`UserAuthenticationService`要求转换的登录认证请求，其实就是包含登录名和登录凭据。
 
-## UserAuthenticatedAuthentication
+如果用户登录时本身不需要登录凭据的提交(比如刷脸登)，那么引擎会使用`EmptyCredentials`而不是null
+
+## 完成登录后: UserAuthenticatedAuthentication
 
 ```java
 public class UserAuthenticatedAuthentication extends AbstractAuthenticationToken {
@@ -385,8 +437,7 @@ public class UserAuthenticatedAuthentication extends AbstractAuthenticationToken
 ```
 
 `UserAuthenticatedAuthentication`代表已经通过了验证过程的用户，其是Spring Security引擎使用的数据。
-经过验证后的信息中显著保存了被认证的用户，此外因为用户已经认证完成因此不会再给出任何登录凭据。最后，依照Spring
-Security的约定，将用户的id作为识别符号返回
+经过验证后的信息中显著保存了被认证的用户，此外因为用户已经认证完成因此不会再给出任何登录凭据。最后，依照Spring Security的约定，将用户的id作为识别符号返回
 
 ## AbstractUserAuthenticationService
 
@@ -429,8 +480,7 @@ public abstract class AbstractUserAuthenticationService<P extends Authentication
 }
 ```
 
-`AbstractUserAuthenticationService`为用户的认证服务提供了与`AuthenticationRequestParameter`的串联逻辑支持。
-它要求子类去创建参数对象，然后利用`Validator`
+`AbstractUserAuthenticationService`为用户的认证服务提供了与`AuthenticationRequestParameter`的串联逻辑支持。 它要求子类去创建参数对象，然后利用`Validator`
 进行校验。因此，`AuthenticationRequestParameter`的子类可以使用类似`@NotBlank`
 等验证注解而不需要自行在逻辑中进行判断。验证失败抛出`BadAuthenticationRequestParameterException`
 ，它是`AuthenticationException`的一个子类。会被Spring Security框架处理。
@@ -438,8 +488,7 @@ public abstract class AbstractUserAuthenticationService<P extends Authentication
 ## AuthenticationType & SupportAuthenticationEndpoint
 
 每一个`UserAuthenticationService`对应着一个认证类型以及匹配的认证参数。引擎中包含了多个`UserAuthenticationService`
-来支持多种多样的认证方法。
-那么为了引擎能够在接收到认证请求时找到合适的认证服务，`UserAuthenticationService`就必须指明自己的认证方法类型。
+来支持多种多样的认证方法。 那么为了引擎能够在接收到认证请求时找到合适的认证服务，`UserAuthenticationService`就必须指明自己的认证方法类型。
 
 认证服务需要声明它的类型`AuthenticationType`注解，其是一个字符串，建议使用一个单词简单的表达当前认证的方法，比如"
 username"、"sms"、"qrcode"等。 不同类型的认证服务器将通过提交的参数重的"
@@ -468,8 +517,7 @@ app认证端点 --> 认证服务
 @enduml
 ```
 
-2个端点在Spring
-Security中对应着不同的Filter，在Filter中则调用相同的认证服务。那么，为了使得认证服务器能够声明自己支持的端点，可以标记上`SupportAuthenticationEndpoint`
+2个端点在Spring Security中对应着不同的Filter，在Filter中则调用相同的认证服务。那么，为了使得认证服务器能够声明自己支持的端点，可以标记上`SupportAuthenticationEndpoint`
 
 比如需求上人脸识别仅仅支持app端，那么就可以如下声明
 
@@ -676,8 +724,7 @@ public interface AuthenticationEventListenerSkeleton {
 
 ## AuthenticationServerAuthenticationExceptions
 
-从Spring Security的框架角度出发，所有认证过程中发生的问题需要继承`AuthenticationException`，只有这样才能被Spring
-Security框架处理
+从Spring Security的框架角度出发，所有认证过程中发生的问题需要继承`AuthenticationException`，只有这样才能被Spring Security框架处理
 
 ```java
 public interface AuthenticationServerAuthenticationExceptions {
@@ -913,8 +960,7 @@ public class WebAuthenticationSuccessHandler extends SavedRequestAwareAuthentica
 
 # LoginAuthenticationRequestConverter
 
-上文的2个认证入口都会使用`LoginAuthenticationRequestConverter`作为用户的登录认证请求的转换器。
-它主要将http请求转为`LoginAuthenticationRequestToken`认证请求
+上文的2个认证入口都会使用`LoginAuthenticationRequestConverter`作为用户的登录认证请求的转换器。 它主要将http请求转为`LoginAuthenticationRequestToken`认证请求
 
 ```java
 
@@ -1001,8 +1047,7 @@ public class LoginAuthenticationRequestContext {
 `LoginAuthenticationRequestConverter`的主逻辑中首先基于不同的认证端点完成不同的转换逻辑
 
 面向oauth2端点，使用`OAuth2GrantTypeParameter`检查授权类型是否是"user_authentication"
-，在是的情况下生成`OAuth2ClientUserAuthenticationToken`。
-从上文可知，这是`LoginAuthenticationRequestToken`中的一部分，用来表达客户端信息
+，在是的情况下生成`OAuth2ClientUserAuthenticationToken`。 从上文可知，这是`LoginAuthenticationRequestToken`中的一部分，用来表达客户端信息
 
 无论是oauth2端点还是网页认证端点，从http请求中生成`AuthenticationTypeParameter`
 ，随后连接`UserAuthenticationServiceRegistry`
@@ -1310,8 +1355,8 @@ public class MfaAuthenticationService implements UserAuthenticationService {
 # UserServiceDelegate
 
 在多因子验证章节可见，非`MfaAuthenticationPrincipal`由开发人员自定义的`UserService`
-去读取用户，而多因子认证则由`MfaAuthenticationUserService`加载用户。
-支持这一逻辑的类是`UserServiceDelegate`，它加载多个`UserSerivce`，并优先调用带有`AuthenticationServerEnginePreserved`
+去读取用户，而多因子认证则由`MfaAuthenticationUserService`加载用户。 支持这一逻辑的类是`UserServiceDelegate`，它加载多个`UserSerivce`
+，并优先调用带有`AuthenticationServerEnginePreserved`
 的类进行用户信息加载，如果这些类都没有返回数据，才调用开发人员编写的类
 
 # LoginAuthenticationRequestAuthenticator需要使用的适配器
@@ -1335,8 +1380,7 @@ public class MfaAuthenticationService implements UserAuthenticationService {
 # 认证过程失败处理
 
 在`LoginAuthenticationRequestAuthenticator`认证过程中如果捕捉到`AuthenticationException`
-异常，会发送`AuthenticationFailedEvent`。
-最终，捕捉到的所有异常会使用`AuthenticationEndpointAuthenticationFailureHandler`进行统一处理
+异常，会发送`AuthenticationFailedEvent`。 最终，捕捉到的所有异常会使用`AuthenticationEndpointAuthenticationFailureHandler`进行统一处理
 
 * 针对网页认证接口，会重定向到`AuthenticationServerPathOption.webAuthenticationErrorPage`的配置
 * 对于token认证接口，返回由符合oauth2标准定义的json
@@ -1385,8 +1429,7 @@ public class WebAuthenticationEndpointFilterConfigurer extends AuthenticationSer
 ```
 
 生成`WebAuthenticationEntryProcessingFilter`并声明支持`AuthenticationServerPathOption`的"getWebAuthenticationEndpoint"
-，以及需要POST。
-将`LoginAuthenticationRequestConverter`、`AuthenticationEndpointAuthenticationFailureHandler`
+，以及需要POST。 将`LoginAuthenticationRequestConverter`、`AuthenticationEndpointAuthenticationFailureHandler`
 、`WebAuthenticationSuccessHandler`配置到过滤器中
 
 ## OAuth2AuthorizationServerConfigurerProxy
@@ -1397,8 +1440,7 @@ public class WebAuthenticationEndpointFilterConfigurer extends AuthenticationSer
 
 ## AuthenticationServerEngineOAuth2ComponentConfiguration
 
-生成一系列jwt的相关bean，它会检查"authentication-server-engine/pki/private.pem(public.pem)"，如果存在rsa
-key对，则会自动生成jwt加密用的bean
+生成一系列jwt的相关bean，它会检查"authentication-server-engine/pki/private.pem(public.pem)"，如果存在rsa key对，则会自动生成jwt加密用的bean
 
 # UserAuthenticationService管理
 

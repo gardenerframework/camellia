@@ -1,5 +1,6 @@
 package io.gardenerframework.camellia.authentication.server.test.authentication.main;
 
+import io.gardenerframework.camellia.authentication.common.client.schema.OAuth2RequestingClient;
 import io.gardenerframework.camellia.authentication.server.test.security.authentication.principal.AccountExpiredPrincipal;
 import io.gardenerframework.camellia.authentication.server.test.security.authentication.principal.DisabledPrincipal;
 import io.gardenerframework.camellia.authentication.server.test.security.authentication.principal.LockedPrincipal;
@@ -8,10 +9,13 @@ import io.gardenerframework.camellia.authentication.server.main.annotation.Authe
 import io.gardenerframework.camellia.authentication.server.main.schema.UserAuthenticationRequestToken;
 import io.gardenerframework.camellia.authentication.server.main.schema.subject.credentials.EmptyCredentials;
 import io.gardenerframework.camellia.authentication.server.main.user.schema.User;
+import lombok.NonNull;
+import org.springframework.lang.Nullable;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.Map;
 
 /**
  * @author ZhangHan
@@ -21,7 +25,11 @@ import javax.servlet.http.HttpServletRequest;
 @Component
 public class AccountStatusErrorRequest implements UserAuthenticationService {
     @Override
-    public UserAuthenticationRequestToken convert(HttpServletRequest request) throws AuthenticationException {
+    public UserAuthenticationRequestToken convert(
+            @NonNull HttpServletRequest request,
+            @Nullable OAuth2RequestingClient client,
+            @NonNull Map<String, Object> context
+    ) throws AuthenticationException {
         String username = request.getParameter("username");
         switch (username) {
             case "disabled":
@@ -48,7 +56,12 @@ public class AccountStatusErrorRequest implements UserAuthenticationService {
     }
 
     @Override
-    public void authenticate(UserAuthenticationRequestToken authenticationRequest, User user) throws AuthenticationException {
+    public void authenticate(
+            @NonNull UserAuthenticationRequestToken authenticationRequest,
+            @Nullable OAuth2RequestingClient client,
+            @NonNull User user,
+            @NonNull Map<String, Object> context
+    ) throws AuthenticationException {
 
     }
 }
