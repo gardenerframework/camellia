@@ -26,7 +26,7 @@ public interface AuthenticationEventBuilder {
      * @param <B>                构建器类型
      * @return 事件构建器，可以继续构建事件
      */
-    default <B extends AuthenticationEvent.AuthenticationEventBuilder<?, ?>> B buildEvent(
+    default <B extends AuthenticationEvent.AuthenticationEventBuilder<?, ?>> B buildAuthenticationEvent(
             B builder,
             @NonNull HttpServletRequest request,
             @NonNull String authenticationType,

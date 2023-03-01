@@ -46,8 +46,8 @@ public class MfaAuthenticationUserService implements UserService {
     public User load(@NonNull Principal principal, @Nullable Map<String, Object> context) throws AuthenticationException {
         if (principal instanceof MfaAuthenticationPrincipal) {
             String challengeId = principal.getName();
-            String authenticatorType = ((MfaAuthenticationPrincipal) principal).getAuthenticatorName();
-            MfaAuthenticationChallengeResponseService service = Objects.requireNonNull(registry.getItem(authenticatorType)).getService();
+            String authenticatorName = ((MfaAuthenticationPrincipal) principal).getAuthenticatorName();
+            MfaAuthenticationChallengeResponseService service = Objects.requireNonNull(registry.getItem(authenticatorName)).getService();
             MfaAuthenticationChallengeContext mfaAuthenticationChallengeContext = null;
             try {
                 mfaAuthenticationChallengeContext = service.getContext(
@@ -60,7 +60,7 @@ public class MfaAuthenticationUserService implements UserService {
                 throw new NestedAuthenticationException(e);
             }
             if (mfaAuthenticationChallengeContext == null) {
-                throw new NestedAuthenticationException(new BadMfaAuthenticationRequestException(challengeId));
+                throw new BadMfaAuthenticationRequestException(challengeId);
             }
             return mfaAuthenticationChallengeContext.getUser();
         } else {

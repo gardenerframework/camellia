@@ -3,7 +3,7 @@ package io.gardenerframework.camellia.authentication.server.main.spring;
 import io.gardenerframework.camellia.authentication.server.common.annotation.AuthenticationServerEngineComponent;
 import io.gardenerframework.camellia.authentication.server.main.schema.OAuth2ClientUserAuthenticationToken;
 import io.gardenerframework.camellia.authentication.server.main.schema.UserAuthenticatedAuthentication;
-import io.gardenerframework.camellia.authentication.server.main.spring.support.oidc.OAuth2AccessTokenGranter;
+import io.gardenerframework.camellia.authentication.server.main.spring.oauth2.UserAuthenticationOAuth2AccessTokenGranter;
 import io.gardenerframework.camellia.authentication.server.main.utils.AuthenticationEndpointMatcher;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
@@ -30,7 +30,7 @@ public class AuthenticationEndpointAuthenticatedAuthenticationAdapter {
     @NonNull
     private final AuthenticationEndpointMatcher authenticationEndpointMatcher;
     @NonNull
-    private final OAuth2AccessTokenGranter oAuth2AccessTokenGranter;
+    private final UserAuthenticationOAuth2AccessTokenGranter oAuth2AccessTokenGranter;
 
     /**
      * 进行适配

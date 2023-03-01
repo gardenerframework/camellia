@@ -111,8 +111,12 @@ public class MfaAuthenticationListener implements
     public void onAuthenticationSuccess(AuthenticationSuccessEvent event) {
         if (event.getPrincipal() instanceof MfaAuthenticationPrincipal) {
             //fix 需要从上下文取出挑战上下文(因为此时已经被关闭)
-            MfaAuthenticationChallengeContext mfaAuthenticationChallengeContext = Objects.requireNonNull((MfaAuthenticationChallengeContext) event.getContext().get(MfaAuthenticationChallengeContext.class.getName()));
-            AuthenticationSuccessEvent replay = buildEvent(
+            MfaAuthenticationChallengeContext mfaAuthenticationChallengeContext = Objects.requireNonNull(
+                    (MfaAuthenticationChallengeContext) event.getContext()
+                            .get(MfaAuthenticationChallengeContext.class.getName()),
+                    "no MfaAuthenticationChallengeContext load from context. review MfaAuthenticationUserService.load!"
+            );
+            AuthenticationSuccessEvent replay = buildAuthenticationEvent(
                     AuthenticationSuccessEvent.builder(),
                     event.getRequest(),
                     event.getAuthenticationType(),

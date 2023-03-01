@@ -95,7 +95,7 @@ public class LoginAuthenticationRequestAuthenticator implements
         try {
             //第一步，开始认证客户端
             if (clientUserAuthenticationRequestToken != null) {
-                this.eventPublisher.publishEvent(buildEvent(
+                this.eventPublisher.publishEvent(buildAuthenticationEvent(
                         ClientAuthenticatedEvent.builder(),
                         httpServletRequest,
                         authenticationType,
@@ -106,7 +106,7 @@ public class LoginAuthenticationRequestAuthenticator implements
                 clientUserAuthenticationRequestToken.getPrincipal().setAuthenticated(true);
             }
             //发布加载前事件
-            eventPublisher.publishEvent(buildEvent(
+            eventPublisher.publishEvent(buildAuthenticationEvent(
                     UserAboutToLoadEvent.builder(),
                     httpServletRequest,
                     authenticationType,
@@ -129,7 +129,7 @@ public class LoginAuthenticationRequestAuthenticator implements
             Collection<Credentials> credentialsHolder = user.getCredentials();
             user.eraseCredentials();
             //用户加载事件不需要密码，以防错误的日志打印等
-            this.eventPublisher.publishEvent(buildEvent(
+            this.eventPublisher.publishEvent(buildAuthenticationEvent(
                     UserLoadedEvent.builder(),
                     httpServletRequest,
                     authenticationType,
@@ -152,7 +152,7 @@ public class LoginAuthenticationRequestAuthenticator implements
             //比如mfa还没做
             //比如账号的状态不对
             //todo 解决mfa认证通过后，正常监听器无法收到实践的问题，原因是principal是预留的
-            this.eventPublisher.publishEvent(buildEvent(
+            this.eventPublisher.publishEvent(buildAuthenticationEvent(
                     UserAuthenticatedEvent.builder(),
                     httpServletRequest,
                     authenticationType,
@@ -186,7 +186,7 @@ public class LoginAuthenticationRequestAuthenticator implements
                 );
             }
             //在这个阶段发生了认证异常
-            eventPublisher.publishEvent(buildEvent(
+            eventPublisher.publishEvent(buildAuthenticationEvent(
                     AuthenticationFailedEvent.builder(),
                     httpServletRequest,
                     authenticationType,
@@ -199,7 +199,7 @@ public class LoginAuthenticationRequestAuthenticator implements
         //todo 管理登录态
         //用户加载成功了、状态验证了、访问上下文也有了，且插件认为已经有了其它上下文也无所谓，没有什么好检查得了
         try {
-            this.eventPublisher.publishEvent(buildEvent(
+            this.eventPublisher.publishEvent(buildAuthenticationEvent(
                     AuthenticationSuccessEvent.builder(),
                     httpServletRequest,
                     authenticationType,

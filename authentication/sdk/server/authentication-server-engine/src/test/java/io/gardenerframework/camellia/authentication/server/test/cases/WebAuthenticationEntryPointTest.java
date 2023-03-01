@@ -3,7 +3,7 @@ package io.gardenerframework.camellia.authentication.server.test.cases;
 import io.gardenerframework.camellia.authentication.server.main.annotation.AuthenticationType;
 import io.gardenerframework.camellia.authentication.server.main.mfa.MfaAuthenticationService;
 import io.gardenerframework.camellia.authentication.server.main.mfa.exception.client.BadMfaAuthenticationRequestException;
-import io.gardenerframework.camellia.authentication.server.test.AuthorizationServerEngineTestApplication;
+import io.gardenerframework.camellia.authentication.server.test.AuthenticationServerEngineTestApplication;
 import io.gardenerframework.camellia.authentication.server.test.authentication.main.AccountStatusErrorRequest;
 import io.gardenerframework.camellia.authentication.server.test.authentication.main.MfaTriggerRequest;
 import io.gardenerframework.camellia.authentication.server.test.authentication.main.NullAuthenticationRequest;
@@ -26,7 +26,6 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.LockedException;
 import org.springframework.util.CollectionUtils;
-import org.springframework.util.MultiValueMap;
 import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -39,7 +38,7 @@ import java.util.regex.Pattern;
  * @author ZhangHan
  * @date 2022/4/23 2:03
  */
-@SpringBootTest(classes = AuthorizationServerEngineTestApplication.class, webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
+@SpringBootTest(classes = AuthenticationServerEngineTestApplication.class, webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
 @DisplayName("网页认证入口测试")
 public class WebAuthenticationEntryPointTest {
     @Autowired

@@ -76,7 +76,8 @@ Boundary(认证服务引擎, 认证服务引擎, sdk) {
 @enduml
 ```
 
-打开引擎的内部，主要由事件监听器、多因子认证组件以及核心的基本认证组件构成，基本认证组件基于Spring Security的功能完成用户登录凭据的校验；多因子认证组件则基于挑战与应答实现用户登录确认前的最终验证；
+打开引擎的内部，主要由事件监听器、多因子认证组件以及核心的基本认证组件构成，基本认证组件基于Spring
+Security的功能完成用户登录凭据的校验；多因子认证组件则基于挑战与应答实现用户登录确认前的最终验证；
 事件监听器负责监听认证主流程中发出的事件，并通过抛出异常的方式中断认证流程
 
 # 登录名、登录凭据、主体与用户
@@ -170,7 +171,8 @@ public abstract class Subject implements Serializable,
 ```
 
 从类型定义上可以看到，主体包含了一组登录名(Principal)和一组登录凭据(Credentials)，对于哪种本身就从不需要用户名密码的系统，主体可以没有登录凭据。
-此外主体有一些基本的属性，包含是否锁定，是否启用，主体的过期时间，登录凭据的过期时间。这些属性都是Spring Security框架所需的，且也是认证系统常见的属性
+此外主体有一些基本的属性，包含是否锁定，是否启用，主体的过期时间，登录凭据的过期时间。这些属性都是Spring
+Security框架所需的，且也是认证系统常见的属性
 
 ## 登录名: Principal
 
@@ -277,7 +279,8 @@ Security使用个一个类，其含义是从客户端存储接口或设施读取
 
 # 认证流程涉及的核心接口
 
-从开始认证流程到客户端调用oauth2的接口读取用户信息的过程中使用到的所有类均位于"io.gardenerframework.camellia.authentication.server.main"程序包内
+从开始认证流程到客户端调用oauth2的接口读取用户信息的过程中使用到的所有类均位于"
+io.gardenerframework.camellia.authentication.server.main"程序包内
 
 ## 登录认证请求基本型: AuthenticationRequestParameter
 
@@ -352,7 +355,8 @@ public interface UserAuthenticationService {
 * 将http请求转为用户认证请求
 * 执行认证，如果没有抛出任何异常则认为认证通过
 
-其中还有一个公共参数`Map<String, Object> context`，其贯穿1次认证接口的调用的生命周期，可以认为是request scope的对象。其会在大部分认证请求处理过程中的接口和事件中出现。
+其中还有一个公共参数`Map<String, Object> context`，其贯穿1次认证接口的调用的生命周期，可以认为是request
+scope的对象。其会在大部分认证请求处理过程中的接口和事件中出现。
 
 ## 用户认证请求: UserAuthenticationRequestToken
 
@@ -437,7 +441,8 @@ public class UserAuthenticatedAuthentication extends AbstractAuthenticationToken
 ```
 
 `UserAuthenticatedAuthentication`代表已经通过了验证过程的用户，其是Spring Security引擎使用的数据。
-经过验证后的信息中显著保存了被认证的用户，此外因为用户已经认证完成因此不会再给出任何登录凭据。最后，依照Spring Security的约定，将用户的id作为识别符号返回
+经过验证后的信息中显著保存了被认证的用户，此外因为用户已经认证完成因此不会再给出任何登录凭据。最后，依照Spring
+Security的约定，将用户的id作为识别符号返回
 
 ## AbstractUserAuthenticationService
 
@@ -480,7 +485,8 @@ public abstract class AbstractUserAuthenticationService<P extends Authentication
 }
 ```
 
-`AbstractUserAuthenticationService`为用户的认证服务提供了与`AuthenticationRequestParameter`的串联逻辑支持。 它要求子类去创建参数对象，然后利用`Validator`
+`AbstractUserAuthenticationService`为用户的认证服务提供了与`AuthenticationRequestParameter`的串联逻辑支持。
+它要求子类去创建参数对象，然后利用`Validator`
 进行校验。因此，`AuthenticationRequestParameter`的子类可以使用类似`@NotBlank`
 等验证注解而不需要自行在逻辑中进行判断。验证失败抛出`BadAuthenticationRequestParameterException`
 ，它是`AuthenticationException`的一个子类。会被Spring Security框架处理。
@@ -488,7 +494,8 @@ public abstract class AbstractUserAuthenticationService<P extends Authentication
 ## AuthenticationType & SupportAuthenticationEndpoint
 
 每一个`UserAuthenticationService`对应着一个认证类型以及匹配的认证参数。引擎中包含了多个`UserAuthenticationService`
-来支持多种多样的认证方法。 那么为了引擎能够在接收到认证请求时找到合适的认证服务，`UserAuthenticationService`就必须指明自己的认证方法类型。
+来支持多种多样的认证方法。 那么为了引擎能够在接收到认证请求时找到合适的认证服务，`UserAuthenticationService`
+就必须指明自己的认证方法类型。
 
 认证服务需要声明它的类型`AuthenticationType`注解，其是一个字符串，建议使用一个单词简单的表达当前认证的方法，比如"
 username"、"sms"、"qrcode"等。 不同类型的认证服务器将通过提交的参数重的"
@@ -517,7 +524,8 @@ app认证端点 --> 认证服务
 @enduml
 ```
 
-2个端点在Spring Security中对应着不同的Filter，在Filter中则调用相同的认证服务。那么，为了使得认证服务器能够声明自己支持的端点，可以标记上`SupportAuthenticationEndpoint`
+2个端点在Spring
+Security中对应着不同的Filter，在Filter中则调用相同的认证服务。那么，为了使得认证服务器能够声明自己支持的端点，可以标记上`SupportAuthenticationEndpoint`
 
 比如需求上人脸识别仅仅支持app端，那么就可以如下声明
 
@@ -583,9 +591,398 @@ public interface UserService {
 
 特别的，如果的对接的用户存储系统或接口只能提交密码进行验证，"load"就可以抛出`UnsupportedOperationException`来告诉引擎当前调用不支持。
 
-# 事件
+# 与Spring Security 的结合
 
-在认证过程中为了开发人员能够插入自己的逻辑来中断认证过程或记录一些日志，引擎提供了以下事件:
+核心接口和数据格式是当前认证服务器引擎的定义和逻辑，需要与Spring Security框架进行结合
+
+## 认证处理入口Filter
+
+引擎的认证处理入口有`WebAuthenticationEntryProcessingFilter`和`OAuth2TokenEndpointFilter`两个，在默认情况下分别对应"
+/login"和"/oauth2/token"(服从路径配置选项)
+
+```java
+public class WebAuthenticationEntryProcessingFilter extends AbstractAuthenticationProcessingFilter {
+    private final LoginAuthenticationRequestConverter loginAuthenticationRequestConverter;
+
+    public WebAuthenticationEntryProcessingFilter(
+            RequestMatcher requestMatcher,
+            LoginAuthenticationRequestConverter loginAuthenticationRequestConverter,
+            AuthenticationEndpointAuthenticationFailureHandler authenticationFailureHandler,
+            WebAuthenticationSuccessHandler webAuthenticationSuccessHandler,
+            AuthenticationManager authenticationManager
+
+    ) {
+        super(requestMatcher, authenticationManager);
+        this.loginAuthenticationRequestConverter = loginAuthenticationRequestConverter;
+        this.setAuthenticationFailureHandler(authenticationFailureHandler);
+        this.setAuthenticationSuccessHandler(webAuthenticationSuccessHandler);
+    }
+
+    /**
+     * 尝试执行认证
+     *
+     * @param request  http请求
+     * @param response 响应
+     * @return 认证结果
+     * @throws AuthenticationException 如果认证失败就交给失败处理器
+     * @throws IOException             Io有问题
+     * @throws ServletException        基本的Servlet问题
+     * @see AuthenticationEndpointAuthenticationFailureHandler
+     */
+    @Override
+    public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException, IOException, ServletException {
+        //由转换器抛出的AuthenticationException都会被转为错误码并转到统一报错页面
+        LoginAuthenticationRequestToken loginAuthenticationRequestToken = loginAuthenticationRequestConverter.convert(request);
+        //获取用户认证信息
+        return getAuthenticationManager().authenticate(loginAuthenticationRequestToken);
+    }
+}
+```
+
+`WebAuthenticationEntryProcessingFilter`由`WebAuthenticationEndpointFilterConfigurer`完成配置
+
+```java
+public class WebAuthenticationEndpointFilterConfigurer extends AuthenticationServerEngineSecurityConfigurer {
+    private final AuthenticationServerPathOption authenticationServerPathOption;
+    private final LoginAuthenticationRequestConverter loginAuthenticationRequestConverter;
+    private final AuthenticationEndpointAuthenticationFailureHandler authenticationEndpointAuthenticationFailureHandler;
+    private final WebAuthenticationSuccessHandler webAuthenticationSuccessHandler;
+    private final ObjectPostProcessor<Object> postProcessor;
+
+    @Override
+    public void configure(HttpSecurity builder) throws Exception {
+        //登录接口不需要csrf
+        builder.csrf().ignoringRequestMatchers(getEndpointMatcher());
+
+        builder.addFilterBefore(this.postProcessor.postProcess(new WebAuthenticationEntryProcessingFilter(
+                getEndpointMatcher(),
+                loginAuthenticationRequestConverter,
+                authenticationEndpointAuthenticationFailureHandler,
+                webAuthenticationSuccessHandler,
+                builder.getSharedObject(AuthenticationManager.class)
+        )), UsernamePasswordAuthenticationFilter.class);
+    }
+
+    public RequestMatcher getEndpointMatcher() {
+        return new AntPathRequestMatcher(authenticationServerPathOption.getWebAuthenticationEndpoint(), HttpMethod.POST.name());
+    }
+}
+```
+
+"getEndpointMatcher"实现代码中可见，将路径配置中的网页认证端点地址配置到了`WebAuthenticationEntryProcessingFilter`中
+
+同时，配置代码中将`WebAuthenticationSuccessHandler`作为认证成功的处理器注入到`WebAuthenticationEntryProcessingFilter`中
+
+```java
+public class WebAuthenticationSuccessHandler extends SavedRequestAwareAuthenticationSuccessHandler {
+    public WebAuthenticationSuccessHandler(AuthenticationServerPathOption authenticationServerPathOption) {
+        super();
+        //设置为登录成功地址
+        this.setDefaultTargetUrl(authenticationServerPathOption.getWebLoginSuccessPage());
+    }
+
+    @Override
+    public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
+        super.onAuthenticationSuccess(request, response, authentication);
+    }
+}
+```
+
+可见，认证成功后基于路径的配置，将页面导向认证成功的页面地址
+
+## LoginAuthenticationRequestConverter
+
+上文的2个认证入口都会使用`LoginAuthenticationRequestConverter`作为用户的登录认证请求的转换器。
+它主要将http请求转为`LoginAuthenticationRequestToken`认证请求
+
+```java
+
+@AllArgsConstructor
+@Getter
+@Setter
+public class LoginAuthenticationRequestToken implements Authentication {
+    private final transient UserAuthenticationRequestToken userAuthenticationRequestToken;
+    /**
+     * 当前要进行用户访问的客户端
+     * <p>
+     * {@link OAuth2ClientAuthenticationFilter}认证了client id和密码
+     * 别的没有认证
+     */
+    @Nullable
+    private final transient OAuth2ClientUserAuthenticationToken clientUserAuthenticationRequestToken;
+    /**
+     * 认证请求的上下文，主要是给{@link LoginAuthenticationRequestAuthenticator}用的
+     */
+    @NonNull
+    private final transient LoginAuthenticationRequestContext context;
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return Collections.emptyList();
+    }
+
+    @Override
+    public Object getCredentials() {
+        return userAuthenticationRequestToken.getCredentials();
+    }
+
+    @Override
+    public Object getDetails() {
+        return null;
+    }
+
+    @Override
+    public Principal getPrincipal() {
+        return userAuthenticationRequestToken.getPrincipal();
+    }
+
+    @Override
+    public boolean isAuthenticated() {
+        //没有认证当然返回false
+        return false;
+    }
+
+    @Override
+    public void setAuthenticated(boolean isAuthenticated) throws IllegalArgumentException {
+        //do nothing
+    }
+
+    @Override
+    public String getName() {
+        return getPrincipal().getName();
+    }
+}
+```
+
+这个请求是交给Spring Security引擎的认证请求类型，包含了客户端信息、用户认证请求信息以及上下文信息
+
+```java
+
+@Getter
+@Setter
+@AllArgsConstructor
+public class LoginAuthenticationRequestContext {
+    /**
+     * 由哪个服务来完成认证过程
+     */
+    @NonNull
+    private final UserAuthenticationService userAuthenticationService;
+    /**
+     * 携带的http请求
+     */
+    @NonNull
+    private final HttpServletRequest httpServletRequest;
+    /**
+     * 当前正在调用接口的客户端
+     */
+    @Nullable
+    private final OAuth2RequestingClient client;
+    /**
+     * 认证上下文
+     */
+    @NonNull
+    private final Map<String, Object> context;
+}
+```
+
+可见传递的上下文就是负责转换请求的用户认证服务以及http请求
+
+`LoginAuthenticationRequestConverter`的主逻辑中首先基于不同的认证端点完成不同的转换逻辑
+
+面向oauth2端点，使用`OAuth2GrantTypeParameter`检查授权类型是否是"user_authentication"
+，在是的情况下生成`OAuth2ClientUserAuthenticationToken`。 从上文可知，这是`LoginAuthenticationRequestToken`中的一部分，用来表达客户端信息
+
+无论是oauth2端点还是网页认证端点，从http请求中生成`AuthenticationTypeParameter`
+，随后连接`UserAuthenticationServiceRegistry`
+检查要求的认证方式所对应的`UserAuthenticationService`是否存在。如果存在，则对应的实例就保存到了上下文中。
+
+下一步自然是调用`UserAuthenticationService.convert`完成认证请求的转换`UserAuthenticationRequestToken`
+
+最后生成上下文和`LoginAuthenticationRequestToken`对象返回给Spring Security框架
+
+## LoginAuthenticationRequestAuthenticator
+
+从Spring Security框架的角度出发，有转换器就得有认证器。`LoginAuthenticationRequestAuthenticator`
+就负责`LoginAuthenticationRequestToken`的认证。
+
+第一步它会从认证请求中取得上下文中的认证服务，http请求等，进行认证前的准备工作
+
+第二步开始发送`ClientAuthenticatedEvent`，并由`OAuth2ClientValidationListener`进行监听
+
+```java
+public class OAuth2ClientValidationListener implements AuthenticationEventListenerSkeleton {
+
+    @Override
+    @EventListener
+    @Order(Ordered.HIGHEST_PRECEDENCE)
+    public void onClientAuthenticated(ClientAuthenticatedEvent event) throws AuthenticationException {
+        //这个事件只有token接口触发
+        OAuth2RequestingClient client = Objects.requireNonNull(event.getClient());
+        RegisteredClient registeredClient = (RegisteredClient) event.getContext().get(RegisteredClient.class.getCanonicalName());
+        if (registeredClient == null) {
+            throw new ClientNotFoundException(client.getClientId());
+        }
+        if (!registeredClient.getAuthorizationGrantTypes().contains(new AuthorizationGrantType(Objects.requireNonNull(client).getGrantType()))) {
+            throw new UnauthorizedGrantTypeException(client.getGrantType());
+        }
+        if (!CollectionUtils.isEmpty(client.getScopes())) {
+            for (String requestedScope : client.getScopes()) {
+                if (!registeredClient.getScopes().contains(requestedScope)) {
+                    throw new UnauthorizedScopeException(requestedScope);
+                }
+            }
+        }
+    }
+}
+```
+
+可见主要检查授权范围和scope是否符合预期。在此，开发人员还能自行定义其它对客户端的检查逻辑。
+
+检查同构后发送`UserAboutToLoad`事件，没问题后检查`UserAuthenticationRequestToken`
+提供的登录凭据是不是密码(`PasswordCredentials`)
+，是密码用`UserSerivce.authenticate`，不是用"load"。
+
+随后检查用户是否读取出来，没有的话抛出`UserNotFoundException`，否则的话发送一系列事件，顺序是
+
+* `UserLoadedEvent`
+* 调用`UserAuthenticationService.authenticate`成功后发出`UserAuthenticatedEvent`
+* `UserAuhenticationSuccessEvent`
+
+针对`UserAuthenticatedEvent`事件，引擎通过`UserStatusValidationListener`检查用户状态是否符合预期
+
+```java
+public class UserStatusValidationListener implements AuthenticationEventListenerSkeleton {
+
+    @Override
+    @EventListener
+    @Order(Ordered.HIGHEST_PRECEDENCE)
+    public void onUserAuthenticated(UserAuthenticatedEvent event) throws AuthenticationException {
+        User user = event.getUser();
+        if (!user.isEnabled()) {
+            throw new DisabledException(user.getId());
+        }
+        if (user.isLocked()) {
+            throw new LockedException(user.getId());
+        }
+        if (user.getSubjectExpiryDate() != null && new Date().after(user.getSubjectExpiryDate())) {
+            throw new AccountExpiredException(user.getId());
+        }
+        //todo 密码过期怎么处理没想好
+    }
+}
+```
+
+可见密码过期到底怎么弄引擎没有实现
+
+## LoginAuthenticationRequestAuthenticator需要使用的适配器
+
+### AuthenticationEndpointAuthenticatedAuthenticationAdapter
+
+在Spring Security框架中，oauth2服务器的网页认证接口和令牌接口要求返回的类型不同。Spring oauth2要求返回的`Authentication`
+类型必须是`OAuth2AccessTokenAuthenticationToken`，而传统Spring Security显然不需要oauth2的access token等
+
+于是`AuthenticationEndpointAuthenticatedAuthenticationAdapter`作为`LoginAuthenticationRequestAuthenticator`
+的内部组件，基于`AuthenticationEndpointMatcher`判断当前请求的地址是token接口还是网页接口
+
+* token接口调用`OAuth2TokenGranter`进行令牌授予，其返回`OAuth2AccessTokenAuthenticationToken`类型的`Authentication`
+* 网页接口返回`UserAuthenticatedAuthentication`
+
+### AuthenticationEndpointExceptionAdapter
+
+同样, token接口要求抛出的是`OAuth2AuthenticationException`
+，所以为了开发人员的统一逻辑考虑，需要将原始的`AuthenticationException`进行转换
+
+## oauth2的token授予与保存
+
+当访问网页的oauth2授权接口，或者app直接调用oauth2的认证接口时，会为来访客户端颁发access token
+
+与oauth2的实现和支持相关的代码在"io.gardenerframework.camellia.authentication.server.main.spring.oauth2"包中
+
+### UserAuthenticationOAuth2AccessTokenGranter
+
+由引擎编写的`UserAuthenticationOAuth2AccessTokenGranter`
+实际上只为`AuthenticationEndpointAuthenticatedAuthenticationAdapter`
+服务。基于授权码，客户端凭据等认证后颁发的access token实际由Spring Security框架原生负责。
+
+### OAuth2Authorization
+
+`OAuth2Authorization`是Spring Security框架用来存储access
+token以及其它token的详细信息、用户信息等多个信息的主要存储对象，可以理解为是用户的一个登录态。每生成一个`OAuth2Authorization`
+就相当于颁发了一个access token
+
+### CachedOAuth2AuthorizationService
+
+引擎默认使用`CachedOAuth2AuthorizationService`完成`OAuth2Authorization`的存储和访问，它需要使用"
+authentication-server-engine/scripts/"下的lua脚本与redis进行互动。
+
+在机制上，`CachedOAuth2AuthorizationService`将access token、id token、refresh
+token等缓存的值均写为对应的`OAuth2Authorization`的id，在读取token对应的`OAuth2Authorization`
+数据时，先用token的值找到`OAuth2Authorization`的id，然后再访问这个id对应的缓存对象获取真正的`OAuth2Authorization`数据
+
+此外需要注意，当存储`OAuth2Authorization`时，它会首先按照id读取出来之前是否已经有保存的`OAuth2Authorization`
+对象，如果有，则读取已经保存的对象内的access token等数据，对原来的索引进行清除。
+
+基于以上原理，可以通过生成同一个`OAuth2Authorization.id`的方法，按照用户和客户端的维度实现每一个应用只有一个登录态。
+
+如果想要实现一个应用控制n个登录态，当前版本需要开发人员自行想办法
+
+```java
+public interface OAuth2AuthorizationIdModifier {
+    /**
+     * 修改{@link OAuth2Authorization}所需的id
+     *
+     * @param originalId 原id
+     * @param request    http请求
+     * @param client     客户端记录 - 授权码模式保存时没有客户端信息
+     * @param user       当前的登录用户，如果当前没有登录用户，那就是空的，比如客户端申请了client_credentials的token
+     * @return id   如果认为不需要改变，就把 originalId 原样返回，否则返回新的id
+     */
+    String modify(
+            @NonNull String originalId,
+            @NonNull HttpServletRequest request,
+            @Nullable RegisteredClient client,
+            @Nullable User user
+    );
+}
+
+```
+
+引擎为开发提供了`OAuth2AuthorizationIdModifier`，它有能力修改所有授权类型，比如授权码生成的`OAuth2Authorization`
+的id，不止是通过token接口调用产生的
+
+由于其实现技术是通过aop拦截实现的(`OAuth2AuthorizationServiceProxy`)
+，因此拿不到申请的授权范围和授权方式，请自行从`HttpServletRequest`中进行分析
+
+### OidcUserInfoClaimsCustomizer
+
+```java
+public interface OidcUserInfoClaimsCustomizer {
+    /**
+     * 执行定制化
+     *
+     * @param client             当前访问的客户端
+     * @param user               用户认证
+     * @param oidcStandardClaims 已经初始化完的，基于标准的claims
+     * @param authorizedScopes   授权客户端的scope
+     */
+    void customize(@NonNull OAuth2RequestingClient client, @NonNull User user, Map<String, Object> oidcStandardClaims, Set<String> authorizedScopes);
+}
+```
+
+这个类负责对最终"/userinfo"接口给出的用户信息进行个性化设置
+
+## 认证过程失败处理
+
+在`LoginAuthenticationRequestAuthenticator`认证过程中如果捕捉到`AuthenticationException`
+异常，会发送`AuthenticationFailedEvent`。 最终，捕捉到的所有异常会使用`AuthenticationEndpointAuthenticationFailureHandler`
+进行统一处理
+
+* 针对网页认证接口，会重定向到`AuthenticationServerPathOption.webAuthenticationErrorPage`的配置
+* 对于token认证接口，返回由符合oauth2标准定义的json
+
+# 认证过程中发生的事件
+
+在认证过程中为了开发人员能够插入自己的逻辑来中断认证过程或记录一些日志，引擎提供了以下事件(配合`@EventListener`注解使用):
 
 ```java
 
@@ -724,7 +1121,8 @@ public interface AuthenticationEventListenerSkeleton {
 
 ## AuthenticationServerAuthenticationExceptions
 
-从Spring Security的框架角度出发，所有认证过程中发生的问题需要继承`AuthenticationException`，只有这样才能被Spring Security框架处理
+从Spring Security的框架角度出发，所有认证过程中发生的问题需要继承`AuthenticationException`，只有这样才能被Spring
+Security框架处理
 
 ```java
 public interface AuthenticationServerAuthenticationExceptions {
@@ -787,350 +1185,9 @@ public interface AuthenticationServerAuthenticationExceptions {
 
 和上面同理，只是进一步可以设置oauth2的错误编码
 
-# Api分组与选项
+## NestedAuthenticationException
 
-## AuthenticationServerRestController
-
-这个注解用于给认证服务器上的，非Spring Security的表单提交类型的rest接口提供分组功能。
-
-分组后，这些接口可以享受fragrans的api分组功能并服从`AuthenticationServerPathOption`的统一前缀路径设置
-
-## AuthenticationServerPathOption
-
-```java
-
-@ApiOption(readonly = true)
-@Getter
-@NoArgsConstructor
-@AllArgsConstructor
-public final class AuthenticationServerPathOption {
-    /**
-     * rest api的上下文路径
-     */
-    private String restApiContextPath = "/api";
-    /**
-     * 网页端登录入口的地址
-     * <p>
-     * 只有POST会处理
-     */
-    private String webAuthenticationEndpoint = "/login";
-    /**
-     * 登录网页的地址
-     */
-    private String webLoginPage = "/";
-    /**
-     * 登录网页的地址
-     */
-    private String webLoginSuccessPage = "/welcome";
-    /**
-     * web应用类型的认证错误跳向的错误页面
-     */
-    private String webAuthenticationErrorPage = "/error";
-    /**
-     * 需要mfa多因子验证时转向的页面
-     */
-    private String webMfaChallengePage = "/mfa";
-    /**
-     * 成功登出后的跳转地址
-     */
-    private String webLogoutPage = "/goodbye";
-    /**
-     * 网页登出地址
-     * <p>
-     * 什么请求类型可以
-     */
-    private String webLogoutEndpoint = "/logout";
-
-    /**
-     * oauth2的授权申请接口
-     */
-    private String oAuth2AuthorizationEndpoint = "/oauth2/authorize";
-    /**
-     * oauth2的授权批准网页地址
-     */
-    private String oAuth2AuthorizationConsentPage = "/consent";
-    /**
-     * oauth2的令牌接口
-     */
-    private String oAuth2TokenEndpoint = "/oauth2/token";
-    /**
-     * oidc的用户信息接口
-     */
-    private String oidcUserInfoEndpoint = "/userinfo";
-}
-```
-
-可见路径配置中设置了很多接口的地址或前缀，这些前缀目前还不支持修改
-
-# 认证处理入口
-
-引擎的认证处理入口有`WebAuthenticationEntryProcessingFilter`和`OAuth2TokenEndpointFilter`两个，在默认情况下分别对应"
-/login"和"/oauth2/token"(
-附送路径配置选项)
-
-```java
-public class WebAuthenticationEntryProcessingFilter extends AbstractAuthenticationProcessingFilter {
-    private final LoginAuthenticationRequestConverter loginAuthenticationRequestConverter;
-
-    public WebAuthenticationEntryProcessingFilter(
-            RequestMatcher requestMatcher,
-            LoginAuthenticationRequestConverter loginAuthenticationRequestConverter,
-            AuthenticationEndpointAuthenticationFailureHandler authenticationFailureHandler,
-            WebAuthenticationSuccessHandler webAuthenticationSuccessHandler,
-            AuthenticationManager authenticationManager
-
-    ) {
-        super(requestMatcher, authenticationManager);
-        this.loginAuthenticationRequestConverter = loginAuthenticationRequestConverter;
-        this.setAuthenticationFailureHandler(authenticationFailureHandler);
-        this.setAuthenticationSuccessHandler(webAuthenticationSuccessHandler);
-    }
-
-    /**
-     * 尝试执行认证
-     *
-     * @param request  http请求
-     * @param response 响应
-     * @return 认证结果
-     * @throws AuthenticationException 如果认证失败就交给失败处理器
-     * @throws IOException             Io有问题
-     * @throws ServletException        基本的Servlet问题
-     * @see AuthenticationEndpointAuthenticationFailureHandler
-     */
-    @Override
-    public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException, IOException, ServletException {
-        //由转换器抛出的AuthenticationException都会被转为错误码并转到统一报错页面
-        LoginAuthenticationRequestToken loginAuthenticationRequestToken = loginAuthenticationRequestConverter.convert(request);
-        //获取用户认证信息
-        return getAuthenticationManager().authenticate(loginAuthenticationRequestToken);
-    }
-}
-```
-
-`WebAuthenticationEntryProcessingFilter`由`WebAuthenticationEndpointFilterConfigurer`完成配置
-
-```java
-public class WebAuthenticationEndpointFilterConfigurer extends AuthenticationServerEngineSecurityConfigurer {
-    private final AuthenticationServerPathOption authenticationServerPathOption;
-    private final LoginAuthenticationRequestConverter loginAuthenticationRequestConverter;
-    private final AuthenticationEndpointAuthenticationFailureHandler authenticationEndpointAuthenticationFailureHandler;
-    private final WebAuthenticationSuccessHandler webAuthenticationSuccessHandler;
-    private final ObjectPostProcessor<Object> postProcessor;
-
-    @Override
-    public void configure(HttpSecurity builder) throws Exception {
-        //登录接口不需要csrf
-        builder.csrf().ignoringRequestMatchers(getEndpointMatcher());
-
-        builder.addFilterBefore(this.postProcessor.postProcess(new WebAuthenticationEntryProcessingFilter(
-                getEndpointMatcher(),
-                loginAuthenticationRequestConverter,
-                authenticationEndpointAuthenticationFailureHandler,
-                webAuthenticationSuccessHandler,
-                builder.getSharedObject(AuthenticationManager.class)
-        )), UsernamePasswordAuthenticationFilter.class);
-    }
-
-    public RequestMatcher getEndpointMatcher() {
-        return new AntPathRequestMatcher(authenticationServerPathOption.getWebAuthenticationEndpoint(), HttpMethod.POST.name());
-    }
-}
-```
-
-"getEndpointMatcher"实现代码中可见，将路径配置中的网页认证端点地址配置到了`WebAuthenticationEntryProcessingFilter`中
-
-同时，配置代码中将`WebAuthenticationSuccessHandler`作为认证成功的处理器注入到`WebAuthenticationEntryProcessingFilter`中
-
-```java
-public class WebAuthenticationSuccessHandler extends SavedRequestAwareAuthenticationSuccessHandler {
-    public WebAuthenticationSuccessHandler(AuthenticationServerPathOption authenticationServerPathOption) {
-        super();
-        //设置为登录成功地址
-        this.setDefaultTargetUrl(authenticationServerPathOption.getWebLoginSuccessPage());
-    }
-
-    @Override
-    public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
-        super.onAuthenticationSuccess(request, response, authentication);
-    }
-}
-```
-
-可见，认证成功后基于路径的配置，将页面导向认证成功的页面地址
-
-# LoginAuthenticationRequestConverter
-
-上文的2个认证入口都会使用`LoginAuthenticationRequestConverter`作为用户的登录认证请求的转换器。 它主要将http请求转为`LoginAuthenticationRequestToken`认证请求
-
-```java
-
-@AllArgsConstructor
-@Getter
-@Setter
-public class LoginAuthenticationRequestToken implements Authentication {
-    private final transient UserAuthenticationRequestToken userAuthenticationRequestToken;
-    /**
-     * 当前要进行用户访问的客户端
-     * <p>
-     * {@link OAuth2ClientAuthenticationFilter}认证了client id和密码
-     * 别的没有认证
-     */
-    @Nullable
-    private final transient OAuth2ClientUserAuthenticationToken clientUserAuthenticationRequestToken;
-    /**
-     * 认证请求的上下文，主要是给{@link LoginAuthenticationRequestAuthenticator}用的
-     */
-    @NonNull
-    private final transient LoginAuthenticationRequestContext context;
-
-    @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        return Collections.emptyList();
-    }
-
-    @Override
-    public Object getCredentials() {
-        return userAuthenticationRequestToken.getCredentials();
-    }
-
-    @Override
-    public Object getDetails() {
-        return null;
-    }
-
-    @Override
-    public Principal getPrincipal() {
-        return userAuthenticationRequestToken.getPrincipal();
-    }
-
-    @Override
-    public boolean isAuthenticated() {
-        //没有认证当然返回false
-        return false;
-    }
-
-    @Override
-    public void setAuthenticated(boolean isAuthenticated) throws IllegalArgumentException {
-        //do nothing
-    }
-
-    @Override
-    public String getName() {
-        return getPrincipal().getName();
-    }
-}
-```
-
-这个请求是交给Spring Security引擎的认证请求类型，包含了客户端信息、用户认证请求信息以及上下文信息
-
-```java
-
-@Getter
-@Setter
-@AllArgsConstructor
-public class LoginAuthenticationRequestContext {
-    /**
-     * 由哪个服务来完成认证过程
-     */
-    @NonNull
-    private final UserAuthenticationService userAuthenticationService;
-    /**
-     * 携带的http请求
-     */
-    @NonNull
-    private final HttpServletRequest httpServletRequest;
-}
-```
-
-可见传递的上下文就是负责转换请求的用户认证服务以及http请求
-
-`LoginAuthenticationRequestConverter`的主逻辑中首先基于不同的认证端点完成不同的转换逻辑
-
-面向oauth2端点，使用`OAuth2GrantTypeParameter`检查授权类型是否是"user_authentication"
-，在是的情况下生成`OAuth2ClientUserAuthenticationToken`。 从上文可知，这是`LoginAuthenticationRequestToken`中的一部分，用来表达客户端信息
-
-无论是oauth2端点还是网页认证端点，从http请求中生成`AuthenticationTypeParameter`
-，随后连接`UserAuthenticationServiceRegistry`
-检查要求的认证方式所对应的`UserAuthenticationService`是否存在。如果存在，则对应的实例就保存到了上下文中。
-
-下一步自然是调用`UserAuthenticationService.convert`完成认证请求的转换`UserAuthenticationRequestToken`
-
-最后生成上下文和`LoginAuthenticationRequestToken`对象返回给Spring Security框架
-
-# LoginAuthenticationRequestAuthenticator
-
-从Spring Security框架的角度出发，有转换器就得有认证器。`LoginAuthenticationRequestAuthenticator`
-就负责`LoginAuthenticationRequestToken`的认证。
-
-第一步它会从认证请求中取得上下文中的认证服务，http请求等，进行认证前的准备工作。其中一项是用`RegisteredClient.class.getCanonicalName()`
-作为key，将从客户端存储读取出的客户端数据放入上下文。
-
-第二步开始发送`ClientAuthenticatedEvent`，并由`OAuth2ClientValidationListener`进行监听
-
-```java
-public class OAuth2ClientValidationListener implements AuthenticationEventListenerSkeleton {
-
-    @Override
-    @EventListener
-    @Order(Ordered.HIGHEST_PRECEDENCE)
-    public void onClientAuthenticated(ClientAuthenticatedEvent event) throws AuthenticationException {
-        //这个事件只有token接口触发
-        OAuth2RequestingClient client = Objects.requireNonNull(event.getClient());
-        RegisteredClient registeredClient = (RegisteredClient) event.getContext().get(RegisteredClient.class.getCanonicalName());
-        if (registeredClient == null) {
-            throw new ClientNotFoundException(client.getClientId());
-        }
-        if (!registeredClient.getAuthorizationGrantTypes().contains(new AuthorizationGrantType(Objects.requireNonNull(client).getGrantType()))) {
-            throw new UnauthorizedGrantTypeException(client.getGrantType());
-        }
-        if (!CollectionUtils.isEmpty(client.getScopes())) {
-            for (String requestedScope : client.getScopes()) {
-                if (!registeredClient.getScopes().contains(requestedScope)) {
-                    throw new UnauthorizedScopeException(requestedScope);
-                }
-            }
-        }
-    }
-}
-```
-
-可见主要检查授权范围和scope是否符合预期。在此，开发人员还能自行定义其它对客户端的检查逻辑。
-
-检查同构后发送`UserAboutToLoad`事件，没问题后检查`UserAuthenticationRequestToken`
-提供的登录凭据是不是密码(`PasswordCredentials`)
-，是密码用`UserSerivce.authenticate`，不是用"load"。
-
-随后检查用户是否读取出来，没有的话抛出`UserNotFoundException`，否则的话发送一系列事件，顺序是
-
-* `UserLoadedEvent`
-* 调用`UserAuthenticationService.authenticate`成功后发出`UserAuthenticatedEvent`
-* `UserAuhenticationSuccessEvent`
-
-针对`UserAuthenticatedEvent`事件，引擎通过`UserStatusValidationListener`检查用户状态是否符合预期
-
-```java
-public class UserStatusValidationListener implements AuthenticationEventListenerSkeleton {
-
-    @Override
-    @EventListener
-    @Order(Ordered.HIGHEST_PRECEDENCE)
-    public void onUserAuthenticated(UserAuthenticatedEvent event) throws AuthenticationException {
-        User user = event.getUser();
-        if (!user.isEnabled()) {
-            throw new DisabledException(user.getId());
-        }
-        if (user.isLocked()) {
-            throw new LockedException(user.getId());
-        }
-        if (user.getSubjectExpiryDate() != null && new Date().after(user.getSubjectExpiryDate())) {
-            throw new AccountExpiredException(user.getId());
-        }
-        //todo 密码过期怎么处理没想好
-    }
-}
-```
-
-可见密码过期到底怎么弄引擎没有实现
+如果捕捉到一个非`AuthenticationException`类型的异常，而接口又要求必须抛出`AuthenticationException`，则可以通过这个类对原始异常进行一层包装
 
 # 多因子验证
 
@@ -1352,38 +1409,90 @@ public class MfaAuthenticationService implements UserAuthenticationService {
 }
 ```
 
-# UserServiceDelegate
+## UserServiceDelegate
 
-在多因子验证章节可见，非`MfaAuthenticationPrincipal`由开发人员自定义的`UserService`
-去读取用户，而多因子认证则由`MfaAuthenticationUserService`加载用户。 支持这一逻辑的类是`UserServiceDelegate`，它加载多个`UserSerivce`
+在`MfaAuthenticationUserService`的逻辑实现中非`MfaAuthenticationPrincipal`会返回null的`User`
+
+这确保了不是mfa的登录请求由开发人员自定义的`UserService`
+去读取用户，而多因子认证则由`MfaAuthenticationUserService`加载用户。 支持这一逻辑的类是`UserServiceDelegate`
+，它加载多个`UserSerivce`
 ，并优先调用带有`AuthenticationServerEnginePreserved`
 的类进行用户信息加载，如果这些类都没有返回数据，才调用开发人员编写的类
 
-# LoginAuthenticationRequestAuthenticator需要使用的适配器
+# Api分组与选项
 
-## AuthenticationEndpointAuthenticatedAuthenticationAdapter
+## AuthenticationServerRestController
 
-在Spring Security框架中，oauth2服务器的网页认证接口和令牌接口要求返回的类型不同。Spring oauth2要求返回的`Authentication`
-类型必须是`OAuth2AccessTokenAuthenticationToken`，而传统Spring Security显然不需要oauth2的access token等
+这个注解用于给认证服务器上的，非Spring Security的表单提交类型的rest接口提供分组功能。
 
-于是`AuthenticationEndpointAuthenticatedAuthenticationAdapter`作为`LoginAuthenticationRequestAuthenticator`
-的内部组件，基于`AuthenticationEndpointMatcher`判断当前请求的地址是token接口还是网页接口
+分组后，这些接口可以享受fragrans的api分组功能并服从`AuthenticationServerPathOption`的统一前缀路径设置
 
-* token接口调用`OAuth2TokenGranter`进行令牌授予，其返回`OAuth2AccessTokenAuthenticationToken`类型的`Authentication`
-* 网页接口返回`UserAuthenticatedAuthentication`
+## AuthenticationServerPathOption
 
-## AuthenticationEndpointExceptionAdapter
+```java
 
-同样, token接口要求抛出的是`OAuth2AuthenticationException`
-，所以为了开发人员的统一逻辑考虑，需要将原始的`AuthenticationException`进行转换
+@ApiOption(readonly = true)
+@Getter
+@NoArgsConstructor
+@AllArgsConstructor
+public final class AuthenticationServerPathOption {
+    /**
+     * rest api的上下文路径
+     */
+    private String restApiContextPath = "/api";
+    /**
+     * 网页端登录入口的地址
+     * <p>
+     * 只有POST会处理
+     */
+    private String webAuthenticationEndpoint = "/login";
+    /**
+     * 登录网页的地址
+     */
+    private String webLoginPage = "/";
+    /**
+     * 登录网页的地址
+     */
+    private String webLoginSuccessPage = "/welcome";
+    /**
+     * web应用类型的认证错误跳向的错误页面
+     */
+    private String webAuthenticationErrorPage = "/error";
+    /**
+     * 需要mfa多因子验证时转向的页面
+     */
+    private String webMfaChallengePage = "/mfa";
+    /**
+     * 成功登出后的跳转地址
+     */
+    private String webLogoutPage = "/goodbye";
+    /**
+     * 网页登出地址
+     * <p>
+     * 什么请求类型可以
+     */
+    private String webLogoutEndpoint = "/logout";
 
-# 认证过程失败处理
+    /**
+     * oauth2的授权申请接口
+     */
+    private String oAuth2AuthorizationEndpoint = "/oauth2/authorize";
+    /**
+     * oauth2的授权批准网页地址
+     */
+    private String oAuth2AuthorizationConsentPage = "/consent";
+    /**
+     * oauth2的令牌接口
+     */
+    private String oAuth2TokenEndpoint = "/oauth2/token";
+    /**
+     * oidc的用户信息接口
+     */
+    private String oidcUserInfoEndpoint = "/userinfo";
+}
+```
 
-在`LoginAuthenticationRequestAuthenticator`认证过程中如果捕捉到`AuthenticationException`
-异常，会发送`AuthenticationFailedEvent`。 最终，捕捉到的所有异常会使用`AuthenticationEndpointAuthenticationFailureHandler`进行统一处理
-
-* 针对网页认证接口，会重定向到`AuthenticationServerPathOption.webAuthenticationErrorPage`的配置
-* 对于token认证接口，返回由符合oauth2标准定义的json
+可见路径配置中设置了很多接口的地址或前缀，这些前缀目前还不支持修改
 
 # 认证服务器的配置类
 
@@ -1440,7 +1549,8 @@ public class WebAuthenticationEndpointFilterConfigurer extends AuthenticationSer
 
 ## AuthenticationServerEngineOAuth2ComponentConfiguration
 
-生成一系列jwt的相关bean，它会检查"authentication-server-engine/pki/private.pem(public.pem)"，如果存在rsa key对，则会自动生成jwt加密用的bean
+生成一系列jwt的相关bean，它会检查"authentication-server-engine/pki/private.pem(public.pem)"，如果存在rsa
+key对，则会自动生成jwt加密用的bean
 
 # UserAuthenticationService管理
 
