@@ -21,7 +21,8 @@ public class CachedOAuth2AuthorizationConsentService implements OAuth2Authorizat
      */
     private static final String[] CONSENT_CACHE_NAMESPACES = new String[]{
             "camellia",
-            "authorization:",
+            "authentication:",
+            "server",
             "engine",
             "consent"
     };

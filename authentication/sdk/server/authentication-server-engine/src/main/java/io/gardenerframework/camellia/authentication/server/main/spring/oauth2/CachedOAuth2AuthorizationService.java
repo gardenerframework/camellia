@@ -54,7 +54,7 @@ import java.util.*;
 @Slf4j
 @AuthenticationServerEngineComponent
 public class CachedOAuth2AuthorizationService implements OAuth2AuthorizationService {
-    private static final String NAMESPACE_HEADER = "camellia:authorization:engine:token:";
+    private static final String NAMESPACE_HEADER = "camellia:authentication:server:engine:token:";
     private final RedisCacheClient cacheClient;
     private final OAuth2AuthorizationConsentOption options;
     private final StringSerializer scriptKeySerializer = new StringSerializer();
