@@ -54,7 +54,7 @@ allprojects {
     /**
      * 定义所有制品的所属组和版本
      */
-    group "com.jdcloud.gardener.${rootProject.name}"
+    group "io.gardenerframework.${rootProject.name}"
     version currentVersion
     /**
      * 使用插件

@@ -1,7 +1,5 @@
 //包仓库声明
 ext {
-    //声明只用京东的仓库
-    def repository = "http://maven.gardenerframework.io/artifactory"
-    snapshots = "${repository}/libs-snapshot" as String
-    releases = "${repository}/libs-release" as String
+    snapshots = "https://s01.oss.sonatype.org/content/repositories/snapshots" as String
+    releases = "http://maven.aliyun.com/nexus/content/groups/public/" as String
 }
