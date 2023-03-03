@@ -1,1 +1,1 @@
-org.springframework.boot.autoconfigure.EnableAutoConfiguration=com.jdcloud.gardener.camellia.authorization.authentication.configuration.UsernamePasswordAuthenticationEngineConfiguration
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=io.gardenerframework.camellia.authentication.server.configuration.UsernamePasswordAuthenticationServiceConfiguration

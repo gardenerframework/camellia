@@ -1,6 +1,7 @@
 dependencies {
-    api "${fragrans.group}:api-options-common"
-    api "${fragrans.group}:enhance-validation-constraints"
+    api "org.springframework.boot:spring-boot-autoconfigure"
     api "${group}:authentication-server-core"
     api "${group}:username-password-authentication-service-core"
+    testImplementation "org.springframework.boot:spring-boot-starter-web"
+    testImplementation "${fragrans.group}:enhance-validation"
 }
