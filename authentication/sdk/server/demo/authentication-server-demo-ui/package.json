@@ -1,5 +1,5 @@
 {
-  "name": "authorization-server",
+  "name": "authentication-server-ui",
   "version": "0.1.0",
   "private": true,
   "scripts": {

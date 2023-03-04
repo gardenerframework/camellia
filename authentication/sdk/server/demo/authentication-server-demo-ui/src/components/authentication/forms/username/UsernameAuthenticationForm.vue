@@ -101,7 +101,7 @@ export default {
     }
   },
   mounted() {
-    new window['TencentCaptcha'](
+    new window['TencentCaptcha'] (
         document.getElementById("username-longin-button"),
         2048219257,
         (response) => {

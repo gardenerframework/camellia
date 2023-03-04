@@ -37,9 +37,9 @@ import AlipayAuthenticationForm from "@/components/authentication/forms/sns/alip
 export default {
   name: "AuthenticationForms",
   mounted() {
-    basicAxiosProxy.get("/api/options").then(
+    basicAxiosProxy.get("/api/authentication/service").then(
         response => {
-          this.authenticationTypes = response.data.options["authenticationTypeRegistry"].option.types
+          this.authenticationTypes = response.data.types
           this.activeInputForm = this.authenticationTypes.includes("username") ? "username" :
               this.authenticationTypes.includes("sms") ? "sms" : ""
         }
