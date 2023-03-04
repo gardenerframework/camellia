@@ -119,7 +119,7 @@ String[] subprojectNames = [
 //        'authorization:server:sdk:authentication-engine:authentication-engine-sns:authentication-engine-enterprise-wechat',
 //        'authorization:server:sdk:authentication-engine:authentication-engine-sns:authentication-engine-alipay',
 //        'authorization:server:sdk:authorization-server-engine',
-//        'authorization:server:demo:backend:authorization-server-demo'
+        'authentication:sdk:server:demo:authentication-server-demo'
 ]
 gradle.ext.subprojectNames = subprojectNames
 include subprojectNames

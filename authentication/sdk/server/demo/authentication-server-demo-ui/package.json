@@ -1,0 +1,51 @@
+{
+  "name": "authorization-server",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "serve": "set NODE_OPTIONS=--openssl-legacy-provider && vue-cli-service serve",
+    "build": "set NODE_OPTIONS=--openssl-legacy-provider && vue-cli-service build",
+    "lint": "set NODE_OPTIONS=--openssl-legacy-provider && vue-cli-service lint"
+  },
+  "dependencies": {
+    "axios": "^0.24.0",
+    "bootstrap-vue": "^2.21.2",
+    "core-js": "^3.6.5",
+    "crypto-js": "^4.1.1",
+    "element-ui": "^2.15.6",
+    "vue": "^2.6.11",
+    "vue-axios": "^3.4.0",
+    "vue-cli": "^2.9.6",
+    "vue-i18n": "^8.28.2",
+    "vue-router": "3.0"
+  },
+  "devDependencies": {
+    "@vue/cli-plugin-babel": "~4.5.0",
+    "@vue/cli-plugin-eslint": "~4.5.0",
+    "@vue/cli-plugin-router": "~4.5.0",
+    "@vue/cli-service": "~4.5.0",
+    "babel-eslint": "^10.1.0",
+    "eslint": "^6.7.2",
+    "eslint-plugin-vue": "^6.2.2",
+    "vue-template-compiler": "^2.6.11"
+  },
+  "eslintConfig": {
+    "root": true,
+    "env": {
+      "node": true
+    },
+    "extends": [
+      "plugin:vue/essential",
+      "eslint:recommended"
+    ],
+    "parserOptions": {
+      "parser": "babel-eslint"
+    },
+    "rules": {}
+  },
+  "browserslist": [
+    "> 1%",
+    "last 2 versions",
+    "not dead"
+  ]
+}

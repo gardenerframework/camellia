@@ -162,7 +162,7 @@ public class UserAuthenticationServiceRegistry implements InitializingBean {
                         .operation(new Register())
                         .state(new Done())
                         .detail(new Detail() {
-                            private final Collection<UserAuthenticationServiceRegistryItem> services = registry.values();
+                            private final Collection<String> services = registry.keySet();
                         }).build(),
                 null
         );

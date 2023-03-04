@@ -1,6 +1,6 @@
 package io.gardenerframework.camellia.authentication.server.main.mfa.schema.request;
 
-import io.gardenerframework.camellia.authentication.server.main.mfa.schema.request.constraits.AuthenticatorNameSupported;
+import io.gardenerframework.camellia.authentication.server.main.mfa.schema.request.constraints.AuthenticatorNameSupported;
 import io.gardenerframework.camellia.authentication.server.main.schema.request.AuthenticationRequestParameter;
 import lombok.Getter;
 

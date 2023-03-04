@@ -1,4 +1,4 @@
-package io.gardenerframework.camellia.authentication.server.main.mfa.schema.request.constraits;
+package io.gardenerframework.camellia.authentication.server.main.mfa.schema.request.constraints;
 
 import io.gardenerframework.camellia.authentication.server.main.mfa.utils.MfaAuthenticationChallengeResponseServiceRegistry;
 import io.gardenerframework.fragrans.validation.constraints.AbstractConstraintValidator;

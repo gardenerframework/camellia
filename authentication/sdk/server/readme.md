@@ -1602,3 +1602,8 @@ public interface UserAuthenticationServiceManagementEndpointSkeleton {
 
 UserAuthenticationServiceManagementEndpointSkeleton是接口的框架定义，提供列出所有可用认证类型，启用/停用服务的能力.
 其实现累上带有`@AuthenticationServerRestController`注解，服从api分组的统一设置
+
+# 其它组件和示例
+
+* [component](./component): 包含了已经实现的预置组件
+* [demo](./demo): 包含了认证服务器的演示系统代码

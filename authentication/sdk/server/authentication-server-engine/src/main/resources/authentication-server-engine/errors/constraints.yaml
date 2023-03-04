@@ -7,9 +7,9 @@ io:
             mfa:
               schema:
                 request:
-                  constraits:
+                  constraints:
                     AuthenticatorNameSupported: 为空或不支持
             schema:
               request:
                 constraints:
-                  AuthenticationTypeSupported: 为空或不支持
+                  AuthenticationTypeSupported: "为空或{type}不支持"

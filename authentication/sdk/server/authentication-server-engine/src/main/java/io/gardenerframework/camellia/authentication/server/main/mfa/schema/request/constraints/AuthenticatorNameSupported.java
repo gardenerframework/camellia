@@ -1,4 +1,4 @@
-package io.gardenerframework.camellia.authentication.server.main.mfa.schema.request.constraits;
+package io.gardenerframework.camellia.authentication.server.main.mfa.schema.request.constraints;
 
 import javax.validation.Constraint;
 import javax.validation.Payload;

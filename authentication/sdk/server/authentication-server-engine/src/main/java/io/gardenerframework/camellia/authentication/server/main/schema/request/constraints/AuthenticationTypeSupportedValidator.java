@@ -1,8 +1,8 @@
 package io.gardenerframework.camellia.authentication.server.main.schema.request.constraints;
 
-import io.gardenerframework.camellia.authentication.server.main.utils.UserAuthenticationServiceRegistry;
 import io.gardenerframework.camellia.authentication.server.main.annotation.SupportAuthenticationEndpoint;
 import io.gardenerframework.camellia.authentication.server.main.utils.AuthenticationEndpointMatcher;
+import io.gardenerframework.camellia.authentication.server.main.utils.UserAuthenticationServiceRegistry;
 import io.gardenerframework.fragrans.validation.constraints.AbstractConstraintValidator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,8 +51,6 @@ public class AuthenticationTypeSupportedValidator extends AbstractConstraintVali
 
     @Override
     protected boolean validate(String value, ConstraintValidatorContext context, Map<String, Object> data) {
-        context.disableDefaultConstraintViolation();
-        context.buildConstraintViolationWithTemplate(String.format("{%s}", AuthenticationTypeSupported.class.getCanonicalName())).addConstraintViolation();
         if (StringUtils.hasText(value)) {
             if (!registry.getRegisteredAuthenticationTypes(true, false).contains(value)) {
                 return false;
@@ -63,5 +61,13 @@ public class AuthenticationTypeSupportedValidator extends AbstractConstraintVali
             return isAuthenticationEndpointSupported(request, Objects.requireNonNull(registry.getItem(value)).getAuthenticationEndpoint());
         }
         return false;
+    }
+
+    @Nullable
+    @Override
+    protected Map<String, Object> getMessageParameters(String value, Map<String, Object> data) {
+        Map<String, Object> parameters = new HashMap<>();
+        parameters.put("type", value);
+        return parameters;
     }
 }
