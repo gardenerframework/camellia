@@ -1,0 +1,10 @@
+io:
+  gardenerframework:
+    camellia:
+      authentication:
+        server:
+          main:
+            exception:
+              client:
+                BadOAuth2AuthorizationCodeException: 不正确的授权码或授权码已经过期
+                BadStateException: state不正确或已经过期
