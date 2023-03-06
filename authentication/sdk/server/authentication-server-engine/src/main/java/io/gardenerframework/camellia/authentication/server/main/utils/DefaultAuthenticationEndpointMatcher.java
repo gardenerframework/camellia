@@ -21,10 +21,11 @@ import javax.servlet.http.HttpServletRequest;
  * @date 2022/5/11 23:32
  */
 @AuthenticationServerEngineComponent
-public class AuthenticationEndpointMatcher extends AuthenticationServerEngineSecurityConfigurer {
+public class DefaultAuthenticationEndpointMatcher
+        extends AuthenticationServerEngineSecurityConfigurer implements
+        AuthenticationEndpointMatcher {
     private RequestMatcher webAuthenticationEndpointMatcher;
     private RequestMatcher tokenAuthenticationEndpointMatcher;
-
 
     @Override
     public void configure(HttpSecurity builder) throws Exception {
@@ -51,6 +52,7 @@ public class AuthenticationEndpointMatcher extends AuthenticationServerEngineSec
      * @param request http 请求
      * @return 判断结果
      */
+    @Override
     public boolean isTokenEndpoint(HttpServletRequest request) {
         return tokenAuthenticationEndpointMatcher.matches(request);
     }
@@ -61,6 +63,7 @@ public class AuthenticationEndpointMatcher extends AuthenticationServerEngineSec
      * @param request http 请求
      * @return 判断结果
      */
+    @Override
     public boolean isWebAuthenticationEndpoint(HttpServletRequest request) {
         return webAuthenticationEndpointMatcher.matches(request);
     }

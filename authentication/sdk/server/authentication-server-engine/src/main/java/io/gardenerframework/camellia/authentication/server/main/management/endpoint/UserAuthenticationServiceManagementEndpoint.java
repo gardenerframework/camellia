@@ -1,15 +1,11 @@
 package io.gardenerframework.camellia.authentication.server.main.management.endpoint;
 
 import io.gardenerframework.camellia.authentication.server.common.api.group.AuthenticationServerRestController;
-import io.gardenerframework.camellia.authentication.server.main.utils.UserAuthenticationServiceRegistry;
 import io.gardenerframework.camellia.authentication.server.main.management.schema.response.GetAvailableAuthenticationTypesResponse;
-import io.gardenerframework.fragrans.api.standard.error.exception.client.ForbiddenException;
+import io.gardenerframework.camellia.authentication.server.main.utils.UserAuthenticationServiceRegistry;
 import lombok.AllArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.*;
-
-import javax.validation.Valid;
-import javax.validation.constraints.NotBlank;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 
 /**
  * 用于启用和停用转换器
@@ -32,44 +28,7 @@ public class UserAuthenticationServiceManagementEndpoint implements UserAuthenti
     @GetMapping
     public GetAvailableAuthenticationTypesResponse getAvailableTypes() {
         return new GetAvailableAuthenticationTypesResponse(
-                userAuthenticationServiceRegistry.getRegisteredAuthenticationTypes(
-                        false,
-                        false
-                )
+                userAuthenticationServiceRegistry.getUserAuthenticationServiceTypes()
         );
-    }
-
-    /**
-     * 激活认证服务
-     *
-     * @param type 认证类型
-     */
-    @Override
-    @PostMapping("/{type}:enable")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void enableService(
-            @Valid @NotBlank @PathVariable("type") String type
-    ) {
-        if (!userAuthenticationServiceRegistry.getRegisteredAuthenticationTypes(false, true).contains(type)) {
-            throw new ForbiddenException(String.format("type %s requested not allowed to change enabled status", type));
-        }
-        userAuthenticationServiceRegistry.changeEnabledState(type, true);
-    }
-
-    /**
-     * 禁用认证服务
-     *
-     * @param type 认证类型
-     */
-    @Override
-    @PostMapping("/{type}:disable")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void disableService(
-            @Valid @NotBlank @PathVariable("type") String type
-    ) {
-        if (!userAuthenticationServiceRegistry.getRegisteredAuthenticationTypes(false, true).contains(type)) {
-            throw new ForbiddenException(String.format("type %s requested not allowed to change enabled status", type));
-        }
-        userAuthenticationServiceRegistry.changeEnabledState(type, false);
     }
 }

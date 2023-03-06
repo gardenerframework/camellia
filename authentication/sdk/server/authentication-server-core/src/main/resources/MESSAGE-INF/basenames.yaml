@@ -5,4 +5,5 @@ io:
         basenames:
           - authentication-server-core/errors/spring/security
           - authentication-server-core/errors/client
+          - authentication-server-core/errors/constraints
           - authentication-server-core/options

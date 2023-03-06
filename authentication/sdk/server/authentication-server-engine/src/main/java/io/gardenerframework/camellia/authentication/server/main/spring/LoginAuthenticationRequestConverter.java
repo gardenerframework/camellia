@@ -33,9 +33,11 @@ import org.springframework.security.web.authentication.AuthenticationConverter;
 import org.springframework.util.Assert;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.validation.ConstraintViolation;
 import javax.validation.Validator;
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Objects;
 
 /**
  * 转换用户登录请求
@@ -63,7 +65,6 @@ public class LoginAuthenticationRequestConverter implements AuthenticationConver
      * @see LoginAuthenticationRequestToken
      */
     private LoginAuthenticationRequestToken doConvert(HttpServletRequest request) throws Exception {
-        Set<ConstraintViolation<Object>> violations;
         OAuth2ClientUserAuthenticationToken clientUserAuthenticationRequestToken = null;
         if (authenticationEndpointMatcher.isTokenEndpoint(request)) {
             OAuth2GrantTypeParameter oAuth2GrantTypeParameter = new OAuth2GrantTypeParameter(request);
@@ -97,9 +98,9 @@ public class LoginAuthenticationRequestConverter implements AuthenticationConver
         }
         AuthenticationTypeParameter authenticationTypeParameter = new AuthenticationTypeParameter(request);
         authenticationTypeParameter.validate(validator);
-        UserAuthenticationServiceRegistry.UserAuthenticationServiceRegistryItem userAuthenticationServiceRegistryItem = userAuthenticationServiceRegistry.getItem(authenticationTypeParameter.getAuthenticationType());
         //经过验证器验证过了，不需要再验证
-        UserAuthenticationService service = Objects.requireNonNull(userAuthenticationServiceRegistryItem).getService();
+        //这里要取出所有类型
+        UserAuthenticationService service = userAuthenticationServiceRegistry.getUserAuthenticationService(authenticationTypeParameter.getAuthenticationType(), false);
         //生成调用客户端
         OAuth2RequestingClient client = clientUserAuthenticationRequestToken == null ?
                 null : OAuth2RequestingClient.builder()

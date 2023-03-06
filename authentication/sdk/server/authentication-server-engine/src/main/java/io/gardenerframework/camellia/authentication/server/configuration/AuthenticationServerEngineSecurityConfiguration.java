@@ -5,6 +5,7 @@ import io.gardenerframework.camellia.authentication.server.main.exception.Authen
 import io.gardenerframework.camellia.authentication.server.main.exception.OAuth2ErrorCodes;
 import io.gardenerframework.camellia.authentication.server.main.spring.AuthenticationEndpointAuthenticationFailureHandler;
 import io.gardenerframework.camellia.authentication.server.main.utils.AuthenticationEndpointMatcher;
+import io.gardenerframework.camellia.authentication.server.main.utils.DefaultAuthenticationEndpointMatcher;
 import io.gardenerframework.fragrans.api.standard.error.DefaultApiErrorConstants;
 import io.gardenerframework.fragrans.api.standard.error.ServletApiErrorAttributes;
 import io.gardenerframework.fragrans.api.standard.error.ServletApiErrorAttributesConfigurer;
@@ -39,10 +40,14 @@ import java.util.Arrays;
         BadCredentialsException.class,
         AccountStatusException.class
 })
-public class AuthenticationServerEngineSecurityConfiguration extends WebSecurityConfigurerAdapter implements ServletApiErrorAttributesConfigurer {
+public class AuthenticationServerEngineSecurityConfiguration extends WebSecurityConfigurerAdapter
+        implements ServletApiErrorAttributesConfigurer {
     private final AuthenticationServerPathOption authenticationServerPathOption;
     private final WebAuthenticationEndpointFilterConfigurer webAuthenticationEndpointFilterConfigurer;
     private final OAuth2AuthorizationServerConfigurerProxy oAuth2AuthorizationServerConfigurerProxy;
+    /**
+     * 这里要求引入的default实现
+     */
     private final AuthenticationEndpointMatcher authenticationEndpointMatcher;
     private final AuthenticationEndpointAuthenticationFailureHandler authenticationEndpointAuthenticationFailureHandler;
     private final EnhancedMessageSource messageSource;
@@ -60,7 +65,7 @@ public class AuthenticationServerEngineSecurityConfiguration extends WebSecurity
         //默认不拦截api接口的请求
         //相关权限验证由api自己完成
         http.authorizeRequests().antMatchers(String.format("%s/**",
-                authenticationServerPathOption.getRestApiContextPath()),
+                        authenticationServerPathOption.getRestApiContextPath()),
                 authenticationServerPathOption.getWebAuthenticationErrorPage(),
                 authenticationServerPathOption.getWebMfaChallengePage()
         ).permitAll();
@@ -95,7 +100,10 @@ public class AuthenticationServerEngineSecurityConfiguration extends WebSecurity
                             }
                         }
                 );
-        http.apply(authenticationEndpointMatcher);
+        //当前的matcher是默认实现再进行配置
+        if (authenticationEndpointMatcher instanceof DefaultAuthenticationEndpointMatcher) {
+            http.apply((DefaultAuthenticationEndpointMatcher) authenticationEndpointMatcher);
+        }
     }
 
 
