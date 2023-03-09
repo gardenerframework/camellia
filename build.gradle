@@ -64,6 +64,7 @@ allprojects {
     apply plugin: 'io.spring.dependency-management' //spring的依赖管理插件
     apply plugin: 'maven-publish' //maven发布插件
     apply plugin: 'org.sonarqube' //sonar的扫描插件
+    apply plugin: 'signing' //签名组件
     /**
      * 声明jdk兼容版本
      */
@@ -164,6 +165,25 @@ allprojects {
         from sourceSets.main.allJava //从每个工程的main目录中拷贝所有java代码
         archiveClassifier = "sources" //为打出来的包增加一个源代码的分类符号
     }
+    task javadocJar(type: Jar) {
+        from javadoc
+        archiveClassifier = "javadoc"
+    }
+    /**
+     * 在编译打包的基础上，
+     * 执行源代码打包任务
+     */
+    artifacts {
+        archives javadocJar, sourceJar
+    }
+
+    /**
+     * 签名构件
+     */
+    signing {
+        sign configurations.archives
+    }
+
     /**
      * 配置发布任务
      */
@@ -239,6 +259,9 @@ allprojects {
     /*令javadoc支持中文*/
     tasks.withType(Javadoc) {
         options.encoding = "UTF-8"
+        options.encoding = "UTF-8"
+        options.charSet = "UTF-8"
+        options.addStringOption("Xdoclint:none", "-quiet")
     }
     /**
      * 启用junit5测试，
@@ -305,6 +328,7 @@ for (String subprojectName : gradle.ext.subprojectNames) {
     }
     String projectShortName = project(subprojectName).name
     tasks.getByPath(subprojectName + ":generatePomFileFor" + projectShortName.substring(0, 1).toUpperCase() + projectShortName.substring(1) + "Publication").dependsOn(
+            tasks.getByPath(subprojectName + ":javadoc"),
             tasks.getByPath(subprojectName + ":test")
     )
     previousProjectName = subprojectName

@@ -28,6 +28,19 @@ dependencyResolutionManagement {
             }
         }
         maven {
+            url publishes
+            //允许使用非https协议，启用这个选项否则会报错
+            allowInsecureProtocol true
+            mavenContent {
+                //仅搜索非快照版本
+                releasesOnly()
+            }
+            credentials {
+                username "${dependencyMavenRepositoryCredentials.user}"
+                password "${dependencyMavenRepositoryCredentials.key}"
+            }
+        }
+        maven {
             url snapshots
             //允许使用非https协议，启用这个选项否则会报错
             allowInsecureProtocol true
