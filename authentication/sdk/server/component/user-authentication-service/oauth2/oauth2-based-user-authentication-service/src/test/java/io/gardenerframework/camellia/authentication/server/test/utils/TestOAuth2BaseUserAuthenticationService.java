@@ -1,10 +1,12 @@
 package io.gardenerframework.camellia.authentication.server.test.utils;
 
 import io.gardenerframework.camellia.authentication.server.main.OAuth2BaseUserAuthenticationService;
-import io.gardenerframework.camellia.authentication.server.main.OAuth2BasedIamUserReader;
 import io.gardenerframework.camellia.authentication.server.main.OAuth2StateStore;
 import io.gardenerframework.camellia.authentication.server.main.annotation.AuthenticationType;
+import io.gardenerframework.camellia.authentication.server.main.schema.subject.principal.Principal;
+import io.gardenerframework.camellia.authentication.server.main.schema.subject.principal.UsernamePrincipal;
 import lombok.NonNull;
+import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Component;
 
 import javax.validation.Validator;
@@ -16,7 +18,13 @@ import javax.validation.Validator;
 @Component
 @AuthenticationType("test")
 public class TestOAuth2BaseUserAuthenticationService extends OAuth2BaseUserAuthenticationService {
-    public TestOAuth2BaseUserAuthenticationService(@NonNull Validator validator, OAuth2BasedIamUserReader oAuth2BasedIamUserReader, OAuth2StateStore oAuth2StateStore) {
-        super(validator, oAuth2BasedIamUserReader, oAuth2StateStore);
+    public TestOAuth2BaseUserAuthenticationService(@NonNull Validator validator, OAuth2StateStore oAuth2StateStore) {
+        super(validator, oAuth2StateStore);
+    }
+
+    @Nullable
+    @Override
+    protected Principal getPrincipal(@NonNull String authorizationCode) throws Exception {
+        return UsernamePrincipal.builder().name(authorizationCode).build();
     }
 }

@@ -1,7 +1,7 @@
 dependencies {
     api "org.springframework.boot:spring-boot-autoconfigure"
     api "${group}:authentication-server-core"
-    api "${group}:username-password-authentication-service-core"
+    api "${group}:username-password-user-authentication-service-core"
     testImplementation "org.springframework.boot:spring-boot-starter-web"
     testImplementation "${fragrans.group}:enhance-validation"
 }

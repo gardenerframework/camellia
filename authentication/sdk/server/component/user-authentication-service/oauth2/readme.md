@@ -33,29 +33,10 @@ public class OAuth2AuthorizationCodeParameter extends AuthenticationRequestParam
 * code: 由第三方iam给出的授权码
 * state: 由认证服务器生成的state，第三方负责将这个state传送回认证服务器
 
-## OAuth2BasedIamUserReader
-
-```java
-public interface OAuth2BasedIamUserReader {
-    /**
-     * 向oauth2的iam读取用户
-     *
-     * @param code 包含code和state
-     * @return 读取出来的用户，如果用户不存在则抛出异常
-     * @throws Exception 发生的问题，如果是{@link AuthenticationException}则会被支持抛出
-     */
-    @Nullable
-    Principal readUser(@NonNull String code)
-            throws Exception;
-}
-```
-
-使用授权码向第三方iam读取用户信息
-
 # OAuth2BaseUserAuthenticationService
 
-OAuth2BaseUserAuthenticationService为基于oauth2进行联合登录的第三方iam提供了用户登录名转换的功能，
-它主要调用OAuth2BasedIamUserReader将OAuth2AuthorizationCodeParameter转为一个有待UserService读取的登录名，比如微信openid。
+OAuth2BaseUserAuthenticationService为基于oauth2进行联合登录的第三方iam提供了用户登录名转换的功能， 它主要调用"getPrincipal"
+并基于OAuth2AuthorizationCodeParameter中的授权码去第三方iam读取用户并转为一个有待UserService读取的登录名，比如微信openid。
 如果UserService能读取这个登录名，则认证就成功了，否则视作用户不存在。
 
 # state的生成和保存

@@ -30,7 +30,7 @@ export default {
   methods: {
     redirectToAlipay: function () {
       let state = null;
-      basicAxiosProxy.post("/api/authentication/oauth2/state", {type: "alipay"}).then(
+      basicAxiosProxy.post("/api/authentication/state/oauth2/alipay").then(
           response => {
             state = response.data.state;
             window.location.href = "https://openauth.alipay.com/oauth2/publicAppAuthorize.htm?app_id="
@@ -49,7 +49,7 @@ export default {
     }
   },
   mounted() {
-    basicAxiosProxy.get("/api/options/alipayOption").then(
+    basicAxiosProxy.get("/api/options/alipayUserAuthenticationServiceOption").then(
         response => {
           this.appId = response.data.option.appId;
         }

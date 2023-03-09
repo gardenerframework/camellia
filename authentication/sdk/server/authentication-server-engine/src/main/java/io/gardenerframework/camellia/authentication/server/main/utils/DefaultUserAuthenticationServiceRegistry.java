@@ -27,7 +27,7 @@ import java.util.*;
 @RequiredArgsConstructor
 @Slf4j
 public class DefaultUserAuthenticationServiceRegistry implements UserAuthenticationServiceRegistry, InitializingBean {
-    private final Map<String, UserAuthenticationService> registry;
+    private final Map<String, UserAuthenticationService> registry = new LinkedHashMap<>();
     private final Collection<UserAuthenticationService> services;
     private final GenericOperationLogger operationLogger;
 

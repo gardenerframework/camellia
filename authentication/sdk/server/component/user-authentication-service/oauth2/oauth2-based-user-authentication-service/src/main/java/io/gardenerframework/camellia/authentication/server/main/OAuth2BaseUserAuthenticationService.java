@@ -24,12 +24,10 @@ import java.util.UUID;
  * @date 2023/3/6 11:56
  */
 public abstract class OAuth2BaseUserAuthenticationService extends AbstractUserAuthenticationService<OAuth2AuthorizationCodeParameter> {
-    private final OAuth2BasedIamUserReader oAuth2BasedIamUserReader;
     private final OAuth2StateStore oAuth2StateStore;
 
-    protected OAuth2BaseUserAuthenticationService(@NonNull Validator validator, OAuth2BasedIamUserReader oAuth2BasedIamUserReader, OAuth2StateStore oAuth2StateStore) {
+    protected OAuth2BaseUserAuthenticationService(@NonNull Validator validator, OAuth2StateStore oAuth2StateStore) {
         super(validator);
-        this.oAuth2BasedIamUserReader = oAuth2BasedIamUserReader;
         this.oAuth2StateStore = oAuth2StateStore;
     }
 
@@ -38,6 +36,17 @@ public abstract class OAuth2BaseUserAuthenticationService extends AbstractUserAu
         return new OAuth2AuthorizationCodeParameter(request);
     }
 
+    /**
+     * 从iam读取用户并转换为登录名
+     *
+     * @param authorizationCode iam所需要的授权码
+     * @return 登录名
+     * @throws Exception 发生问题
+     */
+    @Nullable
+    protected abstract Principal getPrincipal(@NonNull String authorizationCode)
+            throws Exception;
+
     @Override
     protected UserAuthenticationRequestToken doConvert(
             @NonNull OAuth2AuthorizationCodeParameter authenticationParameter,
@@ -45,11 +54,11 @@ public abstract class OAuth2BaseUserAuthenticationService extends AbstractUserAu
             @NonNull Map<String, Object> context
     ) throws Exception {
         //检查state
-        if (!oAuth2StateStore.verify(authenticationParameter.getState())) {
+        if (!oAuth2StateStore.verify(this.getClass(), authenticationParameter.getState())) {
             throw new BadStateException(authenticationParameter.getCode());
         }
         //使用授权码去读取用户，并转换为用户的登录名
-        Principal principal = oAuth2BasedIamUserReader.readUser(authenticationParameter.getCode());
+        Principal principal = getPrincipal(authenticationParameter.getCode());
         if (principal == null) {
             throw new BadOAuth2AuthorizationCodeException(authenticationParameter.getCode());
         }
@@ -74,7 +83,7 @@ public abstract class OAuth2BaseUserAuthenticationService extends AbstractUserAu
      */
     public String createState() throws Exception {
         String state = Base64.getEncoder().encodeToString(UUID.randomUUID().toString().getBytes(StandardCharsets.UTF_8));
-        oAuth2StateStore.save(state, Duration.ofSeconds(300));
+        oAuth2StateStore.save(this.getClass(), state, Duration.ofSeconds(300));
         return state;
     }
 }
