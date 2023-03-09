@@ -1,0 +1,2 @@
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=com.jdcloud.gardener.camellia.uac.account.configuration.AccountAtomicOperationConfiguration
+ 

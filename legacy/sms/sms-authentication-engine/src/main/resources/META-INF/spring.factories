@@ -1,0 +1,1 @@
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=io.gardenerframework.camellia.authentication.infra.sms.engine.configuration.SmsAuthenticationEngineConfiguration

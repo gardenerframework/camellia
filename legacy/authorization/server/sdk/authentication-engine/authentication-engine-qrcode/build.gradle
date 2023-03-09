@@ -1,0 +1,9 @@
+dependencies {
+    api "${fragrans.group}:api-options-common"
+    //这里引入没什么问题，本身报错就是希望使用标准化的错误
+    api "${fragrans.group}:api-standard-error"
+    api "${fragrans.group}:generic-toolkits"
+    api "${fragrans.group}:data-cache-core"
+    api "${group}:authorization-server-common"
+    testImplementation "${fragrans.group}:data-cache-spring-redis"
+}

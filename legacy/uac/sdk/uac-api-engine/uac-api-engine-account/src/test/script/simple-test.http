@@ -1,0 +1,62 @@
+
+### 通过openApi注册账号
+POST http://localhost:10240/api/account
+Content-Type: application/json
+
+{
+  "username": "asdasdasd",
+  "surname": "haha",
+  "givenName": "haha",
+  "mobilePhoneNumber": "1358183272"
+}
+
+### 获取
+GET http://localhost:10240/api/account/A20221116150937067132000000
+
+###
+PUT http://localhost:10240/me/account
+Content-Type: application/json
+
+{
+  "surname": "haha",
+  "givenName": "haha"
+}
+
+### 自己修改密码ok
+PUT http://localhost:10240/me/account/password
+Content-Type: application/json
+
+{
+  "password": "haha",
+  "challengeId": "asdasd",
+  "challengeResponse": "asdasd"
+}
+
+### 管理员修改不行
+PUT http://localhost:10240/management/account/anyAccount/password
+Content-Type: application/json
+
+{
+  "password": "haha",
+  "challengeToken": "asdasd",
+  "challengeResponse": "asdasd"
+}
+
+### 管理员修改不行
+PUT http://localhost:10240/api/account/A20221116150937067132000000/password
+Content-Type: application/json
+
+{
+  "password": "haha",
+  "challengeToken": "asdasd",
+  "response": "asdasd"
+}
+
+### 认证
+POST http://localhost:10240/api/account:authenticate
+Content-Type: application/json
+
+{
+  "password": "haha",
+  "username": "asdasdasd"
+}

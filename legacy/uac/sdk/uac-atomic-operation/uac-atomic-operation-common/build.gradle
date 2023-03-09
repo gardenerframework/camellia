@@ -1,0 +1,6 @@
+dependencies {
+    api "${group}:uac-standard-error-exceptions-common"
+    api "${fragrans.group}:data-domain-common-practice"
+    api "${fragrans.group}:data-traits-starter"
+    api "org.bouncycastle:bcprov-jdk15on"
+}

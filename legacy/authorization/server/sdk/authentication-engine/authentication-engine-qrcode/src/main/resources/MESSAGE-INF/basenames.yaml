@@ -1,0 +1,8 @@
+com:
+  jdcloud:
+    gardener:
+      fragrans:
+        messages:
+          basenames:
+            - authorization-server-authentication-engine/qrcode/errors/server
+            - authorization-server-authentication-engine/qrcode/options

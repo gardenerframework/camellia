@@ -1,0 +1,7 @@
+com:
+  jdcloud:
+    gardener:
+      fragrans:
+        messages:
+          basenames:
+            - uac-standard-error-exceptions/common/errors/client

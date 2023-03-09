@@ -1,0 +1,15 @@
+dependencies {
+    api "${fragrans.group}:enhance-message-source-core"
+    api "${fragrans.group}:api-standard-error-exceptions"
+    api "${fragrans.group}:data-cache-core"
+    api "${fragrans.group}:data-traits-starter"
+    api "org.apache.tomcat.embed:tomcat-embed-core"
+    api "org.springframework.security:spring-security-web"
+    api "${fragrans.group}:log-generic"
+    api "${fragrans.group}:api-options-common"
+    api "jakarta.validation:jakarta.validation-api"
+    api "org.springframework.security:spring-security-oauth2-authorization-server"
+    api "org.aspectj:aspectjweaver"
+    testImplementation "${fragrans.group}:data-cache-spring-redis"
+    testImplementation "org.springframework.boot:spring-boot-starter-aop"
+}

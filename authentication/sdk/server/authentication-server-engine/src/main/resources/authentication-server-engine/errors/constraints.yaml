@@ -1,0 +1,15 @@
+io:
+  gardenerframework:
+    camellia:
+      authentication:
+        server:
+          main:
+            mfa:
+              schema:
+                request:
+                  constraints:
+                    AuthenticatorNameSupported: 为空或不支持
+            schema:
+              request:
+                constraints:
+                  AuthenticationTypeSupported: "为空或{type}不支持"

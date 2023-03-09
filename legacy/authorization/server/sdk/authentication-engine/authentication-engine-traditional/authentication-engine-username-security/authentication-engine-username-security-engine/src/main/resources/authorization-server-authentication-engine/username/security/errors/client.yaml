@@ -1,0 +1,9 @@
+com:
+  jdcloud:
+    gardener:
+      camellia:
+        authorization:
+          authentication:
+            main:
+              exception:
+                PasswordEncryptionKeyExpiredException: 加密秘钥已经过期，请重试

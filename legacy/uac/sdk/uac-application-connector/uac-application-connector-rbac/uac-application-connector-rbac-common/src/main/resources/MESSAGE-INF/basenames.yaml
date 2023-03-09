@@ -1,0 +1,7 @@
+com:
+  jdcloud:
+    gardener:
+      fragrans:
+        messages:
+          basenames:
+            - uac-application-connector-rbac/errors/client

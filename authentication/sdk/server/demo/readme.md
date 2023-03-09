@@ -1,0 +1,188 @@
+# 简介
+
+本组件实现了认证服务器引擎的一个演示系统，并讲解如何让它成功启动和工作
+
+# 计划内的功能
+
+* 用户名密码认证
+* 短信验证码认证
+* 短信mfa多因子认证
+
+# 需要引入的组件
+
+```groovy
+dependencies {
+    //认证引擎
+    api "${group}:authentication-server-engine"
+    //用户名密码认证
+    compileOnly "${group}:username-password-authentication-service"
+    //api选项持久化组件
+    api "${fragrans.group}:api-options-persistence-readonly"
+    //redis缓存访问软件
+    api "${fragrans.group}:data-cache-spring-redis"
+    //运行时支持
+    runtimeOnly "${group}:authentication-engine-username"
+}
+```
+
+# 引入pki公钥和私钥
+
+在工程的resources目录下新建"authentication-server-engine/pki”目录，放入
+
+* private.pem
+
+```text
+-----BEGIN PRIVATE KEY-----
+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
+mTgOT6IJcRSFRsUFjU0hgqOFY6tEQUY=
+-----END PRIVATE KEY-----
+
+```
+
+* public.pem
+
+```text
+-----BEGIN PUBLIC KEY-----
+MIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEA0/RfhtZnRy5GfD8e7Sc2
+kp1SrMLuMF0uml9sx5xOW4HInRypMouMYrTx2LlwQT/k+YDfLwN8GNEsFk0iaYGr
+2323PGQX1g0mDN0SRrIE7mHU6j5IJj8yX+2yTo4HqT9+SWEkoOlaJfcCeCyzQJys
+SEK1OnkzllO7H3/M7f9rv3a3Nj1O5nkB7ZNloTzca1AiGciAPdOl0niUK0CHf2Qq
+MaHw8H5lfDMHJUWP6Ipg5yWao2Tn+1aMQa/Z0kpki20hc56kAB2NKyQbrkIzRtds
+aedAEK0HcsdPvjTU+ej9nchmWiSZZmpz7b+cKtWJOTWN9386RQT2YtVf996tvwsb
+mG2A1rQaI3gNLC8+mTv5out146oOPJ2BWV9IPyBzzPONiju0Jh7pxtRY2xTR5DHC
+c4WLoMSkQNe2wPcqDrABDtDAJiYrK+RCJsfTQ3bsoAMjFupk70GZyYxT34jLh20f
+oskhDepHuaWZrA2RkbK3Kf9VuHfp/5Y+OHSnNfYmPI+NfMJ2zqd6QjRtAw/SHO5t
+EgT2IMaAmjOuwINtw7f0x0VxwP1F9DcOo9nQPhSc798kYpVczyzrDnBxYIJMjgtG
+sdnC150AU7h47wh7qzoIIYitBzVm2eEelx+SIjrZ7PPo6E1GWktxd4TTzY6HJrqH
+B0zznFSnqHFey/KbjQJNAT8CAwEAAQ==
+-----END PUBLIC KEY-----
+
+```
+
+这两个文件的内容在生产环境需要重新生成，不要使用demo系统的公钥和私钥
+
+# 需要编码的bean
+
+## RegisteredClientRepository
+
+RegisteredClientRepository是spring security
+oauth2组件使用的bean，用来访问客户端存储和接口，在示例程序中使用InMemoryRegisteredClientRepository，内置的客户端信息是
+
+* client id: test
+* client secret: 123
+* 回调地址: "http://127.0.0.1:8081/authorized"
+
+
+## Converter<RegisteredClient, ClientAppearance>
+
+这个转换器是"/api/client"需要使用的，将客户端数据记录转为VO的转换器
+
+```java
+@Component
+public class DemoClientVoConverter 
+        implements Converter<RegisteredClient, ClientAppearance> {
+    @Nullable
+    @Override
+    public ClientAppearance convert(@NonNull RegisteredClient source) {
+        return new ClientAppearance(source.getClientId(), source.getClientName(), "描述", "logo");
+    }
+}
+```
+
+## Converter<User, UserAppearance>
+
+同样，这是user的数据记录转VO的转换器
+
+```java
+@Component
+public class DemoUserVoConverter implements Converter<User, UserAppearance> {
+    @Nullable
+    @Override
+    public UserAppearance convert(@NonNull User source) {
+        return new UserAppearance(source.getId(), source.getName(), source.getAvatar());
+    }
+}
+```
+
+## UserService
+
+```java
+@Component
+public class DemoUserService implements UserService {
+    private final String password = "123456";
+
+    @Nullable
+    @Override
+    public User authenticate(@NonNull Principal principal, @NonNull PasswordCredentials credentials, @Nullable Map<String, Object> context) throws AuthenticationException {
+        if (Objects.equals(credentials.getPassword(), password)) {
+            return load(principal, context);
+        } else {
+            throw new BadCredentialsException(principal.getName());
+        }
+    }
+
+    @Nullable
+    @Override
+    public User load(@NonNull Principal principal, @Nullable Map<String, Object> context) throws AuthenticationException, UnsupportedOperationException {
+        return User.builder()
+                .id(principal.getName())
+                .credential(PasswordCredentials.builder().password(password).build())
+                .name(principal.getName())
+                .avatar("https://fuss10.elemecdn.com/e/5d/4a731a90594a4af544c0c25941171jpeg.jpeg")
+                .enabled(!principal.getName().equals("disabled"))
+                .locked(principal.getName().equals("locked"))
+                .principal(principal)
+                .build();
+    }
+}
+```
+
+示例程序返回一个简单的用户服务，并检查用户密码是不是"123456"

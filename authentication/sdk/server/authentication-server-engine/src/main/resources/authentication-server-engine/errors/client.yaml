@@ -1,0 +1,19 @@
+io:
+  gardenerframework:
+    camellia:
+      authentication:
+        server:
+          main:
+            mfa:
+              exception:
+                client:
+                  MfaAuthenticationRequiredException: 需要进行多因子认证
+                  BadMfaAuthenticationResponseException: 验证失败
+                  MfaAuthenticationInCooldownException: 请求过于频繁
+                  BadMfaAuthenticationRequestException: 不正确的请求
+            exception:
+              client:
+
+                UnauthorizedGrantTypeException: "当前客户端未分配授权类型: {0}"
+                UnauthorizedScopeException: "当前客户客户端无权访问: {0}"
+                ClientNotFoundException: "客户端不存在: {0}"

@@ -1,0 +1,11 @@
+com:
+  jdcloud:
+    gardener:
+      camellia:
+        authorization:
+          authentication:
+            main:
+              exception:
+                client:
+                  InvalidTicketException: 登录票据不正确或已过期
+                  InvalidUserException: 登录用户不存在或已被禁用

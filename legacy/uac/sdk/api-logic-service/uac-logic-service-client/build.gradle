@@ -1,0 +1,9 @@
+dependencies {
+    api "${group}:uac-api-data-client"
+    api "${group}:uac-api-skeleton-client"
+    api "${group}:uac-atomic-operation-client"
+    api "${group}:uac-logic-service-common"
+    api "${fragrans.group}:data-unique-id"
+    api "${fragrans.group}:api-security-operator-core"
+    api "${fragrans.group}:event-standard-schema"
+}

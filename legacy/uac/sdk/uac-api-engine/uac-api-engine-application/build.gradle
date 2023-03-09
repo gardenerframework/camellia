@@ -1,0 +1,9 @@
+dependencies {
+    api "${group}:uac-api-skeleton-application"
+    api "${group}:uac-logic-service-application"
+    api "${group}:uac-api-engine-common"
+    api "${fragrans.group}:api-starter"
+    testImplementation "mysql:mysql-connector-java"
+    testImplementation "org.modelmapper:modelmapper"
+    testImplementation "${fragrans.group}:api-options-persistence-readonly"
+}

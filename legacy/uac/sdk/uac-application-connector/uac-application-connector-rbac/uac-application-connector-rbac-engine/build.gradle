@@ -1,0 +1,12 @@
+dependencies {
+    compileOnly "${group}:uac-logic-service-application"
+    api "${group}:uac-application-connector-rbac-common"
+    api "${group}:uac-application-connector-rbac-service"
+    api "org.springframework:spring-web"
+    api "${fragrans.group}:api-enhance-validation"
+    api "${fragrans.group}:api-enhance-validation"
+    api "${fragrans.group}:api-standard-error-reveal-config"
+    testImplementation "${group}:uac-api-engine-common"
+    testImplementation "mysql:mysql-connector-java"
+    testImplementation "${fragrans.group}:api-options-persistence-readonly"
+}

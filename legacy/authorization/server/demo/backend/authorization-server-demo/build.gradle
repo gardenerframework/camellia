@@ -1,0 +1,21 @@
+dependencies {
+    api "${group}:authorization-server-engine"
+    compileOnly "${group}:authentication-engine-username"
+    compileOnly "${group}:authentication-engine-username-password-recovery"
+    compileOnly "${group}:authentication-engine-sms"
+    compileOnly "${group}:authentication-engine-qrcode"
+    compileOnly "${group}:authentication-engine-alipay"
+    api "${group}:sms-authentication-client-jdcloud"
+    api "${fragrans.group}:api-options-persistence-database"
+    api "${fragrans.group}:data-cache-spring-redis"
+    runtimeOnly "mysql:mysql-connector-java"
+    runtimeOnly "${group}:authentication-engine-username"
+    runtimeOnly "${group}:authentication-engine-sms"
+    runtimeOnly "${group}:authentication-engine-qrcode"
+    runtimeOnly "${group}:authentication-engine-alipay"
+    runtimeOnly "${group}:authentication-engine-username-password-recovery"
+    runtimeOnly "${group}:authentication-engine-username-security-engine"
+    runtimeOnly "${group}:authentication-engine-username-key-store-redis"
+    //执行des加密
+    runtimeOnly "${group}:authentication-engine-username-encryptor-des"
+}

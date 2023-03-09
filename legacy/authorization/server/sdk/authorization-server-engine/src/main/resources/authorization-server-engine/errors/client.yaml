@@ -1,0 +1,16 @@
+com:
+  jdcloud:
+    gardener:
+      camellia:
+        authorization:
+          authentication:
+            main:
+              exception:
+                client:
+                  UnauthorizedGrantTypeException: "当前客户端未分配授权类型: {0}"
+                  UnauthorizedScopeException: "当前客户客户端无权访问: {0}"
+            mfa:
+              exception:
+                client:
+                  MfaAuthenticationRequiredException: 需要进行多因子认证
+                  InvalidClientException: 非法客户端

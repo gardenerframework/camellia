@@ -1,0 +1,12 @@
+dependencies {
+    api "${group}:uac-api-skeleton-account"
+    api "${group}:uac-atomic-operation-account"
+    api "${group}:uac-logic-service-common"
+    api "${fragrans.group}:data-unique-id"
+    api "${fragrans.group}:api-options-engine"
+    api "${fragrans.group}:api-security-operator-core"
+    api "${fragrans.group}:event-standard-schema"
+    testImplementation "mysql:mysql-connector-java"
+    testImplementation "org.modelmapper:modelmapper"
+    testImplementation "${fragrans.group}:api-options-persistence-readonly"
+}

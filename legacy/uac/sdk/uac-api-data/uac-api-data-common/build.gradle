@@ -1,0 +1,4 @@
+dependencies {
+    api "${fragrans.group}:api-standard-data"
+    api "${fragrans.group}:data-traits-starter"
+}

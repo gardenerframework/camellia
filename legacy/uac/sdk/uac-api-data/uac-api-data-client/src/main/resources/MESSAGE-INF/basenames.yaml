@@ -1,0 +1,7 @@
+com:
+  jdcloud:
+    gardener:
+      fragrans:
+        messages:
+          basenames:
+            - uac-api-data/violations/account

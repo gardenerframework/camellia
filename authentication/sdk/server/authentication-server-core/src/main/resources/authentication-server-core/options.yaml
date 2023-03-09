@@ -1,0 +1,8 @@
+io:
+  gardenerframework:
+    camellia:
+      authentication:
+        server:
+          common:
+            configuration:
+              AuthenticationServerPathOption: 认证服务器路径参数

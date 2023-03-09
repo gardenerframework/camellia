@@ -1,0 +1,6 @@
+### Send POST request with body as parameters
+POST http://localhost:9090/oauth2/token
+Content-Type: application/x-www-form-urlencoded
+Authorization: Basic dGVzdDoxMjM=
+
+redirect_uri=http://127.0.0.1:8081/authorized&grant_type=authorization_code&code=7sJ_SHDlWu5KvZK8PtMGMsmTQyvXgc1bIXFSvucgeVrfA7WX5Yc4YVkAPY4U5HbAL2vDT0bihlotQND2DUNCgRCdWIJ3JJK0hEqwj8c16thS6Vo72fuRtwKz1AXXZLGq

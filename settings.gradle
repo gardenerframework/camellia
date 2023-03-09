@@ -1,0 +1,141 @@
+import org.gradle.api.initialization.resolve.RepositoriesMode
+
+/**
+ * 按照gradle官方文档的意思，
+ * 在setting.gradle里可以集中管理所有子项目使用的仓库，
+ * 且可以要求子项目不能自己使用自己定义的仓库。
+ * 注意这是项目用的，而不是编译脚本用的。
+ * 搞不明白的话看这个:
+ * https://docs.gradle.org/current/userguide/declaring_repositories.html#sec:plugin-vs-build-repos
+ */
+dependencyResolutionManagement {
+    apply from: 'build-scripts/gradle/repositories/declare-dependency-repository-urls.gradle'
+    apply from: 'build-scripts/gradle/credentials/dependency-artifactory-credentials.gradle'
+    //禁止子项目声明自己的仓库
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    repositories {
+        maven {
+            url releases
+            //允许使用非https协议，启用这个选项否则会报错
+            allowInsecureProtocol true
+            mavenContent {
+                //仅搜索非快照版本
+                releasesOnly()
+            }
+            credentials {
+                username "${dependencyMavenRepositoryCredentials.user}"
+                password "${dependencyMavenRepositoryCredentials.key}"
+            }
+        }
+        maven {
+            url publishes
+            //允许使用非https协议，启用这个选项否则会报错
+            allowInsecureProtocol true
+            mavenContent {
+                //仅搜索非快照版本
+                releasesOnly()
+            }
+            credentials {
+                username "${dependencyMavenRepositoryCredentials.user}"
+                password "${dependencyMavenRepositoryCredentials.key}"
+            }
+        }
+        maven {
+            url snapshots
+            //允许使用非https协议，启用这个选项否则会报错
+            allowInsecureProtocol true
+            mavenContent {
+                //仅搜索快照版本
+                snapshotsOnly()
+            }
+            credentials {
+                username "${dependencyMavenRepositoryCredentials.user}"
+                password "${dependencyMavenRepositoryCredentials.key}"
+            }
+        }
+    }
+}
+
+rootProject.name = 'camellia'
+String[] subprojectNames = [
+        'authentication:sdk:common:authentication-common-toolkits',
+        'authentication:sdk:common:requesting-client:requesting-client-core',
+        'authentication:sdk:infra:challenge-response:challenge-response-core',
+        'authentication:sdk:infra:challenge-response:challenge-response-engine',
+//        'authentication:sdk:infra:sms:sms-authentication-core',
+//        'authentication:sdk:infra:sms:sms-authentication-engine',
+//        'authentication:sdk:infra:sms:clients:sms-authentication-client-jdcloud',
+        'authentication:sdk:server:authentication-server-core',
+        'authentication:sdk:server:component:user-authentication-service:username-password:username-password-user-authentication-service-core',
+        'authentication:sdk:server:component:user-authentication-service:username-password:username-password-user-authentication-service',
+        'authentication:sdk:server:component:user-authentication-service:oauth2:oauth2-based-user-authentication-service',
+        'authentication:sdk:server:component:user-authentication-service:wechat:wechat-user-authentication-service',
+        'authentication:sdk:server:component:user-authentication-service:alipay:alipay-user-authentication-service',
+        'authentication:sdk:server:authentication-server-engine',
+//        'authentication:sdk:server:authentication-server-common'
+//        'sms-authentication:sdk:sms-authentication-core',
+//        'sms-authentication:clients:sms-authentication-client-jdcloud',
+//        //uac数据定义
+//        'uac:sdk:uac-data-schema:uac-data-schema-account',
+//        'uac:sdk:uac-data-schema:uac-data-schema-client',
+//        'uac:sdk:uac-data-schema:uac-data-schema-application',
+//        //连接点一般依赖于其它组件
+//        //'uac:sdk:uac-data-schema:uac-data-schema-joint-all',
+//        //uac异常定义
+//        'uac:sdk:uac-standard-error-exceptions:uac-standard-error-exceptions-common',
+//        'uac:sdk:uac-standard-error-exceptions:uac-standard-error-exceptions-account',
+//        'uac:sdk:uac-standard-error-exceptions:uac-standard-error-exceptions-client',
+//        'uac:sdk:uac-standard-error-exceptions:uac-standard-error-exceptions-application',
+//        //uac 原子操作定义
+//        'uac:sdk:uac-atomic-operation:uac-atomic-operation-data-common',
+//        'uac:sdk:uac-atomic-operation:uac-atomic-operation-common',
+//        'uac:sdk:uac-atomic-operation:uac-atomic-operation-account',
+//        'uac:sdk:uac-atomic-operation:uac-atomic-operation-client',
+//        'uac:sdk:uac-atomic-operation:uac-atomic-operation-application',
+//        //uac接口层
+//        'uac:sdk:uac-api-data:uac-api-data-common',
+//        'uac:sdk:uac-api-data:uac-api-data-account',
+//        'uac:sdk:uac-api-data:uac-api-data-application',
+//        //'uac:sdk:uac-api-data:uac-api-data-client',
+//        //uac接口框架
+//        'uac:sdk:uac-api-skeleton:uac-api-skeleton-account',
+//        'uac:sdk:uac-api-skeleton:uac-api-skeleton-application',
+//        //'uac:sdk:uac-api-skeleton:uac-api-skeleton-client',
+//        //api的逻辑服务
+//        'uac:sdk:api-logic-service:uac-logic-service-common',
+//        'uac:sdk:api-logic-service:uac-logic-service-account',
+//        //'uac:sdk:api-logic-service:uac-logic-service-client',
+//        'uac:sdk:api-logic-service:uac-logic-service-application',
+//        //接口引擎
+//        'uac:sdk:uac-api-engine:uac-api-engine-common',
+//        'uac:sdk:uac-api-engine:uac-api-engine-account',
+//        'uac:sdk:uac-api-engine:uac-api-engine-application',
+//        //连接点
+//        //'uac:sdk:uac-joints:uac-joint-data-operation-common',
+//        //'uac:sdk:uac-joints:application-client:uac-joint-application-client-data-schema',
+//        //'uac:sdk:uac-joints:application-client:uac-joint-application-client-data-operation',
+//        //应用连接器
+//        'uac:sdk:uac-application-connector:uac-application-connector-rbac:uac-application-connector-rbac-common',
+//        'uac:sdk:uac-application-connector:uac-application-connector-rbac:uac-application-connector-rbac-service',
+//        'uac:sdk:uac-application-connector:uac-application-connector-rbac:uac-application-connector-rbac-engine',
+//        //认证服务器
+//        'authorization:server:sdk:authorization-server-common',
+//        'authorization:server:sdk:authentication-engine:authentication-engine-cas',
+//        'authorization:server:sdk:authentication-engine:authentication-engine-traditional:authentication-engine-username-common',
+//        'authorization:server:sdk:authentication-engine:authentication-engine-traditional:authentication-engine-username',
+//        'authorization:server:sdk:authentication-engine:authentication-engine-traditional:authentication-engine-username-password-recovery',
+//        'authorization:server:sdk:authentication-engine:authentication-engine-traditional:authentication-engine-username-security:authentication-engine-username-encryptor-common',
+//        'authorization:server:sdk:authentication-engine:authentication-engine-traditional:authentication-engine-username-security:authentication-engine-username-security-engine',
+//        'authorization:server:sdk:authentication-engine:authentication-engine-traditional:authentication-engine-username-security:authentication-engine-username-encryptor-none',
+//        'authorization:server:sdk:authentication-engine:authentication-engine-traditional:authentication-engine-username-security:authentication-engine-username-encryptor-des',
+//        'authorization:server:sdk:authentication-engine:authentication-engine-traditional:authentication-engine-username-security:authentication-engine-username-key-store-redis',
+//        'authorization:server:sdk:authentication-engine:authentication-engine-sms',
+//        'authorization:server:sdk:authentication-engine:authentication-engine-qrcode',
+//        'authorization:server:sdk:authentication-engine:authentication-engine-oauth2',
+//        'authorization:server:sdk:authentication-engine:authentication-engine-sns:authentication-engine-enterprise-wechat',
+//        'authorization:server:sdk:authentication-engine:authentication-engine-sns:authentication-engine-alipay',
+//        'authorization:server:sdk:authorization-server-engine',
+        'authentication:sdk:server:demo:authentication-server-demo'
+]
+gradle.ext.subprojectNames = subprojectNames
+include subprojectNames

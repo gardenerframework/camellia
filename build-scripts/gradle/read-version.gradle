@@ -1,0 +1,6 @@
+/**
+ * 读取版本号
+ */
+def versionProperties = new Properties()
+versionProperties.load(new FileInputStream(new File("${rootDir}/version.properties")))
+ext.currentVersion = versionProperties.version as String

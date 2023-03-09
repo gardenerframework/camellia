@@ -1,0 +1,5 @@
+dependencies {
+    api "${fragrans.group}:data-traits-starter"
+    compileOnly "${fragrans.group}:sugar-trait"
+    annotationProcessor "${fragrans.group}:sugar-trait-apt"
+}

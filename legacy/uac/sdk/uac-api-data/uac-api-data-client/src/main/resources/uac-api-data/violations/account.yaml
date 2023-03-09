@@ -1,0 +1,11 @@
+com:
+  jdcloud:
+    gardener:
+      camellia:
+        uac:
+          account:
+            schema:
+              request:
+                constraints:
+                  StrongPassword: 密码强度不符合要求
+                  PrincipalsNotAllBlank: 登录名不能为空

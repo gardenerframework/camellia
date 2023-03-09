@@ -1,0 +1,5 @@
+dependencies {
+    api "${fragrans.group}:api-options-common"
+    api "${fragrans.group}:api-standard-error-reveal-config"
+    api "${group}:authorization-server-common"
+}

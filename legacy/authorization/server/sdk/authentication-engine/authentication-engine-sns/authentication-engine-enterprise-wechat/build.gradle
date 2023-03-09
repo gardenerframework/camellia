@@ -1,0 +1,4 @@
+dependencies {
+    api "${group}:authorization-server-authentication-engine-oauth2"
+    testImplementation "${fragrans.group}:enhance-validation-constraints"
+}

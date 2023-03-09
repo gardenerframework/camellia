@@ -1,0 +1,12 @@
+com:
+  jdcloud:
+    gardener:
+      camellia:
+        authorization:
+          user:
+            configuration:
+              UserEndpointOption: 网页端用户信息接口选项
+          authentication:
+            configuration:
+              AuthenticationTypeRegistry: 认证类型注册表
+              OAuth2AuthorizationConsentOption: 授权申请批准选项

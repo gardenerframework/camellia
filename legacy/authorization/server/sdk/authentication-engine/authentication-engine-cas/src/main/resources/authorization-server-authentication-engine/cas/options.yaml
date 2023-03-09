@@ -1,0 +1,8 @@
+com:
+  jdcloud:
+    gardener:
+      camellia:
+        authorization:
+          cas:
+            configuration:
+              CasOption: cas选项

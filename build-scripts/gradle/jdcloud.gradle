@@ -1,0 +1,7 @@
+ext {
+    jdcloud = new Properties(
+            //版本
+            version: '1.2.0',
+            group: 'com.jdcloud.sdk'
+    ) as Properties
+}

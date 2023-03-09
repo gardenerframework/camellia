@@ -1,0 +1,7 @@
+//包仓库声明
+ext {
+    def repository = "https://s01.oss.sonatype.org"
+    snapshots = "${repository}/content/repositories/snapshots" as String
+    publishes = "${repository}/service/local/staging/deploy/maven2/" as String
+    releases = "http://maven.aliyun.com/nexus/content/groups/public/" as String
+}

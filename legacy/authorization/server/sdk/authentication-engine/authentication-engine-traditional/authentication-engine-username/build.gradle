@@ -1,0 +1,6 @@
+dependencies {
+    api "${fragrans.group}:api-options-common"
+    api "${fragrans.group}:enhance-validation-constraints"
+    api "${group}:authorization-server-common"
+    api "${group}:authorization-server-authentication-engine-username-common"
+}

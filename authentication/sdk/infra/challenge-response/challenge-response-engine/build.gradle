@@ -1,0 +1,7 @@
+dependencies {
+    api "${group}:challenge-response-core"
+    api "org.springframework:spring-context"
+    api "org.springframework.boot:spring-boot-starter-aop"
+    compileOnly "${fragrans.group}:data-cache-core"
+    testImplementation "${fragrans.group}:data-cache-spring-redis"
+}

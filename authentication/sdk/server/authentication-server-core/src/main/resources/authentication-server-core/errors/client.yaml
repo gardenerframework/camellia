@@ -1,0 +1,10 @@
+io:
+  gardenerframework:
+    camellia:
+      authentication:
+        server:
+          main:
+            exception:
+              client:
+                BadAuthenticationRequestParameterException: "请求参数有误: {0}"
+                UserNotFoundException: 用户不存在

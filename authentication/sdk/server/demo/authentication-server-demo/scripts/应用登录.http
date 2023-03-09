@@ -1,0 +1,22 @@
+### Send POST request with body as parameters
+POST http://localhost:9090/oauth2/token
+Content-Type: application/x-www-form-urlencoded
+Authorization: Basic dGVzdDoxMjM=
+
+grant_type=user_authentication&scope=profile&username=test&password=123456&authenticationType=username
+
+###
+POST http://localhost:9090/api/authentication/sms
+Content-Type: application/json
+Authorization: Bearer eyJraWQiOiJiODJiOTRiOS02NjUzLTQxNDQtYTQwOC1mNmU4NmYxY2FhOGUiLCJhbGciOiJSUzI1NiJ9.eyJzdWIiOiJ0ZXN0IiwiYXVkIjoidGVzdCIsIm5iZiI6MTY3MjMxMjIxNiwic2NvcGUiOlsicHJvZmlsZSJdLCJpc3MiOiJodHRwOlwvXC9sb2NhbGhvc3Q6OTA5MCIsImV4cCI6MTY3MjQ4NTAxNiwiaWF0IjoxNjcyMzEyMjE2fQ.ROPPfy2NDZqYSvFO0N_lRTRXd9MMb7CPhiXqMXgX7FumbAnG-ebEhyGRFPrKoVs5JkfT5hkjaGndgG-TqWuikYgDndLygHyjqb7vn2es14J7KlDgUbw6ge3tBW86OZxzXzj03cXS9vLRiN_iI9HEPb4pIICRHka7dtdnJrULTpE5b7oZKqYZkZHxBGr6xImOR5dr-GJtAQhnUqkqx3YyRbubvd93POozG6KR8e4k_FKLXZyD124SQgkupmU7DZy78wOUZ8iOKG70Qj1iLSZMQ1q7VAfdT2W4q0X1W7EO3F4vGBFgLhSr7BSYwgoZQg_S9Uh53FKlfWiJRDhTJ85Npg
+
+{
+  "mobilePhoneNumber": "13581837282"
+}
+
+###
+POST http://localhost:9090/oauth2/token
+Content-Type: application/x-www-form-urlencoded
+Authorization: Basic dGVzdDoxMjM=
+
+grant_type=user_authentication&authenticationType=sms&mobilePhoneNumber=13581837282&code=210980&scope=profile openid
