@@ -21,6 +21,8 @@
         <div class="sns-forms-location">
           <alipay-authentication-form :redirect-url="this.snsRedirectUrl"
                                       v-if="this.authenticationTypes.includes('alipay')"></alipay-authentication-form>
+          <we-chat-authentication-form :redirect-url="this.snsRedirectUrl"
+                                       v-if="this.authenticationTypes.includes('wechat')"></we-chat-authentication-form>
         </div>
       </div>
     </div>
@@ -33,6 +35,7 @@ import basicAxiosProxy from "@/xhr/axios-aop";
 import UsernameAuthenticationForm from "@/components/authentication/forms/username/UsernameAuthenticationForm.vue";
 import SmsAuthenticationForm from "@/components/authentication/forms/sms/SmsAuthenticationForm.vue";
 import AlipayAuthenticationForm from "@/components/authentication/forms/sns/alipay/AlipayAuthenticationForm.vue";
+import WeChatAuthenticationForm from "@/components/authentication/forms/sns/wechat/WeChatAuthenticationForm.vue";
 
 export default {
   name: "AuthenticationForms",
@@ -54,7 +57,10 @@ export default {
       snsRedirectUrl: window.location.protocol + '//' + window.location.host
     }
   },
-  components: {AlipayAuthenticationForm, SmsAuthenticationForm, UsernameAuthenticationForm, Brand}
+  components: {
+    WeChatAuthenticationForm,
+    AlipayAuthenticationForm, SmsAuthenticationForm, UsernameAuthenticationForm, Brand
+  }
 }
 </script>
 
@@ -85,7 +91,8 @@ export default {
 
 .sns-forms-location {
   margin-top: 12px;
-  text-align: center;
+  display: flex;
+  justify-content: center;
 }
 
 /deep/ .el-tabs__item.is-active {
