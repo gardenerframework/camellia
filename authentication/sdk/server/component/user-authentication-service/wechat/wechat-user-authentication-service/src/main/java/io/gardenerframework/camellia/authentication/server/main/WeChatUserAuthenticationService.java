@@ -8,12 +8,16 @@ import io.gardenerframework.camellia.authentication.server.main.schema.subject.p
 import lombok.AccessLevel;
 import lombok.NonNull;
 import lombok.Setter;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.lang.Nullable;
 import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.web.client.RestTemplate;
 
 import javax.validation.Validator;
+import java.util.Collections;
 import java.util.Map;
 
 /**
@@ -22,7 +26,8 @@ import java.util.Map;
  */
 @AuthenticationType("wechat")
 @WeChatUserAuthenticationServiceComponent
-public class WeChatUserAuthenticationService extends OAuth2BaseUserAuthenticationService {
+public class WeChatUserAuthenticationService extends OAuth2BaseUserAuthenticationService
+        implements InitializingBean {
     private final RestTemplate restTemplate = new RestTemplate();
 
     @Setter(onMethod = @__(@Autowired), value = AccessLevel.PRIVATE)
@@ -36,7 +41,7 @@ public class WeChatUserAuthenticationService extends OAuth2BaseUserAuthenticatio
     @Override
     protected Principal getPrincipal(@NonNull String authorizationCode) throws Exception {
         Map<String, Object> response = restTemplate.getForObject(
-                "https://api.weixin.qq.com/sns/oauth2/access_token?appid={appId}}" +
+                "https://api.weixin.qq.com/sns/oauth2/access_token?appid={appId}" +
                         "&secret={appSecret}" +
                         "&code={code}" +
                         "&grant_type=authorization_code",
@@ -52,5 +57,13 @@ public class WeChatUserAuthenticationService extends OAuth2BaseUserAuthenticatio
             throw new InternalAuthenticationServiceException("error = " + response.get("errmsg"));
         }
         return WeChatOpenIdPrincipal.builder().name(String.valueOf(response.get("openid"))).build();
+    }
+
+    @Override
+    public void afterPropertiesSet() throws Exception {
+        //fix 微信坑逼 text/plain
+        MappingJackson2HttpMessageConverter converter = new MappingJackson2HttpMessageConverter();
+        converter.setSupportedMediaTypes(Collections.singletonList(MediaType.TEXT_PLAIN));
+        restTemplate.getMessageConverters().add(converter);
     }
 }
