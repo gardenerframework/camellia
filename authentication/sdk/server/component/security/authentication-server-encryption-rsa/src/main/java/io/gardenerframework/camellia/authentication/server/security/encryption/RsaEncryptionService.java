@@ -22,7 +22,8 @@ public class RsaEncryptionService implements EncryptionService {
             "server",
             "component",
             "security",
-            "encryption"
+            "encryption",
+            "rsa"
     };
 
     private final String SUFFIX = "key";

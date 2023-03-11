@@ -4,28 +4,24 @@ import io.gardenerframework.camellia.authentication.server.common.annotation.Aut
 import io.gardenerframework.camellia.authentication.server.common.api.group.AuthenticationServerRestController;
 import io.gardenerframework.camellia.authentication.server.security.encryption.EncryptionService;
 import io.gardenerframework.camellia.authentication.server.security.encryption.schema.EncryptionKey;
-import io.gardenerframework.fragrans.api.standard.error.exception.server.NotImplementedException;
-import lombok.AllArgsConstructor;
-import org.springframework.util.CollectionUtils;
+import lombok.RequiredArgsConstructor;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import java.time.Duration;
-import java.util.Collection;
 
 @AuthenticationServerRestController
 @AuthenticationServerEngineComponent
 @RequestMapping("/security/encryption/key")
-@AllArgsConstructor
+@RequiredArgsConstructor
+@ConditionalOnBean(EncryptionService.class)
 public class EncryptionKeyEndpoint {
-    private final Collection<EncryptionService> encryptionServices;
+    private final EncryptionService encryptionService;
 
     @PostMapping
     EncryptionKey createKey() throws Exception {
         //默认1小时有效
-        if (!CollectionUtils.isEmpty(encryptionServices)) {
-            return encryptionServices.toArray(new EncryptionService[]{})[0].createKey(Duration.ofSeconds(3600));
-        }
-        throw new NotImplementedException();
+        return encryptionService.createKey(Duration.ofSeconds(3600));
     }
 }

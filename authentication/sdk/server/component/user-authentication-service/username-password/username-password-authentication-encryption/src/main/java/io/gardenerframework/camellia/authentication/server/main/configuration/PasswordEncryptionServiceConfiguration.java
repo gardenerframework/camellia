@@ -7,13 +7,11 @@ import io.gardenerframework.camellia.authentication.server.security.encryption.E
 import lombok.Getter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.util.CollectionUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Validator;
 import javax.validation.constraints.NotBlank;
 import java.util.Base64;
-import java.util.Collection;
 import java.util.function.BiConsumer;
 
 @Configuration
@@ -23,14 +21,9 @@ public class PasswordEncryptionServiceConfiguration {
             HttpServletRequest,
             UsernamePasswordAuthenticationParameter> passwordDecryptHelper(
             Validator validator,
-            //fix @ConditionalOnBean就是坑逼
-            Collection<EncryptionService> services
+            EncryptionService service
     ) {
         return (request, usernamePasswordAuthenticationParameter) -> {
-            if (CollectionUtils.isEmpty(services)) {
-                return;
-            }
-            EncryptionService service = services.toArray(new EncryptionService[]{})[0];
             //取id
             PasswordEncryptionKeyIdParameter passwordEncryptionKeyIdParameter = new PasswordEncryptionKeyIdParameter(request);
             //执行验证

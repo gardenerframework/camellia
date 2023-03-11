@@ -1588,8 +1588,7 @@ UserAuthenticationServiceManagementEndpointSkeleton是接口的框架定义，�
 
 # 加解密
 
-当用户名密码进行传输或者密码重置或者传输后台设置所需的ak/sk时，为了防止数据被泄漏，需要对传输进行加密。
-https是一种加密，但是偶尔还需要服务自己进行加密
+当用户名密码进行传输或者密码重置或者传输后台设置所需的ak/sk时，为了防止数据被泄漏，需要对传输的数据在https之外进行加密
 
 ```java
 public interface EncryptionService {
@@ -1624,7 +1623,30 @@ public interface EncryptionService {
 }
 ```
 
-方法提供基本的密钥生成，加密和解密的方法
+EncryptionService提供基本的密钥生成，加密和解密的方法。其默认实现是RsaEncryptionService，它把公钥发送给调用方。
+
+```java
+public class EncryptionKey {
+    /**
+     * 加密id
+     */
+    @NonNull
+    private String id;
+    /**
+     * 密钥
+     */
+    @NonNull
+    private String key;
+    /**
+     * 密钥过期时间
+     */
+    @NonNull
+    private Date expiryTime;
+}
+```
+
+接口生成的密钥包含了id、密钥本身以及过期时间。引擎负责生成密钥的接口是"/api/security/encryption/key"
+，每次调用生成一个新的密钥。不过由于密钥本身有过期时间，因此开发人员应当将生成的密钥进行存储直到临近过期再换新的。
 
 # 其它组件和示例
 
