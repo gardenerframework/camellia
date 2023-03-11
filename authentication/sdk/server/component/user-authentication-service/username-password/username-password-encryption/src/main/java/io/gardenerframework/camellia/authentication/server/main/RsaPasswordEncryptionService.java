@@ -9,11 +9,9 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 
 import javax.crypto.Cipher;
-import java.security.KeyFactory;
-import java.security.KeyPair;
-import java.security.KeyPairGenerator;
-import java.security.PrivateKey;
+import java.security.*;
 import java.security.spec.PKCS8EncodedKeySpec;
+import java.security.spec.X509EncodedKeySpec;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Base64;
@@ -46,14 +44,15 @@ public class RsaPasswordEncryptionService implements PasswordEncryptionService {
     public Key createKey() throws Exception {
         KeyPairGenerator generator = KeyPairGenerator.getInstance("RSA");
         KeyPair keyPair = generator.generateKeyPair();
-        String publicKey = Base64.getEncoder().encodeToString(keyPair.getPublic().getEncoded());
-        String privateKey = Base64.getEncoder().encodeToString(keyPair.getPrivate().getEncoded());
+        String rawPrivateKey = Base64.getEncoder().encodeToString(keyPair.getPrivate().getEncoded());
         String keyId = UUID.randomUUID().toString();
         Duration ttl = Duration.ofSeconds(30);
-        cacheManager.set(NAMESPACE, keyId, SUFFIX, privateKey, ttl);
+        cacheManager.set(NAMESPACE, keyId, SUFFIX, rawPrivateKey, ttl);
+        PublicKey publicKey = KeyFactory.getInstance("RSA")
+                .generatePublic(new X509EncodedKeySpec(keyPair.getPublic().getEncoded()));
         return new Key(
                 keyId,
-                publicKey,
+                Base64.getEncoder().encodeToString(publicKey.getEncoded()),
                 Date.from(Instant.now().plus(ttl))
         );
     }

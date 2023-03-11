@@ -1,6 +1,6 @@
 dependencies {
     api "${group}:authentication-server-core"
-    api "${group}:username-password-encryption-core"
+    api "${group}:username-password-user-authentication-service-core"
     compileOnly "${fragrans.group}:data-cache-core"
     testImplementation "${fragrans.group}:data-cache-spring-redis"
     testImplementation "${fragrans.group}:api-starter"

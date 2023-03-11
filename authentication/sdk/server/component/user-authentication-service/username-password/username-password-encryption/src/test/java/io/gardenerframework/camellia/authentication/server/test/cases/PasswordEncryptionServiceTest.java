@@ -1,5 +1,6 @@
 package io.gardenerframework.camellia.authentication.server.test.cases;
 
+import io.gardenerframework.camellia.authentication.server.main.PasswordEncryptionService;
 import io.gardenerframework.camellia.authentication.server.test.PasswordEncryptionServiceTestApplication;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;

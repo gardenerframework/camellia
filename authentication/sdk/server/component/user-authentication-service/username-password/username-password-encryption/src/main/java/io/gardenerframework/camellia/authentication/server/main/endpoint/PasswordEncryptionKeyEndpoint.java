@@ -1,6 +1,7 @@
 package io.gardenerframework.camellia.authentication.server.main.endpoint;
 
 import io.gardenerframework.camellia.authentication.server.common.api.group.AuthenticationServerRestController;
+import io.gardenerframework.camellia.authentication.server.main.PasswordEncryptionService;
 import io.gardenerframework.camellia.authentication.server.main.configuration.PasswordEncryptionServiceComponent;
 import io.gardenerframework.camellia.authentication.server.main.exception.NestedAuthenticationException;
 import io.gardenerframework.camellia.authentication.server.main.schema.request.AuthenticationRequestParameter;
