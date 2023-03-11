@@ -1,7 +1,6 @@
-package io.gardenerframework.camellia.authentication.server.main;
+package io.gardenerframework.camellia.authentication.server.security.encryption;
 
-import io.gardenerframework.camellia.authentication.server.main.configuration.PasswordEncryptionServiceComponent;
-import io.gardenerframework.camellia.authentication.server.main.exception.InvalidKeyException;
+import io.gardenerframework.camellia.authentication.server.security.encryption.schema.EncryptionKey;
 import io.gardenerframework.fragrans.data.cache.client.CacheClient;
 import io.gardenerframework.fragrans.data.cache.manager.BasicCacheManager;
 import lombok.NonNull;
@@ -18,30 +17,29 @@ import java.util.Base64;
 import java.util.Date;
 import java.util.UUID;
 
-@PasswordEncryptionServiceComponent
+
 @ConditionalOnClass(BasicCacheManager.class)
-@ConditionalOnMissingBean(value = PasswordEncryptionService.class, ignored = RsaPasswordEncryptionService.class)
-public class RsaPasswordEncryptionService implements PasswordEncryptionService {
+@ConditionalOnMissingBean(value = EncryptionService.class, ignored = RsaEncryptionService.class)
+public class RsaEncryptionService implements EncryptionService {
     private final String[] NAMESPACE = new String[]{
             "authentication",
             "server",
             "component",
-            "user-authentication-service",
-            "username-password",
-            "encrypt"
+            "security",
+            "encryption"
     };
 
     private final String SUFFIX = "key";
 
     private final BasicCacheManager<String> cacheManager;
 
-    public RsaPasswordEncryptionService(CacheClient client) {
+    public RsaEncryptionService(CacheClient client) {
         this.cacheManager = new BasicCacheManager<String>(client) {
         };
     }
 
     @Override
-    public Key createKey() throws Exception {
+    public EncryptionKey createKey() throws Exception {
         KeyPairGenerator generator = KeyPairGenerator.getInstance("RSA");
         KeyPair keyPair = generator.generateKeyPair();
         String rawPrivateKey = Base64.getEncoder().encodeToString(keyPair.getPrivate().getEncoded());
@@ -50,15 +48,15 @@ public class RsaPasswordEncryptionService implements PasswordEncryptionService {
         cacheManager.set(NAMESPACE, keyId, SUFFIX, rawPrivateKey, ttl);
         PublicKey publicKey = KeyFactory.getInstance("RSA")
                 .generatePublic(new X509EncodedKeySpec(keyPair.getPublic().getEncoded()));
-        return new Key(
-                keyId,
-                Base64.getEncoder().encodeToString(publicKey.getEncoded()),
-                Date.from(Instant.now().plus(ttl))
-        );
+        return EncryptionKey.builder()
+                .id(keyId)
+                .key(Base64.getEncoder().encodeToString(publicKey.getEncoded()))
+                .expiryTime(Date.from(Instant.now().plus(ttl)))
+                .build();
     }
 
     @Override
-    public String decrypt(@NonNull String id, @NonNull String cipher) throws Exception {
+    public byte[] decrypt(@NonNull String id, @NonNull byte[] cipher) throws Exception {
         String privateKeySaved = cacheManager.get(NAMESPACE, id, SUFFIX);
         if (privateKeySaved == null) {
             throw new InvalidKeyException(id);
@@ -67,9 +65,9 @@ public class RsaPasswordEncryptionService implements PasswordEncryptionService {
             cacheManager.delete(NAMESPACE, id, SUFFIX);
             byte[] decode = Base64.getDecoder().decode(privateKeySaved);
             PrivateKey privateKey = KeyFactory.getInstance("RSA").generatePrivate(new PKCS8EncodedKeySpec(decode));
-            Cipher rasCipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
+            Cipher rasCipher = Cipher.getInstance("RSA");
             rasCipher.init(Cipher.DECRYPT_MODE, privateKey);
-            return new String(rasCipher.doFinal(Base64.getDecoder().decode(cipher)));
+            return rasCipher.doFinal(cipher);
         }
     }
 }

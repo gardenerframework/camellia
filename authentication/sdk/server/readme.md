@@ -1575,6 +1575,34 @@ public interface UserAuthenticationServiceManagementEndpointSkeleton {
 UserAuthenticationServiceManagementEndpointSkeleton是接口的框架定义，提供列出所有可用认证类型清单 其实现累上带有`@AuthenticationServerRestController`
 注解，服从api分组的统一设置
 
+# 加解密
+
+当用户名密码进行传输或者密码重置或者传输后台设置所需的ak/sk时，为了防止数据被泄漏，需要对传输进行加密。 https是一种加密，但是偶尔还需要服务自己进行加密
+
+```java
+public interface EncryptionService {
+    /**
+     * 产生一个key
+     *
+     * @return 可用的key
+     * @throws Exception 发生问题
+     */
+    EncryptionKey createKey() throws Exception;
+
+    /**
+     * 解密
+     *
+     * @param id     密钥id
+     * @param cipher 密文
+     * @return 解密后的结果
+     * @throws Exception 遇到问题
+     */
+    byte[] decrypt(@NonNull String id, @NonNull byte[] cipher) throws Exception;
+}
+```
+
+方法提供基本的密钥生成，加密和解密的方法
+
 # 其它组件和示例
 
 * [component](./component): 包含了已经实现的预置组件

@@ -54,6 +54,7 @@ String[] subprojectNames = [
 //        'authentication:sdk:infra:sms:sms-authentication-engine',
 //        'authentication:sdk:infra:sms:clients:sms-authentication-client-jdcloud',
         'authentication:sdk:server:authentication-server-core',
+        'authentication:sdk:server:component:security:authentication-server-encryption-rsa',
         'authentication:sdk:server:component:user-authentication-service:username-password:username-password-user-authentication-service-core',
         'authentication:sdk:server:component:user-authentication-service:username-password:username-password-user-authentication-service',
         'authentication:sdk:server:component:user-authentication-service:username-password:username-password-encryption-core',
