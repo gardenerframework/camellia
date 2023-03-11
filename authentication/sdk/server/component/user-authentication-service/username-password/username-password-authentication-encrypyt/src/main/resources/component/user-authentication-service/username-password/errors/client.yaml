@@ -1,0 +1,9 @@
+io:
+  gardenerframework:
+    camellia:
+      authentication:
+        server:
+          main:
+            exception:
+              client:
+                InvalidKeyException: 秘钥不正确或已过期

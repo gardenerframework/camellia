@@ -2,15 +2,13 @@ dependencies {
     //认证引擎
     api "${group}:authentication-server-engine"
     //用户名密码认证
-    compileOnly "${group}:username-password-user-authentication-service"
-    compileOnly "${group}:wechat-user-authentication-service"
-    compileOnly "${group}:alipay-user-authentication-service"
+    api "${group}:username-password-user-authentication-service"
+    api "${group}:username-password-authentication-encrypyt"
+
+    api "${group}:wechat-user-authentication-service"
+    api "${group}:alipay-user-authentication-service"
     //api选项持久化组件
-    api "${fragrans.group}:api-options-persistence-readonly"
+    runtimeOnly "${fragrans.group}:api-options-persistence-readonly"
     //redis缓存访问软件
-    api "${fragrans.group}:data-cache-spring-redis"
-    //运行时支持
-    runtimeOnly "${group}:username-password-user-authentication-service"
-    runtimeOnly "${group}:wechat-user-authentication-service"
-    runtimeOnly "${group}:alipay-user-authentication-service"
+    runtimeOnly "${fragrans.group}:data-cache-spring-redis"
 }

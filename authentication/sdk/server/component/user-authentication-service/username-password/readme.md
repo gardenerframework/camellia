@@ -117,5 +117,46 @@ public class UsernamePasswordAuthenticationService extends AbstractUserAuthentic
 
 # 自动配置
 
-在引擎组建中，如果没有生成UsernameResolver则会生成一个默认的，这个默认的就是将请求转换为UsernamePrincipal。同时也会生成默认的UsernamePasswordAuthenticationService。
+如果没有生成UsernameResolver则会生成一个默认的，这个默认的就是将请求转换为UsernamePrincipal。同时也会生成默认的UsernamePasswordAuthenticationService。
 如果开发过程中开发人员自己实现了子类并进行实例化，那么引擎的就不会生成
+
+# 传输加密
+
+```java
+public interface PasswordEncryptionService {
+    /**
+     * 创建加密秘钥
+     *
+     * @return 加密秘钥
+     * @throws Exception 遇到问题
+     */
+    Key createKey() throws Exception;
+
+    /**
+     * 执行密码解密
+     *
+     * @param id     秘钥id
+     * @param cipher 密文
+     * @return 解密后的密码
+     * @throws Exception 遇到问题
+     */
+    String decrypt(@NonNull String id, @NonNull String cipher) throws Exception;
+
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public class Key {
+        /**
+         * 秘钥id
+         */
+        @NonNull
+        private String id;
+        /**
+         * 秘钥
+         */
+        @NonNull
+        private String key;
+    }
+}
+```
+
+用户名密码登录过程中可以使用PasswordEncryptionService帮助密码进行加密，RsaPasswordEncryptionService是其中的一个实现

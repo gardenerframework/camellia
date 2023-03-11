@@ -37,7 +37,7 @@
 import LoadingVeil from "@/components/veil/LoadingVeil";
 import i18n from "@/i18n/i18n";
 import basicAxiosProxy from "@/xhr/axios-aop";
-import cryptoJs from "crypto-js";
+import {JSEncrypt} from "jsencrypt";
 
 export default {
   name: "UsernameAuthenticationForm",
@@ -95,13 +95,13 @@ export default {
       )
     },
     encrypt: function (password, key) {
-      let keyBlock = cryptoJs.enc.Base64.parse(key)
-      let option = {mode: cryptoJs.mode.ECB, padding: cryptoJs.pad.Pkcs7}
-      return cryptoJs.DES.encrypt(password, keyBlock, option)
+      let encrypt = new JSEncrypt();
+      encrypt.setPublicKey(key)
+      return encrypt.encrypt(password);
     }
   },
   mounted() {
-    new window['TencentCaptcha'] (
+    new window['TencentCaptcha'](
         document.getElementById("username-longin-button"),
         2048219257,
         (response) => {
@@ -109,7 +109,7 @@ export default {
             this.formItems.captchaToken = response.ticket
             //必要之恶
             basicAxiosProxy.post(
-                "/api/authentication/username/key"
+                "/api/authentication/username-password/key"
             ).then(
                 (response) => {
                   //执行加密
