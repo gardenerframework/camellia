@@ -14,21 +14,9 @@ dependencyResolutionManagement {
     //禁止子项目声明自己的仓库
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
+        mavenCentral()
         maven {
-            url releases
-            //允许使用非https协议，启用这个选项否则会报错
-            allowInsecureProtocol true
-            mavenContent {
-                //仅搜索非快照版本
-                releasesOnly()
-            }
-//            credentials {
-//                username "${dependencyMavenRepositoryCredentials.user}"
-//                password "${dependencyMavenRepositoryCredentials.key}"
-//            }
-        }
-        maven {
-            url publishes
+            url staging
             //允许使用非https协议，启用这个选项否则会报错
             allowInsecureProtocol true
             mavenContent {
@@ -68,7 +56,8 @@ String[] subprojectNames = [
         'authentication:sdk:server:authentication-server-core',
         'authentication:sdk:server:component:user-authentication-service:username-password:username-password-user-authentication-service-core',
         'authentication:sdk:server:component:user-authentication-service:username-password:username-password-user-authentication-service',
-        'authentication:sdk:server:component:user-authentication-service:username-password:username-password-authentication-encrypyt',
+        'authentication:sdk:server:component:user-authentication-service:username-password:username-password-encryption-core',
+        'authentication:sdk:server:component:user-authentication-service:username-password:username-password-encryption',
         'authentication:sdk:server:component:user-authentication-service:oauth2:oauth2-based-user-authentication-service',
         'authentication:sdk:server:component:user-authentication-service:wechat:wechat-user-authentication-service',
         'authentication:sdk:server:component:user-authentication-service:alipay:alipay-user-authentication-service',

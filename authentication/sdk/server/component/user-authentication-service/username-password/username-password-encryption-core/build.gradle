@@ -1,0 +1,4 @@
+dependencies {
+    api "${group}:authentication-server-core"
+    api "${group}:username-password-user-authentication-service-core"
+}
