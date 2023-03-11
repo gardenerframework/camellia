@@ -3,21 +3,21 @@
     <brand class="brand-location"></brand>
     <div class="password-recovery-form">
       <el-tabs v-model="formItems.type">
-        <el-tab-pane name="mobilePhoneNumber"
-                     :label="$t('components.authentication.forms.username.passwordRecovery.type.mobilePhoneNumber')">
+        <el-tab-pane :label="$t('components.authentication.forms.username.passwordRecovery.type.mobilePhoneNumber')"
+                     name="mobilePhoneNumber">
         </el-tab-pane>
-        <el-tab-pane name="email"
-                     :label="$t('components.authentication.forms.username.passwordRecovery.type.email')">
+        <el-tab-pane :label="$t('components.authentication.forms.username.passwordRecovery.type.email')"
+                     name="email">
         </el-tab-pane>
       </el-tabs>
       <el-form ref="principalForm" :model="formItems" :rules="validation">
         <el-form-item prop="principal">
-          <el-input v-model="formItems.principal" name="principal"
+          <el-input v-model="formItems.principal" :disabled="cooldown > 0"
                     :placeholder="$t('components.authentication.forms.username.passwordRecovery.input.principal.placeholder')"
-                    prefix-icon="el-icon-user" :disabled="cooldown > 0">
-            <el-button slot="append" plain id="password-recovery-send-code-button"
+                    name="principal" prefix-icon="el-icon-user">
+            <el-button id="password-recovery-send-code-button" slot="append" :disabled="cooldown > 0"
                        class="password-recovery-authenticate"
-                       :disabled="cooldown > 0">{{
+                       plain>{{
                 cooldown > 0 ? cooldown : $t('components.authentication.forms.username.passwordRecovery.input.sendCode')
               }}
             </el-button>
@@ -26,26 +26,26 @@
       </el-form>
       <el-form ref="recoveryActionForm" :model="formItems" :rules="validation">
         <el-form-item prop="code">
-          <el-input v-model="formItems.code" name="code"
+          <el-input v-model="formItems.code" :disabled="!challengeId"
                     :placeholder="$t('components.authentication.forms.username.passwordRecovery.input.code.placeholder')"
-                    prefix-icon="el-icon-key" :disabled="!challengeId">
+                    name="code" prefix-icon="el-icon-key">
           </el-input>
         </el-form-item>
         <el-form-item prop="password">
-          <el-input v-model="formItems.password" name="password"
+          <el-input v-model="formItems.password" :disabled="!challengeId"
                     :placeholder="$t('components.authentication.forms.username.passwordRecovery.input.password.placeholder')"
-                    prefix-icon="el-icon-key" :disabled="!challengeId" type="password" show-password>
+                    name="password" prefix-icon="el-icon-key" show-password type="password">
           </el-input>
         </el-form-item>
         <el-form-item prop="confirm">
-          <el-input v-model="formItems.confirm" name="confirm"
+          <el-input v-model="formItems.confirm" :disabled="!challengeId"
                     :placeholder="$t('components.authentication.forms.username.passwordRecovery.input.confirm.placeholder')"
-                    prefix-icon="el-icon-key" :disabled="!challengeId" type="password" show-password>
+                    name="confirm" prefix-icon="el-icon-key" show-password type="password">
           </el-input>
         </el-form-item>
         <el-form-item>
-          <el-button plain @click="recovery" class="password-recovery-submit"
-                     :disabled="!challengeId">
+          <el-button :disabled="!challengeId" class="password-recovery-submit" plain
+                     @click="recovery">
             {{
               $t('components.authentication.forms.username.passwordRecovery.submit')
             }}

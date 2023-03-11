@@ -1,14 +1,14 @@
 package io.gardenerframework.camellia.authentication.server.test.authentication.main;
 
 import io.gardenerframework.camellia.authentication.common.client.schema.OAuth2RequestingClient;
-import io.gardenerframework.camellia.authentication.server.test.security.authentication.principal.AccountExpiredPrincipal;
-import io.gardenerframework.camellia.authentication.server.test.security.authentication.principal.DisabledPrincipal;
-import io.gardenerframework.camellia.authentication.server.test.security.authentication.principal.LockedPrincipal;
 import io.gardenerframework.camellia.authentication.server.main.UserAuthenticationService;
 import io.gardenerframework.camellia.authentication.server.main.annotation.AuthenticationType;
 import io.gardenerframework.camellia.authentication.server.main.schema.UserAuthenticationRequestToken;
 import io.gardenerframework.camellia.authentication.server.main.schema.subject.credentials.EmptyCredentials;
 import io.gardenerframework.camellia.authentication.server.main.user.schema.User;
+import io.gardenerframework.camellia.authentication.server.test.security.authentication.principal.AccountExpiredPrincipal;
+import io.gardenerframework.camellia.authentication.server.test.security.authentication.principal.DisabledPrincipal;
+import io.gardenerframework.camellia.authentication.server.test.security.authentication.principal.LockedPrincipal;
 import lombok.NonNull;
 import org.springframework.lang.Nullable;
 import org.springframework.security.core.AuthenticationException;

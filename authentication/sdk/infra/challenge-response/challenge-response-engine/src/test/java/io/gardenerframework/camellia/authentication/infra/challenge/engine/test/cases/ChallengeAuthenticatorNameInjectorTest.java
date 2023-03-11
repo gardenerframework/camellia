@@ -44,6 +44,6 @@ public class ChallengeAuthenticatorNameInjectorTest {
         Assertions.assertNotNull(challenge.getExpiryTime());
         String json = new ObjectMapper().writeValueAsString(challenge);
         log.info(json);
-        Assertions.assertEquals(challengeResponseService.getChallengeAuthenticatorName(), ((ChallengeAuthenticatorNameProvider)challenge).getChallengeAuthenticatorName());
+        Assertions.assertEquals(challengeResponseService.getChallengeAuthenticatorName(), ((ChallengeAuthenticatorNameProvider) challenge).getChallengeAuthenticatorName());
     }
 }

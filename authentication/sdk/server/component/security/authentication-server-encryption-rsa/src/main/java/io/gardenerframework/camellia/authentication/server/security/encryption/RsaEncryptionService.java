@@ -4,8 +4,7 @@ import io.gardenerframework.camellia.authentication.server.security.encryption.s
 import io.gardenerframework.fragrans.data.cache.client.CacheClient;
 import io.gardenerframework.fragrans.data.cache.manager.BasicCacheManager;
 import lombok.NonNull;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.apache.commons.lang3.ArrayUtils;
 
 import javax.crypto.Cipher;
 import java.security.*;
@@ -17,9 +16,6 @@ import java.util.Base64;
 import java.util.Date;
 import java.util.UUID;
 
-
-@ConditionalOnClass(BasicCacheManager.class)
-@ConditionalOnMissingBean(value = EncryptionService.class, ignored = RsaEncryptionService.class)
 public class RsaEncryptionService implements EncryptionService {
     private final String[] NAMESPACE = new String[]{
             "authentication",
@@ -39,13 +35,14 @@ public class RsaEncryptionService implements EncryptionService {
     }
 
     @Override
-    public EncryptionKey createKey() throws Exception {
+    public EncryptionKey createKey(@NonNull Duration ttl) throws Exception {
         KeyPairGenerator generator = KeyPairGenerator.getInstance("RSA");
         KeyPair keyPair = generator.generateKeyPair();
+        String rawPublicKey = Base64.getEncoder().encodeToString(keyPair.getPublic().getEncoded());
         String rawPrivateKey = Base64.getEncoder().encodeToString(keyPair.getPrivate().getEncoded());
         String keyId = UUID.randomUUID().toString();
-        Duration ttl = Duration.ofSeconds(30);
-        cacheManager.set(NAMESPACE, keyId, SUFFIX, rawPrivateKey, ttl);
+        cacheManager.set(buildNamespace(KeyType.PRIVATE), keyId, SUFFIX, rawPrivateKey, ttl);
+        cacheManager.set(buildNamespace(KeyType.PUBLIC), keyId, SUFFIX, rawPublicKey, ttl);
         PublicKey publicKey = KeyFactory.getInstance("RSA")
                 .generatePublic(new X509EncodedKeySpec(keyPair.getPublic().getEncoded()));
         return EncryptionKey.builder()
@@ -55,19 +52,42 @@ public class RsaEncryptionService implements EncryptionService {
                 .build();
     }
 
-    @Override
-    public byte[] decrypt(@NonNull String id, @NonNull byte[] cipher) throws Exception {
-        String privateKeySaved = cacheManager.get(NAMESPACE, id, SUFFIX);
-        if (privateKeySaved == null) {
+    private String getSavedKey(@NonNull String id, @NonNull KeyType keyType) throws InvalidKeyException, Exception {
+        String keySaved = cacheManager.get(buildNamespace(keyType), id, SUFFIX);
+        if (keySaved == null) {
             throw new InvalidKeyException(id);
-        } else {
-            //保证秘钥的一次性有效
-            cacheManager.delete(NAMESPACE, id, SUFFIX);
-            byte[] decode = Base64.getDecoder().decode(privateKeySaved);
-            PrivateKey privateKey = KeyFactory.getInstance("RSA").generatePrivate(new PKCS8EncodedKeySpec(decode));
-            Cipher rasCipher = Cipher.getInstance("RSA");
-            rasCipher.init(Cipher.DECRYPT_MODE, privateKey);
-            return rasCipher.doFinal(cipher);
         }
+        return keySaved;
+    }
+
+    @Override
+    public byte[] encrypt(@NonNull String id, @NonNull byte[] content) throws InvalidKeyException, Exception {
+        String publicKeySaved = getSavedKey(id, KeyType.PUBLIC);
+        byte[] decode = Base64.getDecoder().decode(publicKeySaved);
+        PublicKey publicKey = KeyFactory.getInstance("RSA").generatePublic(new X509EncodedKeySpec(decode));
+        Cipher rasCipher = Cipher.getInstance("RSA");
+        rasCipher.init(Cipher.ENCRYPT_MODE, publicKey);
+        return rasCipher.doFinal(content);
+
+    }
+
+    @Override
+    public byte[] decrypt(@NonNull String id, @NonNull byte[] cipher) throws InvalidKeyException, Exception {
+        String privateKeySaved = getSavedKey(id, KeyType.PRIVATE);
+        byte[] decode = Base64.getDecoder().decode(privateKeySaved);
+        PrivateKey privateKey = KeyFactory.getInstance("RSA").generatePrivate(new PKCS8EncodedKeySpec(decode));
+        Cipher rasCipher = Cipher.getInstance("RSA");
+        rasCipher.init(Cipher.DECRYPT_MODE, privateKey);
+        return rasCipher.doFinal(cipher);
+
+    }
+
+    private String[] buildNamespace(@NonNull KeyType keyType) {
+        return ArrayUtils.add(NAMESPACE, keyType.toString());
+    }
+
+    private enum KeyType {
+        PUBLIC,
+        PRIVATE
     }
 }

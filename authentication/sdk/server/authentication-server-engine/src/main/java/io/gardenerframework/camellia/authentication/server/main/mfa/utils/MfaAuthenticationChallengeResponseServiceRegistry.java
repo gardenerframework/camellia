@@ -145,15 +145,6 @@ public class MfaAuthenticationChallengeResponseServiceRegistry implements Initia
     }
 
     /**
-     * @author zhanghan30
-     * @date 2022/4/25 1:24 下午
-     */
-    @AllArgsConstructor
-    private class MfaAuthenticationChallengeResponseServiceDetail implements Detail {
-        private final String name;
-    }
-
-    /**
      * @author ZhangHan
      * @date 2022/5/12 0:41
      */
@@ -175,5 +166,14 @@ public class MfaAuthenticationChallengeResponseServiceRegistry implements Initia
          * 是否激活的标记
          */
         private boolean enabled;
+    }
+
+    /**
+     * @author zhanghan30
+     * @date 2022/4/25 1:24 下午
+     */
+    @AllArgsConstructor
+    private class MfaAuthenticationChallengeResponseServiceDetail implements Detail {
+        private final String name;
     }
 }

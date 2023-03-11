@@ -5,12 +5,12 @@
       <div class="input-qrcode-box">
         <div class="input-box">
           <el-tabs v-model="activeInputForm">
-            <el-tab-pane name="username" :label="$t('components.authentication.forms.username.title')"
-                         v-if="this.authenticationTypes.includes('username')">
+            <el-tab-pane v-if="this.authenticationTypes.includes('username')" :label="$t('components.authentication.forms.username.title')"
+                         name="username">
               <username-authentication-form/>
             </el-tab-pane>
-            <el-tab-pane name="sms" :label="$t('components.authentication.forms.sms.title')"
-                         v-if="this.authenticationTypes.includes('sms')">
+            <el-tab-pane v-if="this.authenticationTypes.includes('sms')" :label="$t('components.authentication.forms.sms.title')"
+                         name="sms">
               <sms-authentication-form/>
             </el-tab-pane>
           </el-tabs>
@@ -19,10 +19,10 @@
       <div class="sns-box">
         <div class="sns-title">{{ $t("components.authentication.authenticationForms.title") }}</div>
         <div class="sns-forms-location">
-          <alipay-authentication-form :redirect-url="this.snsRedirectUrl"
-                                      v-if="this.authenticationTypes.includes('alipay')"></alipay-authentication-form>
-          <we-chat-authentication-form :redirect-url="this.snsRedirectUrl"
-                                       v-if="this.authenticationTypes.includes('wechat')"></we-chat-authentication-form>
+          <alipay-authentication-form v-if="this.authenticationTypes.includes('alipay')"
+                                      :redirect-url="this.snsRedirectUrl"></alipay-authentication-form>
+          <we-chat-authentication-form v-if="this.authenticationTypes.includes('wechat')"
+                                       :redirect-url="this.snsRedirectUrl"></we-chat-authentication-form>
         </div>
       </div>
     </div>

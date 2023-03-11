@@ -4,12 +4,13 @@
       <input name="authenticationType" type="hidden" value="username"/>
       <el-form-item prop="username">
         <el-input
-            v-model="formItems.username" name="username"
-            :placeholder="$t('components.authentication.forms.username.input.username.placeholder')"
+            v-model="formItems.username" :placeholder="$t('components.authentication.forms.username.input.username.placeholder')"
+            name="username"
             prefix-icon="el-icon-user">
         </el-input>
       </el-form-item>
-      <input name="password" v-model="formItems.cipher" type="hidden"/>
+      <input v-model="formItems.cipher" name="password" type="hidden"/>
+      <input v-model="formItems.passwordEncryptionKeyId" name="passwordEncryptionKeyId" type="hidden"/>
       <el-form-item prop="password">
         <el-input v-model="formItems.password"
                   :placeholder="$t('components.authentication.forms.username.input.password.placeholder')"
@@ -36,8 +37,8 @@
 <script>
 import LoadingVeil from "@/components/veil/LoadingVeil";
 import i18n from "@/i18n/i18n";
-import basicAxiosProxy from "@/xhr/axios-aop";
 import {JSEncrypt} from "jsencrypt";
+import Encryption from "@/encryption/encryption";
 
 export default {
   name: "UsernameAuthenticationForm",
@@ -47,7 +48,8 @@ export default {
         username: "",
         password: "",
         cipher: "",
-        captchaToken: ""
+        captchaToken: "",
+        passwordEncryptionKeyId: ""
       }
     }
   },
@@ -68,11 +70,12 @@ export default {
     }
   },
   methods: {
-    login: function (key) {
+    login: function (keyId, key) {
       this.$loading(LoadingVeil)
       //执行加密
       if (key) {
         this.formItems.cipher = this.encrypt(this.formItems.password, key)
+        this.formItems.passwordEncryptionKeyId = keyId;
       } else {
         this.formItems.cipher = this.formItems.password;
       }
@@ -107,14 +110,18 @@ export default {
         (response) => {
           if (response.ret !== 0) {
             this.formItems.captchaToken = response.ticket
-            //必要之恶
-            basicAxiosProxy.post(
-                "/api/authentication/username-password/key"
-            ).then(
-                (response) => {
-                  //执行加密
-                  this.login(response.data.key)
-                }
+            if (!Encryption.getKey()) {
+              Encryption.reload()
+            }
+            let timer = setInterval(
+                () => {
+                  let key = Encryption.getKey();
+                  if (key) {
+                    clearInterval(timer)
+                    this.login(key.id, key.key)
+                  }
+                },
+                50
             )
           }
         }

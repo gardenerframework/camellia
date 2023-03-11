@@ -19,11 +19,13 @@ export default {
 div {
   vertical-align: middle;
 }
+
 .brand-logo {
   width: 32px;
   height: 32px;
   display: inline-block;
 }
+
 .brand-name {
   margin-left: 16px;
 }

@@ -5,10 +5,10 @@
       <el-form-item prop="mobilePhoneNumber">
         <el-input
             v-model="formItems.mobilePhoneNumber"
-            name="mobilePhoneNumber"
             :placeholder="$t('components.authentication.forms.sms.input.mobilePhoneNumber.placeholder')"
+            name="mobilePhoneNumber"
             prefix-icon="el-icon-mobile">
-          <el-button class="request-sms-code-button-shadow" slot="append" :disabled="coolDownSeconds > 0"
+          <el-button slot="append" :disabled="coolDownSeconds > 0" class="request-sms-code-button-shadow"
                      @click="validateMobilePhoneNumber">
             {{
               $t("components.authentication.forms.sms.requestCode")
@@ -20,8 +20,8 @@
     </el-row>
     <el-row>
       <el-form-item prop="code">
-        <el-input v-model="formItems.code" name="code"
-                  :placeholder="$t('components.authentication.forms.sms.input.code.placeholder')"></el-input>
+        <el-input v-model="formItems.code" :placeholder="$t('components.authentication.forms.sms.input.code.placeholder')"
+                  name="code"></el-input>
       </el-form-item>
     </el-row>
     <el-row>

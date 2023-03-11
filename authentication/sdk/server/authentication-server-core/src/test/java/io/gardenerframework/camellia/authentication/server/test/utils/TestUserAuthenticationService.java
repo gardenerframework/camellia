@@ -49,7 +49,7 @@ public class TestUserAuthenticationService extends AbstractUserAuthenticationSer
     }
 
     @Override
-    public void authenticate(@NonNull UserAuthenticationRequestToken authenticationRequest, @Nullable OAuth2RequestingClient client,  @NonNull User user, @NonNull Map<String, Object> context) throws AuthenticationException {
+    public void authenticate(@NonNull UserAuthenticationRequestToken authenticationRequest, @Nullable OAuth2RequestingClient client, @NonNull User user, @NonNull Map<String, Object> context) throws AuthenticationException {
 
     }
 }

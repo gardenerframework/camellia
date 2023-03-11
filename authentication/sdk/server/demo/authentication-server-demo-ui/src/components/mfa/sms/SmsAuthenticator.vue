@@ -2,10 +2,10 @@
   <div>
     <el-form ref="smaCodeMfaForm" :model="formItems" :rules="validation">
       <el-form-item prop="code">
-        <el-input v-model="formItems.code" :placeholder="$t('components.mfa.sms.input.code.placeholder')"
-                  :disabled="!duration || duration < 0">
-          <el-button slot="append" plain type="primary" @click="authenticate"
-                     :disabled="!duration || duration < 0">{{
+        <el-input v-model="formItems.code" :disabled="!duration || duration < 0"
+                  :placeholder="$t('components.mfa.sms.input.code.placeholder')">
+          <el-button slot="append" :disabled="!duration || duration < 0" plain type="primary"
+                     @click="authenticate">{{
               $t('components.mfa.sms.submit')
             }}
           </el-button>

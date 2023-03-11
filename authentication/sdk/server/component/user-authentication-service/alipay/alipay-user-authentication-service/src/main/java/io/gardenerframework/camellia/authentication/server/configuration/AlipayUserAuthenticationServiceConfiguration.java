@@ -14,6 +14,6 @@ import org.springframework.context.annotation.FilterType;
         includeFilters = {@ComponentScan.Filter(
                 type = FilterType.ANNOTATION,
                 value = AlipayUserAuthenticationServiceComponent.class)
-})
+        })
 public class AlipayUserAuthenticationServiceConfiguration {
 }

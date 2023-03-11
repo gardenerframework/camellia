@@ -1,7 +1,6 @@
 package io.gardenerframework.camellia.authentication.server.main.mfa.exception.client;
 
 import io.gardenerframework.camellia.authentication.server.common.annotation.AuthenticationServerEnginePreserved;
-import io.gardenerframework.camellia.authentication.server.main.event.listener.annotation.CareForAuthenticationServerEnginePreservedException;
 import io.gardenerframework.camellia.authentication.server.main.exception.AuthenticationServerAuthenticationExceptions;
 import io.gardenerframework.camellia.authentication.server.main.exception.OAuth2ErrorCodes;
 import io.gardenerframework.camellia.authentication.server.main.exception.annotation.OAuth2ErrorCode;

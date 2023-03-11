@@ -52,6 +52,7 @@ export default {
   display: flex;
   align-items: center;
 }
+
 .home-page-container, .language-select-container {
   height: 64px;
   line-height: 64px;
@@ -60,6 +61,7 @@ export default {
 .home-page-container {
   margin-right: 24px;
 }
+
 .language-select-container {
   margin-right: 24px;
 }

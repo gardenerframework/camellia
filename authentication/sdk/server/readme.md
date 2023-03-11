@@ -76,7 +76,8 @@ Boundary(认证服务引擎, 认证服务引擎, sdk) {
 @enduml
 ```
 
-打开引擎的内部，主要由事件监听器、多因子认证组件以及核心的基本认证组件构成，基本认证组件基于Spring Security的功能完成用户登录凭据的校验；多因子认证组件则基于挑战与应答实现用户登录确认前的最终验证；
+打开引擎的内部，主要由事件监听器、多因子认证组件以及核心的基本认证组件构成，基本认证组件基于Spring
+Security的功能完成用户登录凭据的校验；多因子认证组件则基于挑战与应答实现用户登录确认前的最终验证；
 事件监听器负责监听认证主流程中发出的事件，并通过抛出异常的方式中断认证流程
 
 # 登录名、登录凭据、主体与用户
@@ -170,7 +171,8 @@ public abstract class Subject implements Serializable,
 ```
 
 从类型定义上可以看到，主体包含了一组登录名(Principal)和一组登录凭据(Credentials)，对于哪种本身就从不需要用户名密码的系统，主体可以没有登录凭据。
-此外主体有一些基本的属性，包含是否锁定，是否启用，主体的过期时间，登录凭据的过期时间。这些属性都是Spring Security框架所需的，且也是认证系统常见的属性
+此外主体有一些基本的属性，包含是否锁定，是否启用，主体的过期时间，登录凭据的过期时间。这些属性都是Spring
+Security框架所需的，且也是认证系统常见的属性
 
 ## 登录名: Principal
 
@@ -353,7 +355,8 @@ public interface UserAuthenticationService {
 * 将http请求转为用户认证请求
 * 执行认证，如果没有抛出任何异常则认为认证通过
 
-其中还有一个公共参数`Map<String, Object> context`，其贯穿1次认证接口的调用的生命周期，可以认为是request scope的对象。其会在大部分认证请求处理过程中的接口和事件中出现。
+其中还有一个公共参数`Map<String, Object> context`，其贯穿1次认证接口的调用的生命周期，可以认为是request
+scope的对象。其会在大部分认证请求处理过程中的接口和事件中出现。
 
 ## 用户认证请求: UserAuthenticationRequestToken
 
@@ -438,7 +441,8 @@ public class UserAuthenticatedAuthentication extends AbstractAuthenticationToken
 ```
 
 `UserAuthenticatedAuthentication`代表已经通过了验证过程的用户，其是Spring Security引擎使用的数据。
-经过验证后的信息中显著保存了被认证的用户，此外因为用户已经认证完成因此不会再给出任何登录凭据。最后，依照Spring Security的约定，将用户的id作为识别符号返回
+经过验证后的信息中显著保存了被认证的用户，此外因为用户已经认证完成因此不会再给出任何登录凭据。最后，依照Spring
+Security的约定，将用户的id作为识别符号返回
 
 ## AbstractUserAuthenticationService
 
@@ -481,7 +485,8 @@ public abstract class AbstractUserAuthenticationService<P extends Authentication
 }
 ```
 
-`AbstractUserAuthenticationService`为用户的认证服务提供了与`AuthenticationRequestParameter`的串联逻辑支持。 它要求子类去创建参数对象，然后利用`Validator`
+`AbstractUserAuthenticationService`为用户的认证服务提供了与`AuthenticationRequestParameter`的串联逻辑支持。
+它要求子类去创建参数对象，然后利用`Validator`
 进行校验。因此，`AuthenticationRequestParameter`的子类可以使用类似`@NotBlank`
 等验证注解而不需要自行在逻辑中进行判断。验证失败抛出`BadAuthenticationRequestParameterException`
 ，它是`AuthenticationException`的一个子类。会被Spring Security框架处理。
@@ -519,7 +524,8 @@ app认证端点 --> 认证服务
 @enduml
 ```
 
-2个端点在Spring Security中对应着不同的Filter，在Filter中则调用相同的认证服务。那么，为了使得认证服务器能够声明自己支持的端点，可以标记上`SupportAuthenticationEndpoint`
+2个端点在Spring
+Security中对应着不同的Filter，在Filter中则调用相同的认证服务。那么，为了使得认证服务器能够声明自己支持的端点，可以标记上`SupportAuthenticationEndpoint`
 
 比如需求上人脸识别仅仅支持app端，那么就可以如下声明
 
@@ -686,7 +692,8 @@ public class WebAuthenticationSuccessHandler extends SavedRequestAwareAuthentica
 
 ## LoginAuthenticationRequestConverter
 
-上文的2个认证入口都会使用`LoginAuthenticationRequestConverter`作为用户的登录认证请求的转换器。 它主要将http请求转为`LoginAuthenticationRequestToken`认证请求
+上文的2个认证入口都会使用`LoginAuthenticationRequestConverter`作为用户的登录认证请求的转换器。
+它主要将http请求转为`LoginAuthenticationRequestToken`认证请求
 
 ```java
 
@@ -908,7 +915,8 @@ token以及其它token的详细信息、用户信息等多个信息的主要存�
 引擎默认使用`CachedOAuth2AuthorizationService`完成`OAuth2Authorization`的存储和访问，它需要使用"
 authentication-server-engine/scripts/"下的lua脚本与redis进行互动。
 
-在机制上，`CachedOAuth2AuthorizationService`将access token、id token、refresh token等缓存的值均写为对应的`OAuth2Authorization`
+在机制上，`CachedOAuth2AuthorizationService`将access token、id token、refresh
+token等缓存的值均写为对应的`OAuth2Authorization`
 的id，在读取token对应的`OAuth2Authorization`
 数据时，先用token的值找到`OAuth2Authorization`的id，然后再访问这个id对应的缓存对象获取真正的`OAuth2Authorization`数据
 
@@ -1114,7 +1122,8 @@ public interface AuthenticationEventListenerSkeleton {
 
 ## AuthenticationServerAuthenticationExceptions
 
-从Spring Security的框架角度出发，所有认证过程中发生的问题需要继承`AuthenticationException`，只有这样才能被Spring Security框架处理
+从Spring Security的框架角度出发，所有认证过程中发生的问题需要继承`AuthenticationException`，只有这样才能被Spring
+Security框架处理
 
 ```java
 public interface AuthenticationServerAuthenticationExceptions {
@@ -1541,7 +1550,8 @@ public class WebAuthenticationEndpointFilterConfigurer extends AuthenticationSer
 
 ## AuthenticationServerEngineOAuth2ComponentConfiguration
 
-生成一系列jwt的相关bean，它会检查"authentication-server-engine/pki/private.pem(public.pem)"，如果存在rsa key对，则会自动生成jwt加密用的bean
+生成一系列jwt的相关bean，它会检查"authentication-server-engine/pki/private.pem(public.pem)"，如果存在rsa
+key对，则会自动生成jwt加密用的bean
 
 # UserAuthenticationService管理
 
@@ -1572,22 +1582,35 @@ public interface UserAuthenticationServiceManagementEndpointSkeleton {
 }
 ```
 
-UserAuthenticationServiceManagementEndpointSkeleton是接口的框架定义，提供列出所有可用认证类型清单 其实现累上带有`@AuthenticationServerRestController`
+UserAuthenticationServiceManagementEndpointSkeleton是接口的框架定义，提供列出所有可用认证类型清单
+其实现累上带有`@AuthenticationServerRestController`
 注解，服从api分组的统一设置
 
 # 加解密
 
-当用户名密码进行传输或者密码重置或者传输后台设置所需的ak/sk时，为了防止数据被泄漏，需要对传输进行加密。 https是一种加密，但是偶尔还需要服务自己进行加密
+当用户名密码进行传输或者密码重置或者传输后台设置所需的ak/sk时，为了防止数据被泄漏，需要对传输进行加密。
+https是一种加密，但是偶尔还需要服务自己进行加密
 
 ```java
 public interface EncryptionService {
     /**
      * 产生一个key
      *
+     * @param ttl key的生存时间
      * @return 可用的key
      * @throws Exception 发生问题
      */
-    EncryptionKey createKey() throws Exception;
+    EncryptionKey createKey(@NonNull Duration ttl) throws Exception;
+
+    /**
+     * 执行加密
+     *
+     * @param id      密钥id
+     * @param content 内容
+     * @return 加密后的结果
+     * @throws Exception 发生问题
+     */
+    byte[] encrypt(@NonNull String id, @NonNull byte[] content) throws Exception;
 
     /**
      * 解密

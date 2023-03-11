@@ -35,12 +35,14 @@ public class OAuth2AuthorizationCodeParameter extends AuthenticationRequestParam
 
 # OAuth2BaseUserAuthenticationService
 
-OAuth2BaseUserAuthenticationService为基于oauth2进行联合登录的第三方iam提供了用户登录名转换的功能， 它主要调用"getPrincipal"
+OAuth2BaseUserAuthenticationService为基于oauth2进行联合登录的第三方iam提供了用户登录名转换的功能， 它主要调用"
+getPrincipal"
 并基于OAuth2AuthorizationCodeParameter中的授权码去第三方iam读取用户并转为一个有待UserService读取的登录名，比如微信openid。
 如果UserService能读取这个登录名，则认证就成功了，否则视作用户不存在。
 
 # state的生成和保存
 
-首先"POST /api/authentication/state/oauth2/{type}"接口提供state生成，其中类型就是最终实现的认证服务的`@AuthenticationType`注解的值。
+首先"POST /api/authentication/state/oauth2/{type}"
+接口提供state生成，其中类型就是最终实现的认证服务的`@AuthenticationType`注解的值。
 从接口controller的实现上可知其实调用的是OAuth2BaseUserAuthenticationService.createState方法生成state，而OAuth2BaseUserAuthenticationService在创建state时使用OAuth2StateStore来保存和验证state。
 默认情况下，使用的是CachedOAuth2StateStore

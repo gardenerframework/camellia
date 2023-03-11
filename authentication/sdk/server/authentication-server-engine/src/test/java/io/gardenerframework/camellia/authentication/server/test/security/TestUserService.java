@@ -1,13 +1,13 @@
 package io.gardenerframework.camellia.authentication.server.test.security;
 
-import io.gardenerframework.camellia.authentication.server.test.security.authentication.TestUserPrincipal;
-import io.gardenerframework.camellia.authentication.server.test.security.authentication.principal.AccountExpiredPrincipal;
-import io.gardenerframework.camellia.authentication.server.test.security.authentication.principal.DisabledPrincipal;
-import io.gardenerframework.camellia.authentication.server.test.security.authentication.principal.LockedPrincipal;
 import io.gardenerframework.camellia.authentication.server.main.schema.subject.credentials.PasswordCredentials;
 import io.gardenerframework.camellia.authentication.server.main.schema.subject.principal.Principal;
 import io.gardenerframework.camellia.authentication.server.main.user.UserService;
 import io.gardenerframework.camellia.authentication.server.main.user.schema.User;
+import io.gardenerframework.camellia.authentication.server.test.security.authentication.TestUserPrincipal;
+import io.gardenerframework.camellia.authentication.server.test.security.authentication.principal.AccountExpiredPrincipal;
+import io.gardenerframework.camellia.authentication.server.test.security.authentication.principal.DisabledPrincipal;
+import io.gardenerframework.camellia.authentication.server.test.security.authentication.principal.LockedPrincipal;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.stereotype.Component;
@@ -16,7 +16,6 @@ import org.springframework.util.StringUtils;
 import java.time.Instant;
 import java.util.Date;
 import java.util.Map;
-import java.util.UUID;
 
 /**
  * @author ZhangHan
