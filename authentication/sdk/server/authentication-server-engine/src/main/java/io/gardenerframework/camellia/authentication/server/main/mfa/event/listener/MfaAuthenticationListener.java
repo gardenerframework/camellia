@@ -88,11 +88,10 @@ public class MfaAuthenticationListener implements
                 Challenge mfaAuthenticationChallenge = service.sendChallenge(
                         event.getClient(),
                         MfaAuthenticationScenario.class,
-                        service.createRequest(
-                                event.getPrincipal(),
-                                event.getUser(),
-                                event.getContext()
-                        )
+                        event.getPrincipal(),
+                        event.getUser(),
+                        event.getContext()
+
                 );
                 throw new MfaAuthenticationRequiredException(mfaAuthenticationChallenge);
             }

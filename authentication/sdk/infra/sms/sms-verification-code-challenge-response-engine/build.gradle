@@ -1,4 +1,5 @@
 dependencies {
     api "${group}:challenge-response-engine"
     api "${group}:sms-verification-code-challenge-response-core"
+    testImplementation "${fragrans.group}:data-cache-spring-redis"
 }
