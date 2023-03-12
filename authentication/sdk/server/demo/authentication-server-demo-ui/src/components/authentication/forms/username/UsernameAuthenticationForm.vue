@@ -4,7 +4,8 @@
       <input name="authenticationType" type="hidden" value="username"/>
       <el-form-item prop="username">
         <el-input
-            v-model="formItems.username" :placeholder="$t('components.authentication.forms.username.input.username.placeholder')"
+            v-model="formItems.username"
+            :placeholder="$t('components.authentication.forms.username.input.username.placeholder')"
             name="username"
             prefix-icon="el-icon-user">
         </el-input>
@@ -20,9 +21,9 @@
       </el-form-item>
       <el-input v-model="formItems.captchaToken" name="captchaToken" type="hidden"></el-input>
       <div class="forget-password-box">
-<!--        <router-link to="/password/recovery">-->
-<!--          {{ $t("components.authentication.forms.username.forgetPassword") }}-->
-<!--        </router-link>-->
+        <!--        <router-link to="/password/recovery">-->
+        <!--          {{ $t("components.authentication.forms.username.forgetPassword") }}-->
+        <!--        </router-link>-->
       </div>
       <div>
         <el-button class="username-longin-button-shadow" plain type="primary" @click="validateForm">

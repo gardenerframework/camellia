@@ -5,11 +5,13 @@
       <div class="input-qrcode-box">
         <div class="input-box">
           <el-tabs v-model="activeInputForm">
-            <el-tab-pane v-if="this.authenticationTypes.includes('username')" :label="$t('components.authentication.forms.username.title')"
+            <el-tab-pane v-if="this.authenticationTypes.includes('username')"
+                         :label="$t('components.authentication.forms.username.title')"
                          name="username">
               <username-authentication-form/>
             </el-tab-pane>
-            <el-tab-pane v-if="this.authenticationTypes.includes('sms')" :label="$t('components.authentication.forms.sms.title')"
+            <el-tab-pane v-if="this.authenticationTypes.includes('sms')"
+                         :label="$t('components.authentication.forms.sms.title')"
                          name="sms">
               <sms-authentication-form/>
             </el-tab-pane>

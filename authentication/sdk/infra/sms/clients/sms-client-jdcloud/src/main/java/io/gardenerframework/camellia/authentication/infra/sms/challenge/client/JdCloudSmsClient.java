@@ -31,16 +31,16 @@ public class JdCloudSmsClient implements SmsVerificationCodeClient, Initializing
      * 京东云的上线region
      */
     private static final String REGION = "cn-north-1";
-    /**
-     * sms客户端
-     */
-    private SmsClient smsClient;
     @NonNull
     private final JdCloudSmsClientSecurityOption securityOption;
     @NonNull
     private final SmsVerificationCodeTemplateProvider smsVerificationCodeTemplateProvider;
     @NonNull
     private final GenericOperationLogger operationLogger;
+    /**
+     * sms客户端
+     */
+    private SmsClient smsClient;
 
     @Override
     public void sendVerificationCode(@Nullable RequestingClient client, @NonNull String mobilePhoneNumber, @NonNull Class<? extends Scenario> scenario, @NonNull String code) throws Exception {

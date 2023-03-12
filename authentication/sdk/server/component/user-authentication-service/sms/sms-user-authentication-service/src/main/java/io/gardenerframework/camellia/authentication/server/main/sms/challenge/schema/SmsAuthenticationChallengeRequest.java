@@ -1,7 +1,6 @@
 package io.gardenerframework.camellia.authentication.server.main.sms.challenge.schema;
 
 import io.gardenerframework.camellia.authentication.infra.sms.challenge.schema.SmsVerificationCodeChallengeRequest;
-import io.gardenerframework.fragrans.data.schema.common.Version;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;

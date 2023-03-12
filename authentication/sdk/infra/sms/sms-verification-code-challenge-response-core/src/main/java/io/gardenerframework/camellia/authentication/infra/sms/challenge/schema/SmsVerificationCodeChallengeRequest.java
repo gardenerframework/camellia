@@ -4,5 +4,5 @@ import io.gardenerframework.camellia.authentication.infra.challenge.core.schema.
 import io.gardenerframework.fragrans.data.trait.mankind.MankindTraits;
 
 public interface SmsVerificationCodeChallengeRequest extends ChallengeRequest,
-        MankindTraits.ContactTraits.MobilePhoneNumber{
+        MankindTraits.ContactTraits.MobilePhoneNumber {
 }

@@ -8,8 +8,8 @@ import io.gardenerframework.camellia.authentication.infra.challenge.engine.suppo
 import io.gardenerframework.camellia.authentication.infra.challenge.engine.support.GenericCachedChallengeStore;
 import io.gardenerframework.camellia.authentication.infra.sms.challenge.AbstractSmsVerificationCodeChallengeResponseService;
 import io.gardenerframework.camellia.authentication.infra.sms.challenge.client.SmsVerificationCodeClient;
-import io.gardenerframework.camellia.authentication.server.configuration.SmsAuthenticationServiceComponent;
 import io.gardenerframework.camellia.authentication.server.configuration.SmsAuthenticationOption;
+import io.gardenerframework.camellia.authentication.server.configuration.SmsAuthenticationServiceComponent;
 import io.gardenerframework.camellia.authentication.server.main.sms.challenge.schema.SmsAuthenticationChallengeContext;
 import io.gardenerframework.camellia.authentication.server.main.sms.challenge.schema.SmsAuthenticationChallengeRequest;
 import lombok.NonNull;
