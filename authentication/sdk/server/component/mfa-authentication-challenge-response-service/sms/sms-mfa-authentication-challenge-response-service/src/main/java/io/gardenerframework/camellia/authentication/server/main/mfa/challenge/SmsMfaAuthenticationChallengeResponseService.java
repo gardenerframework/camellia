@@ -9,37 +9,32 @@ import io.gardenerframework.camellia.authentication.infra.challenge.engine.suppo
 import io.gardenerframework.camellia.authentication.infra.challenge.engine.support.GenericCachedChallengeStore;
 import io.gardenerframework.camellia.authentication.infra.sms.challenge.AbstractSmsVerificationCodeChallengeResponseService;
 import io.gardenerframework.camellia.authentication.infra.sms.challenge.client.SmsVerificationCodeClient;
-import io.gardenerframework.camellia.authentication.server.main.mfa.challenge.schema.SmsMfaChallengeContext;
-import io.gardenerframework.camellia.authentication.server.main.mfa.challenge.schema.SmsMfaChallengeRequest;
+import io.gardenerframework.camellia.authentication.server.main.mfa.challenge.schema.SmsMfaAuthenticationChallengeContext;
+import io.gardenerframework.camellia.authentication.server.main.mfa.challenge.schema.SmsMfaAuthenticationChallengeRequest;
+import io.gardenerframework.camellia.authentication.server.main.schema.subject.principal.MobilePhoneNumberPrincipal;
 import io.gardenerframework.camellia.authentication.server.main.schema.subject.principal.Principal;
 import io.gardenerframework.camellia.authentication.server.main.user.schema.User;
 import lombok.NonNull;
 import org.springframework.lang.Nullable;
+import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.util.Collection;
 import java.util.Date;
 import java.util.Map;
 import java.util.UUID;
 
 public class SmsMfaAuthenticationChallengeResponseService extends
-        AbstractSmsVerificationCodeChallengeResponseService<SmsMfaChallengeRequest, Challenge, SmsMfaChallengeContext>
-        implements MfaAuthenticationChallengeResponseService<SmsMfaChallengeRequest, SmsMfaChallengeContext> {
+        AbstractSmsVerificationCodeChallengeResponseService<SmsMfaAuthenticationChallengeRequest, Challenge, SmsMfaAuthenticationChallengeContext>
+        implements MfaAuthenticationChallengeResponseService<SmsMfaAuthenticationChallengeRequest, SmsMfaAuthenticationChallengeContext> {
     protected SmsMfaAuthenticationChallengeResponseService(@NonNull GenericCachedChallengeStore challengeStore, @NonNull ChallengeCooldownManager challengeCooldownManager, @NonNull GenericCachedChallengeContextStore challengeContextStore, @NonNull SmsVerificationCodeClient smsVerificationCodeClient) {
         super(challengeStore, challengeCooldownManager, challengeContextStore.migrateType(), smsVerificationCodeClient);
     }
 
     @Override
-    public SmsMfaChallengeRequest createRequest(@NonNull Principal principal, @NonNull User user, @NonNull Map<String, Object> context) {
-        return SmsMfaChallengeRequest.builder()
-                .principal(principal)
-                .user(user)
-                .context(context)
-                .build();
-    }
-
-    @Override
-    protected Challenge createSmsVerificationChallenge(@Nullable RequestingClient client, @NonNull Class<? extends Scenario> scenario, @NonNull SmsMfaChallengeRequest request, @NonNull Map<String, Object> payload) {
+    protected Challenge createSmsVerificationChallenge(@Nullable RequestingClient client, @NonNull Class<? extends Scenario> scenario, @NonNull SmsMfaAuthenticationChallengeRequest request, @NonNull Map<String, Object> payload) {
         return Challenge.builder()
                 .id(UUID.randomUUID().toString())
                 //todo 改成可配置
@@ -48,12 +43,32 @@ public class SmsMfaAuthenticationChallengeResponseService extends
     }
 
     @Override
-    protected @NonNull SmsMfaChallengeContext createSmsVerificationChallengeContext(@Nullable RequestingClient client, @NonNull Class<? extends Scenario> scenario, @NonNull SmsMfaChallengeRequest request, @NonNull Challenge challenge, @NonNull Map<String, Object> payload) {
-        return SmsMfaChallengeContext.builder()
-                .user(request.getUser())
-                .principal(request.getPrincipal())
-                .client((OAuth2RequestingClient) client)
-                .code("")
-                .build();
+    protected @NonNull SmsMfaAuthenticationChallengeContext createSmsVerificationChallengeContext(@Nullable RequestingClient client, @NonNull Class<? extends Scenario> scenario, @NonNull SmsMfaAuthenticationChallengeRequest request, @NonNull Challenge challenge, @NonNull Map<String, Object> payload) {
+        SmsMfaAuthenticationChallengeContext smsMfaAuthenticationChallengeContext = new SmsMfaAuthenticationChallengeContext();
+        smsMfaAuthenticationChallengeContext.setUser(request.getUser());
+        smsMfaAuthenticationChallengeContext.setPrincipal(request.getPrincipal());
+        smsMfaAuthenticationChallengeContext.setClient((OAuth2RequestingClient) client);
+        return smsMfaAuthenticationChallengeContext;
+    }
+
+    @Override
+    public Challenge sendChallenge(@Nullable OAuth2RequestingClient client, @NonNull Class<? extends Scenario> scenario, @NonNull Principal principal, @NonNull User user, @NonNull Map<String, Object> context) throws Exception {
+        SmsMfaAuthenticationChallengeRequest smsMfaAuthenticationChallengeRequest = new SmsMfaAuthenticationChallengeRequest();
+        smsMfaAuthenticationChallengeRequest.setContext(context);
+        smsMfaAuthenticationChallengeRequest.setUser(user);
+        smsMfaAuthenticationChallengeRequest.setPrincipal(principal);
+        Collection<@NonNull Principal> principals = user.getPrincipals();
+        if (!CollectionUtils.isEmpty(principals)) {
+            for (Principal principalInUser : principals) {
+                if (principalInUser instanceof MobilePhoneNumberPrincipal) {
+                    smsMfaAuthenticationChallengeRequest.setMobilePhoneNumber(principalInUser.getName());
+                }
+            }
+        }
+        if (!StringUtils.hasText(smsMfaAuthenticationChallengeRequest.getMobilePhoneNumber())) {
+            //手机号都没有，发什么挑战？
+            throw new UnsupportedOperationException(user.getId() + " does not have a mobile phone.");
+        }
+        return sendChallenge(client, scenario, smsMfaAuthenticationChallengeRequest);
     }
 }

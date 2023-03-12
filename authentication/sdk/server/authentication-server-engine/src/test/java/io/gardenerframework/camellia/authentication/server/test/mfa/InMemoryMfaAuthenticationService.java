@@ -14,6 +14,8 @@ import io.gardenerframework.camellia.authentication.server.main.event.listener.A
 import io.gardenerframework.camellia.authentication.server.main.event.schema.AuthenticationFailedEvent;
 import io.gardenerframework.camellia.authentication.server.main.mfa.advisor.MfaAuthenticatorAdvisor;
 import io.gardenerframework.camellia.authentication.server.main.mfa.challenge.MfaAuthenticationChallengeResponseService;
+import io.gardenerframework.camellia.authentication.server.main.mfa.challenge.schema.DefaultMfaAuthenticationChallengeContext;
+import io.gardenerframework.camellia.authentication.server.main.mfa.challenge.schema.DefaultMfaAuthenticationChallengeRequest;
 import io.gardenerframework.camellia.authentication.server.main.mfa.challenge.schema.MfaAuthenticationChallengeContext;
 import io.gardenerframework.camellia.authentication.server.main.mfa.challenge.schema.MfaAuthenticationChallengeRequest;
 import io.gardenerframework.camellia.authentication.server.main.schema.subject.principal.Principal;
@@ -116,11 +118,11 @@ public class InMemoryMfaAuthenticationService extends
 
     @Override
     protected MfaAuthenticationChallengeContext createContext(@Nullable RequestingClient client, @NonNull Class<? extends Scenario> scenario, @NonNull MfaAuthenticationChallengeRequest request, @NonNull Challenge challenge, Map<String, Object> payload) {
-        return MfaAuthenticationChallengeContext.builder()
-                .principal(request.getPrincipal())
-                .user(request.getUser())
-                .client((OAuth2RequestingClient) client)
-                .build();
+        MfaAuthenticationChallengeContext mfaAuthenticationChallengeContext = new DefaultMfaAuthenticationChallengeContext();
+        mfaAuthenticationChallengeContext.setUser(request.getUser());
+        mfaAuthenticationChallengeContext.setPrincipal(request.getPrincipal());
+        mfaAuthenticationChallengeContext.setClient((OAuth2RequestingClient) client);
+        return mfaAuthenticationChallengeContext;
     }
 
     @Override
@@ -154,11 +156,11 @@ public class InMemoryMfaAuthenticationService extends
     }
 
     @Override
-    public MfaAuthenticationChallengeRequest createRequest(@NonNull Principal principal, @NonNull User user, @NonNull Map<String, Object> context) {
-        return MfaAuthenticationChallengeRequest.builder()
-                .principal(principal)
-                .user(user)
-                .context(context)
-                .build();
+    public Challenge sendChallenge(@Nullable OAuth2RequestingClient client, @NonNull Class<? extends Scenario> scenario, @NonNull Principal principal, @NonNull User user, @NonNull Map<String, Object> context) throws Exception {
+        MfaAuthenticationChallengeRequest mfaAuthenticationChallengeRequest = new DefaultMfaAuthenticationChallengeRequest();
+        mfaAuthenticationChallengeRequest.setUser(user);
+        mfaAuthenticationChallengeRequest.setPrincipal(principal);
+        mfaAuthenticationChallengeRequest.setContext(context);
+        return sendChallenge(client, scenario, mfaAuthenticationChallengeRequest);
     }
 }

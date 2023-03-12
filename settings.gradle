@@ -36,10 +36,10 @@ dependencyResolutionManagement {
                 //仅搜索非快照版本
                 releasesOnly()
             }
-//            credentials {
-//                username "${dependencyMavenRepositoryCredentials.user}"
-//                password "${dependencyMavenRepositoryCredentials.key}"
-//            }
+            credentials {
+                username "${dependencyMavenRepositoryCredentials.user}"
+                password "${dependencyMavenRepositoryCredentials.key}"
+            }
         }
         maven {
             url snapshots
