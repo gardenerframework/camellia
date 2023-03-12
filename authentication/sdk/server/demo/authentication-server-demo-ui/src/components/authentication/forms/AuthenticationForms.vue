@@ -19,10 +19,10 @@
       <div class="sns-box">
         <div class="sns-title">{{ $t("components.authentication.authenticationForms.title") }}</div>
         <div class="sns-forms-location">
-          <alipay-authentication-form v-if="this.authenticationTypes.includes('alipay')"
-                                      :redirect-url="this.snsRedirectUrl"></alipay-authentication-form>
           <we-chat-authentication-form v-if="this.authenticationTypes.includes('wechat')"
                                        :redirect-url="this.snsRedirectUrl"></we-chat-authentication-form>
+          <alipay-authentication-form v-if="this.authenticationTypes.includes('alipay')"
+                                      :redirect-url="this.snsRedirectUrl"></alipay-authentication-form>
         </div>
       </div>
     </div>

@@ -89,7 +89,7 @@ public class InMemoryMfaAuthenticationService extends
     }
 
     @Override
-    protected Challenge sendChallengeInternally(@Nullable RequestingClient client, @NonNull Class<? extends Scenario> scenario, @NonNull MfaAuthenticationChallengeRequest request) throws Exception {
+    protected Challenge sendChallengeInternally(@Nullable RequestingClient client, @NonNull Class<? extends Scenario> scenario, @NonNull MfaAuthenticationChallengeRequest request, Map<String, Object> payload) throws Exception {
         User user = request.getUser();
         Collection<Principal> principals = user.getPrincipals();
         String userId = user.getId();
@@ -115,7 +115,7 @@ public class InMemoryMfaAuthenticationService extends
     }
 
     @Override
-    protected MfaAuthenticationChallengeContext createContext(@Nullable RequestingClient client, @NonNull Class<? extends Scenario> scenario, @NonNull MfaAuthenticationChallengeRequest request, @NonNull Challenge challenge) {
+    protected MfaAuthenticationChallengeContext createContext(@Nullable RequestingClient client, @NonNull Class<? extends Scenario> scenario, @NonNull MfaAuthenticationChallengeRequest request, @NonNull Challenge challenge, Map<String, Object> payload) {
         return MfaAuthenticationChallengeContext.builder()
                 .principal(request.getPrincipal())
                 .user(request.getUser())

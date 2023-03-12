@@ -1,0 +1,6 @@
+dependencies {
+    api "org.springframework.boot:spring-boot-autoconfigure"
+    api "${group}:authentication-server-core"
+    api "${group}:sms-verification-code-challenge-response-engine"
+    api "${fragrans.group}:api-standard-error-exceptions"
+}

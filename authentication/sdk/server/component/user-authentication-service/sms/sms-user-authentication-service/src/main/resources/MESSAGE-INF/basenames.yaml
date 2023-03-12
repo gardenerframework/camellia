@@ -1,0 +1,6 @@
+io:
+  gardenerframework:
+    fragrans:
+      messages:
+        basenames:
+          - component/user-authentication-service/sms/errors/client

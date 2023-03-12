@@ -20,7 +20,8 @@
     </el-row>
     <el-row>
       <el-form-item prop="code">
-        <el-input v-model="formItems.code" :placeholder="$t('components.authentication.forms.sms.input.code.placeholder')"
+        <el-input v-model="formItems.code"
+                  :placeholder="$t('components.authentication.forms.sms.input.code.placeholder')"
                   name="code"></el-input>
       </el-form-item>
     </el-row>
@@ -106,23 +107,19 @@ export default {
         2048219257,
         response => {
           if (response.ret !== 0) {
-            basicAxiosProxy.post("/api/authentication/sms", {
+            basicAxiosProxy.post("/api/authentication/sms/code", {
               mobilePhoneNumber: this.formItems.mobilePhoneNumber,
-              captchaToken: response.ticket
+              captchaToken: response.ticket || "abc"
             }).then(
                 response => {
-                  this.coolDown(response.data.cooldown);
+                  this.coolDown(parseInt((new Date(response.data.cooldownCompletionTime) - new Date()) / 1000));
                 }
             ).catch(
                 error => {
                   let response = error.response
                   if (response.data !== undefined && response.data.error !== undefined) {
                     if (response.data.status === 429) {
-                      basicAxiosProxy.get("/api/authentication/sms?mobilePhoneNumber=" + this.mobilePhoneNumber).then(
-                          response => {
-                            this.coolDown(response.data.details.cooldown)
-                          }
-                      )
+                      this.coolDown(parseInt((new Date(response.data.details.cooldownCompletionTime) - new Date()) / 1000))
                     }
                   }
                 }

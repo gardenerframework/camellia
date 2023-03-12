@@ -20,9 +20,9 @@
       </el-form-item>
       <el-input v-model="formItems.captchaToken" name="captchaToken" type="hidden"></el-input>
       <div class="forget-password-box">
-        <router-link to="/password/recovery">
-          {{ $t("components.authentication.forms.username.forgetPassword") }}
-        </router-link>
+<!--        <router-link to="/password/recovery">-->
+<!--          {{ $t("components.authentication.forms.username.forgetPassword") }}-->
+<!--        </router-link>-->
       </div>
       <div>
         <el-button class="username-longin-button-shadow" plain type="primary" @click="validateForm">
