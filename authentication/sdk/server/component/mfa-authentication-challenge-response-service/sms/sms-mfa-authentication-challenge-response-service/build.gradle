@@ -1,0 +1,4 @@
+dependencies {
+    api "${group}:authentication-server-core"
+    api "${group}:sms-verification-code-challenge-response-engine"
+}

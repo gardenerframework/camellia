@@ -5,7 +5,7 @@
         user.name ? user.name.substring(0, 4) : $t("components.avatar.unauthorized")
       }}
     </div>
-    <el-dropdown @command="logout" v-if="user.name">
+    <el-dropdown v-if="user.name" @command="logout">
       <span class="dropdown-link">
         <i class="el-icon-caret-bottom"></i>
       </span>

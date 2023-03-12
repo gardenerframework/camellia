@@ -1,0 +1,5 @@
+dependencies {
+    api "${group}:challenge-response-core"
+    api "${fragrans.group}:data-traits-mankind"
+    api "${fragrans.group}:data-traits-generic"
+}

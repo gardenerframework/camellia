@@ -17,5 +17,7 @@ export default {
   background-color: #F0F0F0;
   border-radius: 3px;
   display: inline-block;
+  margin-left: 5px;
+  margin-right: 5px;
 }
 </style>

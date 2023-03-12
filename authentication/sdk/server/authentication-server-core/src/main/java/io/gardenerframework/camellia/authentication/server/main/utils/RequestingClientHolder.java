@@ -20,17 +20,6 @@ import org.springframework.web.context.request.RequestContextHolder;
  */
 public class RequestingClientHolder implements AuthenticationEventListenerSkeleton {
 
-    @Override
-    @CareForAuthenticationServerEnginePreservedPrincipal
-    @EventListener
-    @Order(Ordered.HIGHEST_PRECEDENCE)
-    public void onClientAuthenticated(ClientAuthenticatedEvent event) throws AuthenticationException {
-        OAuth2RequestingClient client = event.getClient();
-        if (client != null) {
-            saveClient(client);
-        }
-    }
-
     private RequestingClientHolder() {
 
     }
@@ -62,5 +51,16 @@ public class RequestingClientHolder implements AuthenticationEventListenerSkelet
                         RequestingClientHolder.class.getCanonicalName(),
                         RequestAttributes.SCOPE_REQUEST
                 );
+    }
+
+    @Override
+    @CareForAuthenticationServerEnginePreservedPrincipal
+    @EventListener
+    @Order(Ordered.HIGHEST_PRECEDENCE)
+    public void onClientAuthenticated(ClientAuthenticatedEvent event) throws AuthenticationException {
+        OAuth2RequestingClient client = event.getClient();
+        if (client != null) {
+            saveClient(client);
+        }
     }
 }

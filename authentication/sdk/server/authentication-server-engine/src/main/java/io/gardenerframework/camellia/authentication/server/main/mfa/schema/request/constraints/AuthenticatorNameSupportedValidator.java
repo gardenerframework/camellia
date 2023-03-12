@@ -19,10 +19,9 @@ public class AuthenticatorNameSupportedValidator extends AbstractConstraintValid
     @Override
     protected boolean validate(String value, ConstraintValidatorContext context, Map<String, Object> data) {
         //不允许为空字符串
-        if(!StringUtils.hasText(value)) {
+        if (!StringUtils.hasText(value)) {
             return false;
         }
-        MfaAuthenticationChallengeResponseServiceRegistry.MfaAuthenticationChallengeResponseServiceRegistryItem item = registry.getItem(value);
-        return item != null && item.isEnabled();
+        return registry.hasMfaAuthenticationChallengeResponseService(value);
     }
 }

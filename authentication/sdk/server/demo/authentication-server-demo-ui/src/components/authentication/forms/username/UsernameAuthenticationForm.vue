@@ -4,12 +4,14 @@
       <input name="authenticationType" type="hidden" value="username"/>
       <el-form-item prop="username">
         <el-input
-            v-model="formItems.username" name="username"
+            v-model="formItems.username"
             :placeholder="$t('components.authentication.forms.username.input.username.placeholder')"
+            name="username"
             prefix-icon="el-icon-user">
         </el-input>
       </el-form-item>
-      <input name="password" v-model="formItems.cipher" type="hidden"/>
+      <input v-model="formItems.cipher" name="password" type="hidden"/>
+      <input v-model="formItems.passwordEncryptionKeyId" name="passwordEncryptionKeyId" type="hidden"/>
       <el-form-item prop="password">
         <el-input v-model="formItems.password"
                   :placeholder="$t('components.authentication.forms.username.input.password.placeholder')"
@@ -19,9 +21,9 @@
       </el-form-item>
       <el-input v-model="formItems.captchaToken" name="captchaToken" type="hidden"></el-input>
       <div class="forget-password-box">
-        <router-link to="/password/recovery">
-          {{ $t("components.authentication.forms.username.forgetPassword") }}
-        </router-link>
+        <!--        <router-link to="/password/recovery">-->
+        <!--          {{ $t("components.authentication.forms.username.forgetPassword") }}-->
+        <!--        </router-link>-->
       </div>
       <div>
         <el-button class="username-longin-button-shadow" plain type="primary" @click="validateForm">
@@ -36,8 +38,8 @@
 <script>
 import LoadingVeil from "@/components/veil/LoadingVeil";
 import i18n from "@/i18n/i18n";
-import basicAxiosProxy from "@/xhr/axios-aop";
-import cryptoJs from "crypto-js";
+import {JSEncrypt} from "jsencrypt";
+import Encryption from "@/encryption/encryption";
 
 export default {
   name: "UsernameAuthenticationForm",
@@ -47,7 +49,8 @@ export default {
         username: "",
         password: "",
         cipher: "",
-        captchaToken: ""
+        captchaToken: "",
+        passwordEncryptionKeyId: ""
       }
     }
   },
@@ -68,11 +71,12 @@ export default {
     }
   },
   methods: {
-    login: function (key) {
+    login: function (keyId, key) {
       this.$loading(LoadingVeil)
       //执行加密
       if (key) {
         this.formItems.cipher = this.encrypt(this.formItems.password, key)
+        this.formItems.passwordEncryptionKeyId = keyId;
       } else {
         this.formItems.cipher = this.formItems.password;
       }
@@ -95,26 +99,30 @@ export default {
       )
     },
     encrypt: function (password, key) {
-      let keyBlock = cryptoJs.enc.Base64.parse(key)
-      let option = {mode: cryptoJs.mode.ECB, padding: cryptoJs.pad.Pkcs7}
-      return cryptoJs.DES.encrypt(password, keyBlock, option)
+      let encrypt = new JSEncrypt();
+      encrypt.setPublicKey(key)
+      return encrypt.encrypt(password);
     }
   },
   mounted() {
-    new window['TencentCaptcha'] (
+    new window['TencentCaptcha'](
         document.getElementById("username-longin-button"),
         2048219257,
         (response) => {
           if (response.ret !== 0) {
             this.formItems.captchaToken = response.ticket
-            //必要之恶
-            basicAxiosProxy.post(
-                "/api/authentication/username/key"
-            ).then(
-                (response) => {
-                  //执行加密
-                  this.login(response.data.key)
-                }
+            if (!Encryption.getKey()) {
+              Encryption.reload()
+            }
+            let timer = setInterval(
+                () => {
+                  let key = Encryption.getKey();
+                  if (key) {
+                    clearInterval(timer)
+                    this.login(key.id, key.key)
+                  }
+                },
+                50
             )
           }
         }

@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="consent-page-box" v-if="user.name">
+    <div v-if="user.name" class="consent-page-box">
       <div class="application-detail-box">
         <div class="application-info">
           <img :src="client.logo" class="application-logo"/>
@@ -9,7 +9,7 @@
             <div class="application-description">{{ client.description }}</div>
           </div>
         </div>
-        <div class="authorization-notice" v-if="this.$route.query.scope">
+        <div v-if="this.$route.query.scope" class="authorization-notice">
           <div class="authorization-notice-text">
             {{
               $t("authorization.notice")
@@ -37,13 +37,13 @@
           {{ user.name }}
         </div>
         <div class="authorization-consent-form">
-          <el-form ref="openIdConsentForm" action="/oauth2/authorize" method="POST" v-if="this.$route.query.scope">
+          <el-form v-if="this.$route.query.scope" ref="openIdConsentForm" action="/oauth2/authorize" method="POST">
             <input :value="client.clientId" name="client_id" readonly type="hidden"/>
             <input v-for="(scope, index) in this.$route.query.scope.split(' ')" :key="index" :value="scope" name="scope"
                    readonly
                    type="hidden"/>
             <input :value="state" name="state" readonly type="hidden"/>
-            <el-button @click="consent" class="consent">授权</el-button>
+            <el-button class="consent" @click="consent">授权</el-button>
           </el-form>
         </div>
       </div>

@@ -41,7 +41,7 @@ public class InMemoryMfaAuthenticationService extends
                 MfaAuthenticationChallengeRequest,
                 Challenge,
                 MfaAuthenticationChallengeContext>
-        implements MfaAuthenticationChallengeResponseService, AuthenticationEventListenerSkeleton, MfaAuthenticatorAdvisor {
+        implements MfaAuthenticationChallengeResponseService<MfaAuthenticationChallengeRequest, MfaAuthenticationChallengeContext>, AuthenticationEventListenerSkeleton, MfaAuthenticatorAdvisor {
     private final Set<Principal> failedUsers = new HashSet<>(100);
     private final Map<String, Challenge> sentRequests = new HashMap<>(100);
     private final Map<String, Principal> challengedUserPrincipal = new HashMap<>(100);
@@ -89,7 +89,7 @@ public class InMemoryMfaAuthenticationService extends
     }
 
     @Override
-    protected Challenge sendChallengeInternally(@Nullable RequestingClient client, @NonNull Class<? extends Scenario> scenario, @NonNull MfaAuthenticationChallengeRequest request) throws Exception {
+    protected Challenge sendChallengeInternally(@Nullable RequestingClient client, @NonNull Class<? extends Scenario> scenario, @NonNull MfaAuthenticationChallengeRequest request, Map<String, Object> payload) throws Exception {
         User user = request.getUser();
         Collection<Principal> principals = user.getPrincipals();
         String userId = user.getId();
@@ -115,7 +115,7 @@ public class InMemoryMfaAuthenticationService extends
     }
 
     @Override
-    protected MfaAuthenticationChallengeContext createContext(@Nullable RequestingClient client, @NonNull Class<? extends Scenario> scenario, @NonNull MfaAuthenticationChallengeRequest request, @NonNull Challenge challenge) {
+    protected MfaAuthenticationChallengeContext createContext(@Nullable RequestingClient client, @NonNull Class<? extends Scenario> scenario, @NonNull MfaAuthenticationChallengeRequest request, @NonNull Challenge challenge, Map<String, Object> payload) {
         return MfaAuthenticationChallengeContext.builder()
                 .principal(request.getPrincipal())
                 .user(request.getUser())
@@ -144,12 +144,21 @@ public class InMemoryMfaAuthenticationService extends
 
     @Nullable
     @Override
-    public String getAuthenticator(@NonNull HttpServletRequest request, @Nullable OAuth2RequestingClient client, @NonNull User user, @NonNull Map<String, Object> context) throws Exception {
+    public String getAuthenticator(@NonNull HttpServletRequest request, @Nullable OAuth2RequestingClient client, @NonNull String authenticationType, @NonNull User user, @NonNull Map<String, Object> context) throws Exception {
         for (Principal principal : user.getPrincipals()) {
             if (failedUsers.contains(principal)) {
                 return "test";
             }
         }
         return null;
+    }
+
+    @Override
+    public MfaAuthenticationChallengeRequest createRequest(@NonNull Principal principal, @NonNull User user, @NonNull Map<String, Object> context) {
+        return MfaAuthenticationChallengeRequest.builder()
+                .principal(principal)
+                .user(user)
+                .context(context)
+                .build();
     }
 }

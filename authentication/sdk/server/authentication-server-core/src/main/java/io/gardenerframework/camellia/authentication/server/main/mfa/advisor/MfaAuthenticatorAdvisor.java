@@ -17,10 +17,11 @@ public interface MfaAuthenticatorAdvisor {
     /**
      * 是否应当进行mfa的决策
      *
-     * @param request http请求
-     * @param client  请求客户端
-     * @param user    用户
-     * @param context 认证过程中的上下文
+     * @param request            http请求
+     * @param client             请求客户端
+     * @param authenticationType 当前正在执行的认证类型
+     * @param user               用户
+     * @param context            认证过程中的上下文
      * @return 执行mfa的认证器名称，返回{@code null}表示认为不需要进行mfa验证
      * @throws Exception 发生异常
      */
@@ -28,6 +29,7 @@ public interface MfaAuthenticatorAdvisor {
     String getAuthenticator(
             @NonNull HttpServletRequest request,
             @Nullable OAuth2RequestingClient client,
+            @NonNull String authenticationType,
             @NonNull User user,
             @NonNull Map<String, Object> context
     ) throws Exception;

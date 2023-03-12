@@ -46,6 +46,10 @@ public class WebAuthenticationEntryPointTest {
     @Autowired
     private EnhancedMessageSource messageSource;
 
+    public static String safeRead(List<String> strings) {
+        return CollectionUtils.isEmpty(strings) ? "" : strings.get(0) == null ? "" : strings.get(0);
+    }
+
     @Test
     @DisplayName("测试转换的用户登录请求为null")
     public void testNullUserAuthenticationRequestToken() throws UnsupportedEncodingException {
@@ -146,10 +150,6 @@ public class WebAuthenticationEntryPointTest {
         request.put("password", password);
         assertLoginSuccess(authenticationClient.login(AnnotationUtils.findAnnotation(MfaTriggerRequest.class, AuthenticationType.class).value(), request));
 
-    }
-
-    public static String safeRead(List<String> strings) {
-        return CollectionUtils.isEmpty(strings) ? "" : strings.get(0) == null ? "" : strings.get(0);
     }
 
     @Data

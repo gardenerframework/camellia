@@ -6,6 +6,7 @@ import io.gardenerframework.camellia.authentication.server.main.schema.UserAuthe
 import io.gardenerframework.camellia.authentication.server.main.schema.request.UsernamePasswordAuthenticationParameter;
 import io.gardenerframework.camellia.authentication.server.main.schema.subject.credentials.PasswordCredentials;
 import io.gardenerframework.camellia.authentication.server.main.user.schema.User;
+import lombok.AllArgsConstructor;
 import lombok.NonNull;
 import org.springframework.lang.Nullable;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -16,7 +17,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.validation.Validator;
 import java.util.Collection;
 import java.util.Map;
-import java.util.function.Consumer;
+import java.util.function.BiConsumer;
 
 /**
  * @author zhanghan30
@@ -24,31 +25,24 @@ import java.util.function.Consumer;
  */
 
 @AuthenticationType("username")
-public class UsernamePasswordAuthenticationService extends AbstractUserAuthenticationService<UsernamePasswordAuthenticationParameter> {
+@AllArgsConstructor
+public class UsernamePasswordAuthenticationService implements UserAuthenticationService {
+    private final Validator validator;
     @NonNull
     private final UsernameResolver resolver;
     @NonNull
-    private final Collection<@NonNull Consumer<@NonNull UsernamePasswordAuthenticationParameter>> processors;
-
-    public UsernamePasswordAuthenticationService(@NonNull Validator validator, @NonNull UsernameResolver resolver, @NonNull Collection<@NonNull Consumer<@NonNull UsernamePasswordAuthenticationParameter>> processors) {
-        super(validator);
-        this.resolver = resolver;
-        this.processors = processors;
-    }
+    private final Collection<@NonNull BiConsumer<@NonNull HttpServletRequest, @NonNull UsernamePasswordAuthenticationParameter>> processors;
 
     @Override
-    protected UsernamePasswordAuthenticationParameter getAuthenticationParameter(@NonNull HttpServletRequest request) {
-        return new UsernamePasswordAuthenticationParameter(request);
-    }
-
-    @Override
-    protected UserAuthenticationRequestToken doConvert(@NonNull UsernamePasswordAuthenticationParameter authenticationParameter, @Nullable OAuth2RequestingClient client, @NonNull Map<String, Object> context) throws Exception {
+    public UserAuthenticationRequestToken convert(@NonNull HttpServletRequest request, @Nullable OAuth2RequestingClient client, @NonNull Map<String, Object> context) throws AuthenticationException {
+        UsernamePasswordAuthenticationParameter authenticationParameter = new UsernamePasswordAuthenticationParameter(request);
+        authenticationParameter.validate(validator);
         if (!CollectionUtils.isEmpty(processors)) {
             processors.forEach(
-                    processor -> processor.accept(authenticationParameter)
+                    processor -> processor.accept(request, authenticationParameter)
             );
             //消费完要重新验证
-            authenticationParameter.validate(this.getValidator());
+            authenticationParameter.validate(validator);
         }
         return new UserAuthenticationRequestToken(
                 resolver.resolve(authenticationParameter.getUsername(), authenticationParameter.getPrincipalType()),

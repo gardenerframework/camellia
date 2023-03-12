@@ -26,6 +26,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.Date;
+import java.util.Map;
 import java.util.UUID;
 
 /**
@@ -156,7 +157,7 @@ public class AbstractChallengeResponseServiceTest {
         }
 
         @Override
-        protected Challenge sendChallengeInternally(@Nullable RequestingClient client, @NonNull Class<? extends Scenario> scenario, @NonNull TestChallengeRequest request) throws Exception {
+        protected Challenge sendChallengeInternally(@Nullable RequestingClient client, @NonNull Class<? extends Scenario> scenario, @NonNull TestChallengeRequest request, @NonNull Map<String, Object> payload) throws Exception {
             return Challenge.builder()
                     .id(UUID.randomUUID().toString())
                     .expiryTime(Date.from(Instant.now().plus(Duration.ofSeconds(300))))
@@ -164,7 +165,7 @@ public class AbstractChallengeResponseServiceTest {
         }
 
         @Override
-        protected TestChallengeContext createContext(@Nullable RequestingClient client, @NonNull Class<? extends Scenario> scenario, @NonNull TestChallengeRequest request, @NonNull Challenge challenge) {
+        protected TestChallengeContext createContext(@Nullable RequestingClient client, @NonNull Class<? extends Scenario> scenario, @NonNull TestChallengeRequest request, @NonNull Challenge challenge, @NonNull Map<String, Object> payload) {
             return new TestChallengeContext(challenge.getId(), null);
         }
 

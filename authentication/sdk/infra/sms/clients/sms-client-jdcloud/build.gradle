@@ -1,0 +1,9 @@
+dependencies {
+    api "${group}:sms-verification-code-challenge-response-core"
+    api "${fragrans.group}:api-options-common"
+    api "jakarta.validation:jakarta.validation-api"
+    api "com.fasterxml.jackson.core:jackson-annotations"
+    api "com.jdcloud.sdk:sms"
+    api "${fragrans.group}:log-generic"
+    api "${fragrans.group}:log-common-words"
+}

@@ -66,31 +66,27 @@ public interface UsernameResolver {
 组件提供了已经实现的UsernamePasswordAuthenticationService
 
 ```java
-public class UsernamePasswordAuthenticationService extends AbstractUserAuthenticationService<UsernamePasswordAuthenticationParameter> {
+public class UsernamePasswordAuthenticationService implements UserAuthenticationService {
+    private final Validator validator;
     @NonNull
     private final UsernameResolver resolver;
     @NonNull
-    private final Collection<@NonNull Consumer<@NonNull UsernamePasswordAuthenticationParameter>> processors;
-
-    public UsernamePasswordAuthenticationService(@NonNull Validator validator, @NonNull UsernameResolver resolver, @NonNull Collection<@NonNull Consumer<@NonNull UsernamePasswordAuthenticationParameter>> processors) {
-        super(validator);
-        this.resolver = resolver;
-        this.processors = processors;
-    }
+    private final Collection<@NonNull BiConsumer<@NonNull HttpServletRequest, @NonNull UsernamePasswordAuthenticationParameter>> processors;
 
     @Override
-    protected UsernamePasswordAuthenticationParameter getAuthenticationParameter(@NonNull HttpServletRequest request) {
-        return new UsernamePasswordAuthenticationParameter(request);
-    }
-
-    @Override
-    protected UserAuthenticationRequestToken doConvert(@NonNull UsernamePasswordAuthenticationParameter authenticationParameter, @Nullable OAuth2RequestingClient client, @NonNull Map<String, Object> context) throws Exception {
+    public UserAuthenticationRequestToken convert(
+            @NonNull HttpServletRequest request,
+            @Nullable OAuth2RequestingClient client,
+            @NonNull Map<String, Object> context
+    ) throws AuthenticationException {
+        UsernamePasswordAuthenticationParameter authenticationParameter = new UsernamePasswordAuthenticationParameter(request);
+        authenticationParameter.validate(validator);
         if (!CollectionUtils.isEmpty(processors)) {
             processors.forEach(
-                    processor -> processor.accept(authenticationParameter)
+                    processor -> processor.accept(request, authenticationParameter)
             );
             //消费完要重新验证
-            authenticationParameter.validate(this.getValidator());
+            authenticationParameter.validate(validator);
         }
         return new UserAuthenticationRequestToken(
                 resolver.resolve(authenticationParameter.getUsername(), authenticationParameter.getPrincipalType()),
@@ -108,6 +104,7 @@ public class UsernamePasswordAuthenticationService extends AbstractUserAuthentic
         }
     }
 }
+
 ```
 
 其在转换参数时允许注入Consumer的bean来消费已经完成转换的参数。消费者可以做以下几个事
@@ -117,5 +114,59 @@ public class UsernamePasswordAuthenticationService extends AbstractUserAuthentic
 
 # 自动配置
 
-在引擎组建中，如果没有生成UsernameResolver则会生成一个默认的，这个默认的就是将请求转换为UsernamePrincipal。同时也会生成默认的UsernamePasswordAuthenticationService。
+如果没有生成UsernameResolver则会生成一个默认的，这个默认的就是将请求转换为UsernamePrincipal。同时也会生成默认的UsernamePasswordAuthenticationService。
 如果开发过程中开发人员自己实现了子类并进行实例化，那么引擎的就不会生成
+
+# 传输加密
+
+用户名密码的传输可以加密，开发人员需要的时加载EncryptionService的实现类，并加载
+"username-password-authentication-encryption"组件。它生成一个BiConsumer用来消费请求参数，并调用EncryptionService基于指定的keyId进行解密
+
+```java
+
+@Configuration
+public class PasswordEncryptionServiceConfiguration {
+    @Bean
+    public BiConsumer<
+            HttpServletRequest,
+            UsernamePasswordAuthenticationParameter> passwordDecryptHelper(
+            Validator validator,
+            //fix @ConditionalOnBean就是坑逼
+            EncryptionService service
+    ) {
+        return (request, usernamePasswordAuthenticationParameter) -> {
+            //取id
+            PasswordEncryptionKeyIdParameter passwordEncryptionKeyIdParameter = new PasswordEncryptionKeyIdParameter(request);
+            //执行验证
+            passwordEncryptionKeyIdParameter.validate(validator);
+            //把解密后的密码放进去
+            try {
+                usernamePasswordAuthenticationParameter.setPassword(
+                        new String(
+                                service.decrypt(
+                                        passwordEncryptionKeyIdParameter.getPasswordEncryptionKeyId(),
+                                        Base64.getDecoder().decode(usernamePasswordAuthenticationParameter.getPassword()))
+                        ));
+            } catch (Exception e) {
+                throw new NestedAuthenticationException(e);
+            }
+
+        };
+    }
+
+    private static class PasswordEncryptionKeyIdParameter extends AuthenticationRequestParameter {
+        @NotBlank
+        @Getter
+        private final String passwordEncryptionKeyId;
+
+        protected PasswordEncryptionKeyIdParameter(HttpServletRequest request) {
+            super(request);
+            passwordEncryptionKeyId = request.getParameter("passwordEncryptionKeyId");
+
+        }
+    }
+}
+```
+
+从体验上，提交用户名密码校验时，首先需要获取加密密钥对密码进行加密以及base64编码，然后提交的密码是加密后的密文，并附上`passwordEncryptionKeyId=xxx`
+作为额外参数

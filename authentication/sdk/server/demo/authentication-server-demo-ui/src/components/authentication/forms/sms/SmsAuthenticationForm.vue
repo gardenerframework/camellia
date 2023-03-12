@@ -5,10 +5,10 @@
       <el-form-item prop="mobilePhoneNumber">
         <el-input
             v-model="formItems.mobilePhoneNumber"
-            name="mobilePhoneNumber"
             :placeholder="$t('components.authentication.forms.sms.input.mobilePhoneNumber.placeholder')"
+            name="mobilePhoneNumber"
             prefix-icon="el-icon-mobile">
-          <el-button class="request-sms-code-button-shadow" slot="append" :disabled="coolDownSeconds > 0"
+          <el-button slot="append" :disabled="coolDownSeconds > 0" class="request-sms-code-button-shadow"
                      @click="validateMobilePhoneNumber">
             {{
               $t("components.authentication.forms.sms.requestCode")
@@ -20,8 +20,9 @@
     </el-row>
     <el-row>
       <el-form-item prop="code">
-        <el-input v-model="formItems.code" name="code"
-                  :placeholder="$t('components.authentication.forms.sms.input.code.placeholder')"></el-input>
+        <el-input v-model="formItems.code"
+                  :placeholder="$t('components.authentication.forms.sms.input.code.placeholder')"
+                  name="code"></el-input>
       </el-form-item>
     </el-row>
     <el-row>
@@ -106,23 +107,19 @@ export default {
         2048219257,
         response => {
           if (response.ret !== 0) {
-            basicAxiosProxy.post("/api/authentication/sms", {
+            basicAxiosProxy.post("/api/authentication/sms/code", {
               mobilePhoneNumber: this.formItems.mobilePhoneNumber,
-              captchaToken: response.ticket
+              captchaToken: response.ticket || "abc"
             }).then(
                 response => {
-                  this.coolDown(response.data.cooldown);
+                  this.coolDown(parseInt((new Date(response.data.cooldownCompletionTime) - new Date()) / 1000));
                 }
             ).catch(
                 error => {
                   let response = error.response
                   if (response.data !== undefined && response.data.error !== undefined) {
                     if (response.data.status === 429) {
-                      basicAxiosProxy.get("/api/authentication/sms?mobilePhoneNumber=" + this.mobilePhoneNumber).then(
-                          response => {
-                            this.coolDown(response.data.details.cooldown)
-                          }
-                      )
+                      this.coolDown(parseInt((new Date(response.data.details.cooldownCompletionTime) - new Date()) / 1000))
                     }
                   }
                 }

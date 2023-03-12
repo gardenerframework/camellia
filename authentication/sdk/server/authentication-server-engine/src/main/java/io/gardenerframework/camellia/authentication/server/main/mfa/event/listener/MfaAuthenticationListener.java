@@ -1,6 +1,5 @@
 package io.gardenerframework.camellia.authentication.server.main.mfa.event.listener;
 
-import io.gardenerframework.camellia.authentication.common.client.schema.OAuth2RequestingClient;
 import io.gardenerframework.camellia.authentication.infra.challenge.core.exception.ChallengeInCooldownException;
 import io.gardenerframework.camellia.authentication.infra.challenge.core.schema.Challenge;
 import io.gardenerframework.camellia.authentication.server.common.annotation.AuthenticationServerEngineComponent;
@@ -26,6 +25,7 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ApplicationEventPublisherAware;
 import org.springframework.context.event.EventListener;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import java.util.Collection;
@@ -58,7 +58,7 @@ public class MfaAuthenticationListener implements
     @EventListener
     public void onUserAuthenticated(UserAuthenticatedEvent event) throws AuthenticationException {
         //fix - 支持空注册表，没有任何服务则不需要执行mfa
-        if (registry.isEmpty()) {
+        if (CollectionUtils.isEmpty(registry.getAuthenticatorNames())) {
             return;
         }
         //用户认证结束后看看是否要发mfa请求
@@ -72,6 +72,7 @@ public class MfaAuthenticationListener implements
                 authenticator = advisor.getAuthenticator(
                         event.getRequest(),
                         event.getClient(),
+                        event.getAuthenticationType(),
                         event.getUser(),
                         event.getContext()
                 );
@@ -81,18 +82,17 @@ public class MfaAuthenticationListener implements
                 }
             }
             if (StringUtils.hasText(authenticator)) {
-                MfaAuthenticationChallengeResponseServiceRegistry.MfaAuthenticationChallengeResponseServiceRegistryItem item = registry.getItem(authenticator);
                 //这部分找不到是服务端的问题，不单独开异常
-                MfaAuthenticationChallengeResponseService service = Objects.requireNonNull(item).getService();
+                MfaAuthenticationChallengeResponseService<MfaAuthenticationChallengeRequest, MfaAuthenticationChallengeContext> service = Objects.requireNonNull(registry.getMfaAuthenticationChallengeResponseService(authenticator));
                 //执行mfa认证
                 Challenge mfaAuthenticationChallenge = service.sendChallenge(
                         event.getClient(),
                         MfaAuthenticationScenario.class,
-                        MfaAuthenticationChallengeRequest.builder()
-                                .user(event.getUser())
-                                .context(event.getContext())
-                                .principal(event.getPrincipal())
-                                .build()
+                        service.createRequest(
+                                event.getPrincipal(),
+                                event.getUser(),
+                                event.getContext()
+                        )
                 );
                 throw new MfaAuthenticationRequiredException(mfaAuthenticationChallenge);
             }

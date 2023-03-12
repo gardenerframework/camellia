@@ -24,6 +24,8 @@ import java.lang.reflect.Modifier;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * 挑战服务泛型，用于发送挑战
@@ -134,13 +136,15 @@ public abstract class AbstractChallengeResponseService<
      * @param client   请求客户端
      * @param scenario 场景
      * @param request  请求
+     * @param payload  生产挑战过程中一些希望上下文保存时访问的数据放这里
      * @return 挑战
      * @throws Exception 发生问题
      */
     protected abstract C sendChallengeInternally(
             @Nullable RequestingClient client,
             @NonNull Class<? extends Scenario> scenario,
-            @NonNull R request
+            @NonNull R request,
+            @NonNull Map<String, Object> payload
     ) throws Exception;
 
     /**
@@ -150,13 +154,15 @@ public abstract class AbstractChallengeResponseService<
      * @param scenario  场景
      * @param request   请求
      * @param challenge 挑战
+     * @param payload   开发人员需要的数据放这里
      * @return 挑战上下文
      */
     protected abstract X createContext(
             @Nullable RequestingClient client,
             @NonNull Class<? extends Scenario> scenario,
             @NonNull R request,
-            @NonNull C challenge
+            @NonNull C challenge,
+            @NonNull Map<String, Object> payload
     );
 
     /**
@@ -276,11 +282,13 @@ public abstract class AbstractChallengeResponseService<
         }
         //cd已经抢占或者不需要cd
         //创建挑战并完成发送
-        challenge = tryCreateThenSendChallenge(client, scenario, request);
+        //贯穿生成挑战以及生成上下文所需的载荷
+        Map<String, Object> payload = new HashMap<>();
+        challenge = tryCreateThenSendChallenge(client, scenario, request, payload);
         //自动设置cd完成时间(不需要启动cd则没有完成时间)
         challenge.setCooldownCompletionTime(cooldownCompletionTime);
         //尝试保存上下文
-        trySaveContext(client, scenario, request, challenge);
+        trySaveContext(client, scenario, request, challenge, payload);
         //保存挑战
         trySaveChallenge(client, scenario, request, challenge);
         //返回挑战
@@ -413,6 +421,7 @@ public abstract class AbstractChallengeResponseService<
      * @param client   请求客户端
      * @param scenario 场景
      * @param request  请求
+     * @param payload  保存开发人员自定义数据的载荷
      * @return 发送完毕的挑战
      * @throws ChallengeResponseServiceException 发生问题
      */
@@ -420,10 +429,11 @@ public abstract class AbstractChallengeResponseService<
     private C tryCreateThenSendChallenge(
             @Nullable RequestingClient client,
             @NonNull Class<? extends Scenario> scenario,
-            @NonNull R request
+            @NonNull R request,
+            @NonNull Map<String, Object> payload
     ) throws ChallengeResponseServiceException {
         try {
-            return sendChallengeInternally(client, scenario, request);
+            return sendChallengeInternally(client, scenario, request, payload);
         } catch (Exception e) {
             throw new ChallengeResponseServiceException(e);
         }
@@ -442,10 +452,11 @@ public abstract class AbstractChallengeResponseService<
             @Nullable RequestingClient client,
             @NonNull Class<? extends Scenario> scenario,
             @NonNull R request,
-            @NonNull C challenge
+            @NonNull C challenge,
+            @NonNull Map<String, Object> payload
     ) throws ChallengeResponseServiceException {
         try {
-            X context = createContext(client, scenario, request, challenge);
+            X context = createContext(client, scenario, request, challenge, payload);
             copySaveInContextFields(client, scenario, request, context);
             challengeContextStore.saveContext(
                     client,

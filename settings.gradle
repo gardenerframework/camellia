@@ -22,23 +22,24 @@ dependencyResolutionManagement {
                 //仅搜索非快照版本
                 releasesOnly()
             }
-            credentials {
-                username "${dependencyMavenRepositoryCredentials.user}"
-                password "${dependencyMavenRepositoryCredentials.key}"
-            }
+//            credentials {
+//                username "${dependencyMavenRepositoryCredentials.user}"
+//                password "${dependencyMavenRepositoryCredentials.key}"
+//            }
         }
+        mavenCentral()
         maven {
-            url publishes
+            url staging
             //允许使用非https协议，启用这个选项否则会报错
             allowInsecureProtocol true
             mavenContent {
                 //仅搜索非快照版本
                 releasesOnly()
             }
-            credentials {
-                username "${dependencyMavenRepositoryCredentials.user}"
-                password "${dependencyMavenRepositoryCredentials.key}"
-            }
+//            credentials {
+//                username "${dependencyMavenRepositoryCredentials.user}"
+//                password "${dependencyMavenRepositoryCredentials.key}"
+//            }
         }
         maven {
             url snapshots
@@ -48,10 +49,10 @@ dependencyResolutionManagement {
                 //仅搜索快照版本
                 snapshotsOnly()
             }
-            credentials {
-                username "${dependencyMavenRepositoryCredentials.user}"
-                password "${dependencyMavenRepositoryCredentials.key}"
-            }
+//            credentials {
+//                username "${dependencyMavenRepositoryCredentials.user}"
+//                password "${dependencyMavenRepositoryCredentials.key}"
+//            }
         }
     }
 }
@@ -62,15 +63,21 @@ String[] subprojectNames = [
         'authentication:sdk:common:requesting-client:requesting-client-core',
         'authentication:sdk:infra:challenge-response:challenge-response-core',
         'authentication:sdk:infra:challenge-response:challenge-response-engine',
-//        'authentication:sdk:infra:sms:sms-authentication-core',
+        'authentication:sdk:infra:sms:sms-verification-code-challenge-response-core',
+        'authentication:sdk:infra:sms:sms-verification-code-challenge-response-engine',
+        'authentication:sdk:infra:sms:clients:sms-client-jdcloud',
 //        'authentication:sdk:infra:sms:sms-authentication-engine',
 //        'authentication:sdk:infra:sms:clients:sms-authentication-client-jdcloud',
         'authentication:sdk:server:authentication-server-core',
+        'authentication:sdk:server:component:security:authentication-server-encryption-rsa',
         'authentication:sdk:server:component:user-authentication-service:username-password:username-password-user-authentication-service-core',
         'authentication:sdk:server:component:user-authentication-service:username-password:username-password-user-authentication-service',
+        'authentication:sdk:server:component:user-authentication-service:username-password:username-password-authentication-encryption',
+        'authentication:sdk:server:component:user-authentication-service:sms:sms-user-authentication-service',
         'authentication:sdk:server:component:user-authentication-service:oauth2:oauth2-based-user-authentication-service',
         'authentication:sdk:server:component:user-authentication-service:wechat:wechat-user-authentication-service',
         'authentication:sdk:server:component:user-authentication-service:alipay:alipay-user-authentication-service',
+        'authentication:sdk:server:component:mfa-authentication-challenge-response-service:sms:sms-mfa-authentication-challenge-response-service',
         'authentication:sdk:server:authentication-server-engine',
 //        'authentication:sdk:server:authentication-server-common'
 //        'sms-authentication:sdk:sms-authentication-core',

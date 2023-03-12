@@ -9,6 +9,8 @@ import io.gardenerframework.camellia.authentication.server.main.annotation.Authe
 import io.gardenerframework.camellia.authentication.server.main.exception.NestedAuthenticationException;
 import io.gardenerframework.camellia.authentication.server.main.mfa.challenge.MfaAuthenticationChallengeResponseService;
 import io.gardenerframework.camellia.authentication.server.main.mfa.challenge.MfaAuthenticationScenario;
+import io.gardenerframework.camellia.authentication.server.main.mfa.challenge.schema.MfaAuthenticationChallengeContext;
+import io.gardenerframework.camellia.authentication.server.main.mfa.challenge.schema.MfaAuthenticationChallengeRequest;
 import io.gardenerframework.camellia.authentication.server.main.mfa.exception.client.BadMfaAuthenticationResponseException;
 import io.gardenerframework.camellia.authentication.server.main.mfa.schema.credentials.MfaResponseCredentials;
 import io.gardenerframework.camellia.authentication.server.main.mfa.schema.principal.MfaAuthenticationPrincipal;
@@ -66,8 +68,7 @@ public class MfaAuthenticationService implements UserAuthenticationService {
         MfaResponseCredentials credential = (MfaResponseCredentials) authenticationRequest.getCredentials();
         //获取service
         String authenticatorName = principal.getAuthenticatorName();
-        MfaAuthenticationChallengeResponseServiceRegistry.MfaAuthenticationChallengeResponseServiceRegistryItem item = registry.getItem(authenticatorName);
-        MfaAuthenticationChallengeResponseService service = Objects.requireNonNull(item).getService();
+        MfaAuthenticationChallengeResponseService<? extends MfaAuthenticationChallengeRequest, ? extends MfaAuthenticationChallengeContext> service = Objects.requireNonNull(registry.getMfaAuthenticationChallengeResponseService(authenticatorName));
         try {
             //尝试验证
             if (!service.verifyResponse(

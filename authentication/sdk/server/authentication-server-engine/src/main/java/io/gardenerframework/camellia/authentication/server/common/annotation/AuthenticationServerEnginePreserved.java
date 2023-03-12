@@ -12,7 +12,7 @@ import java.lang.annotation.Target;
  * 表明这是一个当前认证服务器核心组件预留的东西
  * <p>
  * 可以用来注解任何东西，比如{@link UserAuthenticationService}、{@link UserService}等等
- *
+ * <p>
  * 这种东西就表达了是引擎内部使用，不是开发人员需要关注的内容
  *
  * @author ZhangHan
