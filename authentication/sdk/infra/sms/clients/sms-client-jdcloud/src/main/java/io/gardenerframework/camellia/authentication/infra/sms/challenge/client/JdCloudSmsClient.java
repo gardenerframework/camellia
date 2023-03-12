@@ -106,7 +106,6 @@ public class JdCloudSmsClient implements SmsVerificationCodeClient, Initializing
                 .build();
     }
 
-
     public interface SmsVerificationCodeTemplateProvider {
         /**
          * 返回签名id

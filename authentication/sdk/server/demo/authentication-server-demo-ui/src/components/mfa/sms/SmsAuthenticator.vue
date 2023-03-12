@@ -51,7 +51,7 @@ export default {
       this.$refs.smaCodeMfaForm.validate(
           isValid => {
             if (isValid) {
-              this.$refs.mfaForm.authenticate(this.challengeId, this.formItems.code)
+              this.$refs.mfaForm.authenticate(this.challengeId, this.formItems.code, "sms")
             } else {
               return false
             }

@@ -77,6 +77,7 @@ String[] subprojectNames = [
         'authentication:sdk:server:component:user-authentication-service:oauth2:oauth2-based-user-authentication-service',
         'authentication:sdk:server:component:user-authentication-service:wechat:wechat-user-authentication-service',
         'authentication:sdk:server:component:user-authentication-service:alipay:alipay-user-authentication-service',
+        'authentication:sdk:server:component:mfa-authentication-challenge-response-service:sms:sms-mfa-authentication-challenge-response-service',
         'authentication:sdk:server:authentication-server-engine',
 //        'authentication:sdk:server:authentication-server-common'
 //        'sms-authentication:sdk:sms-authentication-core',

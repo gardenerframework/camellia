@@ -27,17 +27,17 @@ export default {
   components: {SmsAuthenticator, Brand},
   data() {
     return {
-      expiresAt: null,
+      expiryTime: null,
       duration: null,
       timer: null
     }
   },
   methods: {
     countdown: function () {
-      if (this.expiresAt) {
+      if (this.expiryTime) {
         this.timer = setInterval(
             () => {
-              this.duration = this.expiresAt - new Date();
+              this.duration = this.expiryTime - new Date();
               if (this.duration < 0) {
                 clearInterval(this.timer)
               }
@@ -48,7 +48,7 @@ export default {
     }
   },
   mounted() {
-    this.expiresAt = this.$route.query.expiresAt ? new Date(this.$route.query.expiresAt + ":00").getTime() : null;
+    this.expiryTime = this.$route.query.expiryTime ? new Date(decodeURIComponent(this.$route.query.expiryTime) + ":00") : null;
     this.countdown()
   }
 }

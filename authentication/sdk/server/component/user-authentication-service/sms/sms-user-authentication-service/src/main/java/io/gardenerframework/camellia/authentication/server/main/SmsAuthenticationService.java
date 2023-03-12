@@ -31,11 +31,17 @@ import java.util.Map;
 @AllArgsConstructor
 @SmsAuthenticationServiceComponent
 public class SmsAuthenticationService implements UserAuthenticationService {
+    @NonNull
     private final Validator validator;
+    @NonNull
     private final SmsAuthenticationChallengeResponseService challengeResponseService;
 
     @Override
-    public UserAuthenticationRequestToken convert(@NonNull HttpServletRequest request, @Nullable OAuth2RequestingClient client, @NonNull Map<String, Object> context) throws AuthenticationException {
+    public UserAuthenticationRequestToken convert(
+            @NonNull HttpServletRequest request,
+            @Nullable OAuth2RequestingClient client,
+            @NonNull Map<String, Object> context
+    ) throws AuthenticationException {
         SmsAuthenticationParameter smsAuthenticationParameter = new SmsAuthenticationParameter(request);
         //执行验证
         smsAuthenticationParameter.validate(validator);
@@ -46,7 +52,12 @@ public class SmsAuthenticationService implements UserAuthenticationService {
     }
 
     @Override
-    public void authenticate(@NonNull UserAuthenticationRequestToken authenticationRequest, @Nullable OAuth2RequestingClient client, @NonNull User user, @NonNull Map<String, Object> context) throws AuthenticationException {
+    public void authenticate(
+            @NonNull UserAuthenticationRequestToken authenticationRequest,
+            @Nullable OAuth2RequestingClient client,
+            @NonNull User user,
+            @NonNull Map<String, Object> context
+    ) throws AuthenticationException {
         try {
             SmsVerificationCodeCredentials credentials = (SmsVerificationCodeCredentials) authenticationRequest.getCredentials();
             //验证验证码

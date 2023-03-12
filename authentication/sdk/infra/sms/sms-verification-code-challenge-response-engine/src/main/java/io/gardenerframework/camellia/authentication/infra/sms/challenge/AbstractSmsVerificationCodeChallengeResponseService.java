@@ -5,24 +5,33 @@ import io.gardenerframework.camellia.authentication.infra.challenge.core.Challen
 import io.gardenerframework.camellia.authentication.infra.challenge.core.ChallengeCooldownManager;
 import io.gardenerframework.camellia.authentication.infra.challenge.core.ChallengeStore;
 import io.gardenerframework.camellia.authentication.infra.challenge.core.Scenario;
+import io.gardenerframework.camellia.authentication.infra.challenge.core.annotation.ChallengeAuthenticator;
 import io.gardenerframework.camellia.authentication.infra.challenge.core.schema.Challenge;
 import io.gardenerframework.camellia.authentication.infra.challenge.engine.AbstractChallengeResponseService;
 import io.gardenerframework.camellia.authentication.infra.sms.challenge.client.SmsVerificationCodeClient;
+import io.gardenerframework.camellia.authentication.infra.sms.challenge.event.schema.SmsVerificationCodeAboutToSendEvent;
+import io.gardenerframework.camellia.authentication.infra.sms.challenge.event.schema.SmsVerificationCodeSendingFailedEvent;
+import io.gardenerframework.camellia.authentication.infra.sms.challenge.event.schema.SmsVerificationCodeSentEvent;
 import io.gardenerframework.camellia.authentication.infra.sms.challenge.schema.SmsVerificationCodeChallengeContext;
 import io.gardenerframework.camellia.authentication.infra.sms.challenge.schema.SmsVerificationCodeChallengeRequest;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NonNull;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.context.ApplicationEventPublisherAware;
 import org.springframework.lang.Nullable;
 
 import java.security.SecureRandom;
 import java.util.Map;
 
+@ChallengeAuthenticator("sms")
 public abstract class AbstractSmsVerificationCodeChallengeResponseService<R extends SmsVerificationCodeChallengeRequest, C extends Challenge, X extends SmsVerificationCodeChallengeContext>
-        extends AbstractChallengeResponseService<R, C, X> {
+        extends AbstractChallengeResponseService<R, C, X> implements ApplicationEventPublisherAware {
     @NonNull
     @Getter(AccessLevel.PROTECTED)
     private final SmsVerificationCodeClient smsVerificationCodeClient;
+
+    private ApplicationEventPublisher eventPublisher;
 
     protected AbstractSmsVerificationCodeChallengeResponseService(@NonNull ChallengeStore<C> challengeStore, @NonNull ChallengeCooldownManager challengeCooldownManager, @NonNull ChallengeContextStore<X> challengeContextStore, @NonNull SmsVerificationCodeClient smsVerificationCodeClient) {
         super(challengeStore, challengeCooldownManager, challengeContextStore);
@@ -61,11 +70,19 @@ public abstract class AbstractSmsVerificationCodeChallengeResponseService<R exte
     }
 
     /**
-     * 生成验证码
+     * 生产验证码
      *
+     * @param client   客户端
+     * @param scenario 场景
+     * @param request  挑战请求
+     * @param payload  载荷
      * @return 验证码
      */
-    protected String generateCode() {
+    protected String generateCode(@Nullable RequestingClient client,
+                                  @NonNull Class<? extends Scenario> scenario,
+                                  @NonNull R request,
+                                  @NonNull Map<String, Object> payload
+    ) {
         return String.format("%06d", new SecureRandom().nextInt(999999 + 1));
     }
 
@@ -85,11 +102,40 @@ public abstract class AbstractSmsVerificationCodeChallengeResponseService<R exte
         //获取手机号
         String mobilePhoneNumber = request.getMobilePhoneNumber();
         //生成验证码
-        String code = generateCode();
-        //调客户端发送
-        smsVerificationCodeClient.sendVerificationCode(client, mobilePhoneNumber, scenario, code);
+        String code = generateCode(client, scenario, request, payload);
         //在上下文中保存验证码
         payload.put(AbstractSmsVerificationCodeChallengeResponseService.class.getName(), code);
+        this.eventPublisher.publishEvent(
+                SmsVerificationCodeAboutToSendEvent.builder()
+                        .client(client)
+                        .scenario(scenario)
+                        .request(request)
+                        .payload(payload)
+                        .build()
+        );
+        try {
+            //调客户端发送
+            smsVerificationCodeClient.sendVerificationCode(client, mobilePhoneNumber, scenario, code);
+        } catch (Exception e) {
+            eventPublisher.publishEvent(
+                    SmsVerificationCodeSendingFailedEvent.builder()
+                            .client(client)
+                            .scenario(scenario)
+                            .request(request)
+                            .payload(payload)
+                            .exception(e)
+                            .build()
+            );
+            throw e;
+        }
+        this.eventPublisher.publishEvent(
+                SmsVerificationCodeSentEvent.builder()
+                        .client(client)
+                        .scenario(scenario)
+                        .request(request)
+                        .payload(payload)
+                        .build()
+        );
         //生成挑战
         return createSmsVerificationChallenge(client, scenario, request, payload);
     }
@@ -119,5 +165,10 @@ public abstract class AbstractSmsVerificationCodeChallengeResponseService<R exte
     protected boolean verifyChallengeInternally(@Nullable RequestingClient client, @NonNull Class<? extends Scenario> scenario, @NonNull String challengeId, @NonNull X context, @NonNull String response) throws Exception {
         //输入的响应和上下文中保存的一样
         return response.equals(context.getCode());
+    }
+
+    @Override
+    public void setApplicationEventPublisher(ApplicationEventPublisher applicationEventPublisher) {
+        this.eventPublisher = applicationEventPublisher;
     }
 }

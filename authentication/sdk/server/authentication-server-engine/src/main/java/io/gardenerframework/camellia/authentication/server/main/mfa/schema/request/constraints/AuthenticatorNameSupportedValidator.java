@@ -22,7 +22,6 @@ public class AuthenticatorNameSupportedValidator extends AbstractConstraintValid
         if (!StringUtils.hasText(value)) {
             return false;
         }
-        MfaAuthenticationChallengeResponseServiceRegistry.MfaAuthenticationChallengeResponseServiceRegistryItem item = registry.getItem(value);
-        return item != null && item.isEnabled();
+        return registry.hasMfaAuthenticationChallengeResponseService(value);
     }
 }

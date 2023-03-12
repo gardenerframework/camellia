@@ -7,6 +7,7 @@ import io.gardenerframework.camellia.authentication.server.main.exception.Nested
 import io.gardenerframework.camellia.authentication.server.main.mfa.challenge.MfaAuthenticationChallengeResponseService;
 import io.gardenerframework.camellia.authentication.server.main.mfa.challenge.MfaAuthenticationScenario;
 import io.gardenerframework.camellia.authentication.server.main.mfa.challenge.schema.MfaAuthenticationChallengeContext;
+import io.gardenerframework.camellia.authentication.server.main.mfa.challenge.schema.MfaAuthenticationChallengeRequest;
 import io.gardenerframework.camellia.authentication.server.main.mfa.exception.client.BadMfaAuthenticationRequestException;
 import io.gardenerframework.camellia.authentication.server.main.mfa.schema.principal.MfaAuthenticationPrincipal;
 import io.gardenerframework.camellia.authentication.server.main.mfa.utils.MfaAuthenticationChallengeResponseServiceRegistry;
@@ -47,7 +48,7 @@ public class MfaAuthenticationUserService implements UserService {
         if (principal instanceof MfaAuthenticationPrincipal) {
             String challengeId = principal.getName();
             String authenticatorName = ((MfaAuthenticationPrincipal) principal).getAuthenticatorName();
-            MfaAuthenticationChallengeResponseService service = Objects.requireNonNull(registry.getItem(authenticatorName)).getService();
+            MfaAuthenticationChallengeResponseService<MfaAuthenticationChallengeRequest, MfaAuthenticationChallengeContext> service = Objects.requireNonNull(registry.getMfaAuthenticationChallengeResponseService(authenticatorName));
             MfaAuthenticationChallengeContext mfaAuthenticationChallengeContext = null;
             try {
                 mfaAuthenticationChallengeContext = service.getContext(

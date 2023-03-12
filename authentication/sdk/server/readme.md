@@ -1207,6 +1207,7 @@ public interface MfaAuthenticatorAdvisor {
      *
      * @param request http请求
      * @param client  请求客户端
+     * @param authenticationType 认证类型
      * @param user    用户
      * @param context 认证过程中的上下文
      * @return 执行mfa的认证器名称
@@ -1216,6 +1217,7 @@ public interface MfaAuthenticatorAdvisor {
     String getAuthenticator(
             @NonNull HttpServletRequest request,
             @Nullable OAuth2RequestingClient client,
+            @NonNull String authenticationType,
             @NonNull User user,
             @NonNull Map<String, Object> context
     ) throws Exception;
