@@ -68,7 +68,7 @@ export default {
 
 <style scoped>
 .jd-form-box {
-  background-image: url("media/image/wechat.svg");
+  background-image: url("media/image/jd.jpg");
   background-size: 24px;
   background-repeat: no-repeat;
   background-position: center;
