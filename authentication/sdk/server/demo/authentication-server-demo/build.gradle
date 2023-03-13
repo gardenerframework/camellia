@@ -7,6 +7,7 @@ dependencies {
     api "${group}:sms-user-authentication-service"
     api "${group}:sms-client-jdcloud"
     //sns认证
+    api "${group}:jd-user-authentication-service"
     api "${group}:wechat-user-authentication-service"
     api "${group}:alipay-user-authentication-service"
     //api选项持久化组件

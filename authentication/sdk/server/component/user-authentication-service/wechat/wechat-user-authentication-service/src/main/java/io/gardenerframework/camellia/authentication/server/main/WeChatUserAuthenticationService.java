@@ -1,5 +1,6 @@
 package io.gardenerframework.camellia.authentication.server.main;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.gardenerframework.camellia.authentication.server.configuration.WeChatUserAuthenticationServiceComponent;
 import io.gardenerframework.camellia.authentication.server.configuration.WeChatUserAuthenticationServiceOption;
 import io.gardenerframework.camellia.authentication.server.main.annotation.AuthenticationType;
@@ -53,8 +54,8 @@ public class WeChatUserAuthenticationService extends OAuth2BaseUserAuthenticatio
         if (response == null) {
             throw new InternalAuthenticationServiceException("no response");
         }
-        if (response.get("errcode") != null) {
-            throw new InternalAuthenticationServiceException("error = " + response.get("errmsg"));
+        if (response.get("openid") != null) {
+            throw new InternalAuthenticationServiceException("error = " + new ObjectMapper().writeValueAsString(response));
         }
         return WeChatOpenIdPrincipal.builder().name(String.valueOf(response.get("openid"))).build();
     }

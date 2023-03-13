@@ -1,6 +1,5 @@
-package io.gardenerframework.camellia.authentication.server.main.schema.credentials;
+package io.gardenerframework.camellia.authentication.server.main.schema.subject.credentials;
 
-import io.gardenerframework.camellia.authentication.server.main.schema.subject.credentials.Credentials;
 import io.gardenerframework.fragrans.data.trait.generic.GenericTraits;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;

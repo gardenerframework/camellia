@@ -15,8 +15,8 @@ import java.io.IOException;
  */
 @ConditionalOnClass(WeChatUserAuthenticationServiceOption.class)
 @Configuration
-public class DemoWechatUserAuthenticationServiceOptionConfigurer {
-    public DemoWechatUserAuthenticationServiceOptionConfigurer(WeChatUserAuthenticationServiceOption option) throws IOException {
+public class DemoWeChatUserAuthenticationServiceOptionConfigurer {
+    public DemoWeChatUserAuthenticationServiceOptionConfigurer(WeChatUserAuthenticationServiceOption option) throws IOException {
         WechatSecret secret = new Yaml().loadAs(
                 new ClassPathResource(
                         "authentication-server-demo/" +

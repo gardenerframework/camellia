@@ -1,6 +1,8 @@
 package io.gardenerframework.camellia.authentication.server.main;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.gardenerframework.camellia.authentication.common.client.schema.OAuth2RequestingClient;
+import io.gardenerframework.camellia.authentication.server.main.annotation.AuthenticationType;
 import io.gardenerframework.camellia.authentication.server.main.exception.client.BadOAuth2AuthorizationCodeException;
 import io.gardenerframework.camellia.authentication.server.main.exception.client.BadStateException;
 import io.gardenerframework.camellia.authentication.server.main.schema.UserAuthenticationRequestToken;
@@ -8,14 +10,15 @@ import io.gardenerframework.camellia.authentication.server.main.schema.request.O
 import io.gardenerframework.camellia.authentication.server.main.schema.subject.principal.Principal;
 import io.gardenerframework.camellia.authentication.server.main.user.schema.User;
 import lombok.NonNull;
+import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.lang.Nullable;
 import org.springframework.security.core.AuthenticationException;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Validator;
-import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.Base64;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
@@ -82,7 +85,14 @@ public abstract class OAuth2BaseUserAuthenticationService extends AbstractUserAu
      * @throws Exception 发生的问题
      */
     public String createState() throws Exception {
-        String state = Base64.getEncoder().encodeToString(UUID.randomUUID().toString().getBytes(StandardCharsets.UTF_8));
+        Map<String, Object> stateHolder = new HashMap<>();
+        stateHolder.put("state", UUID.randomUUID().toString());
+        AuthenticationType annotation = AnnotationUtils.findAnnotation(this.getClass(), AuthenticationType.class);
+        if (annotation != null) {
+            //表达这是当前登录方式的state
+            stateHolder.put(annotation.value(), true);
+        }
+        String state = Base64.getEncoder().encodeToString(new ObjectMapper().writeValueAsBytes(stateHolder));
         oAuth2StateStore.save(this.getClass(), state, Duration.ofSeconds(300));
         return state;
     }

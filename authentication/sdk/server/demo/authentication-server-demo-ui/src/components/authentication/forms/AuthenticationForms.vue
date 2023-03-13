@@ -21,6 +21,8 @@
       <div class="sns-box">
         <div class="sns-title">{{ $t("components.authentication.authenticationForms.title") }}</div>
         <div class="sns-forms-location">
+          <jd-authentication-form v-if="this.authenticationTypes.includes('jd')"
+                                  :redirect-url="this.snsRedirectUrl"></jd-authentication-form>
           <we-chat-authentication-form v-if="this.authenticationTypes.includes('wechat')"
                                        :redirect-url="this.snsRedirectUrl"></we-chat-authentication-form>
           <alipay-authentication-form v-if="this.authenticationTypes.includes('alipay')"
@@ -38,6 +40,7 @@ import UsernameAuthenticationForm from "@/components/authentication/forms/userna
 import SmsAuthenticationForm from "@/components/authentication/forms/sms/SmsAuthenticationForm.vue";
 import AlipayAuthenticationForm from "@/components/authentication/forms/sns/alipay/AlipayAuthenticationForm.vue";
 import WeChatAuthenticationForm from "@/components/authentication/forms/sns/wechat/WeChatAuthenticationForm.vue";
+import JdAuthenticationForm from "@/components/authentication/forms/sns/jd/JdAuthenticationForm.vue";
 
 export default {
   name: "AuthenticationForms",
@@ -60,6 +63,7 @@ export default {
     }
   },
   components: {
+    JdAuthenticationForm,
     WeChatAuthenticationForm,
     AlipayAuthenticationForm, SmsAuthenticationForm, UsernameAuthenticationForm, Brand
   }
