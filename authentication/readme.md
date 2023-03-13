@@ -24,7 +24,7 @@ Camellia Unified Authentication Server Engine(CUASE)是一个款基于spring sec
 * 通过监听事件插入自定义逻辑: CUASE在用户的登录认证过程向外发送可进行同步/异步监听的应用事件，通过这些应用事件，开发人员可以实现诸如记录登录日志、检查用户是否在风控黑名单而阻止登录等所需的逻辑
 * 基于oauth2标准进行对接: CUASE服从oauth2标准实现，应用程序可以通过oauth2的标准化流程和接口完成对接
 
-上图是认证系统引擎的一个架构图概览
+认证系统引擎的一个架构图概览如下
 
 ```plantuml
 @startuml
