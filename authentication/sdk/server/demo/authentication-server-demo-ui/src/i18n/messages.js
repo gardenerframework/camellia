@@ -132,7 +132,7 @@ const messages = {
                 name: "camellia"
             },
             header: {
-                title: "Authorization Server",
+                title: "Unified Authentication Server",
             },
             homePage: {
                 text: "Home page"
