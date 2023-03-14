@@ -29,6 +29,7 @@ public class SmsVerificationCodeEndpoint {
             @Valid @RequestBody SendSmsVerificationCodeRequest request
     ) throws ChallengeResponseServiceException {
         try {
+            //todo，检查用户是否存在
             return service.sendChallenge(
                     null,
                     SmsAuthenticationScenario.class,

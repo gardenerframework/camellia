@@ -6,6 +6,7 @@ import io.gardenerframework.camellia.authentication.server.configuration.WeChatU
 import io.gardenerframework.camellia.authentication.server.main.annotation.AuthenticationType;
 import io.gardenerframework.camellia.authentication.server.main.schema.subject.principal.Principal;
 import io.gardenerframework.camellia.authentication.server.main.schema.subject.principal.WeChatOpenIdPrincipal;
+import io.gardenerframework.camellia.authentication.server.main.schema.subject.principal.WeChatUnionIdPrincipal;
 import lombok.AccessLevel;
 import lombok.NonNull;
 import lombok.Setter;
@@ -27,7 +28,7 @@ import java.util.Map;
  */
 @AuthenticationType("wechat")
 @WeChatUserAuthenticationServiceComponent
-public class WeChatUserAuthenticationService extends OAuth2BaseUserAuthenticationService
+public class WeChatUserAuthenticationService extends OAuth2BasedUserAuthenticationService
         implements InitializingBean {
     private final RestTemplate restTemplate = new RestTemplate();
 
@@ -54,10 +55,13 @@ public class WeChatUserAuthenticationService extends OAuth2BaseUserAuthenticatio
         if (response == null) {
             throw new InternalAuthenticationServiceException("no response");
         }
-        if (response.get("openid") != null) {
+        String userId = (String) response.get(option.isOpenIdAsUserId() ? "openid" : "unionid");
+        if (userId == null) {
             throw new InternalAuthenticationServiceException("error = " + new ObjectMapper().writeValueAsString(response));
         }
-        return WeChatOpenIdPrincipal.builder().name(String.valueOf(response.get("openid"))).build();
+        return (option.isOpenIdAsUserId() ? WeChatOpenIdPrincipal.builder() : WeChatUnionIdPrincipal.builder())
+                .name(userId)
+                .build();
     }
 
     @Override

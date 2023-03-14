@@ -5,6 +5,7 @@ import io.gardenerframework.camellia.authentication.server.configuration.JdUserA
 import io.gardenerframework.camellia.authentication.server.configuration.JdUserAuthenticationServiceOption;
 import io.gardenerframework.camellia.authentication.server.main.annotation.AuthenticationType;
 import io.gardenerframework.camellia.authentication.server.main.schema.subject.principal.JdOpenIdPrincipal;
+import io.gardenerframework.camellia.authentication.server.main.schema.subject.principal.JdXIdPrincipal;
 import io.gardenerframework.camellia.authentication.server.main.schema.subject.principal.Principal;
 import lombok.AccessLevel;
 import lombok.NonNull;
@@ -23,7 +24,7 @@ import java.util.Map;
  */
 @AuthenticationType("jd")
 @JdUserAuthenticationServiceComponent
-public class JdUserAuthenticationService extends OAuth2BaseUserAuthenticationService {
+public class JdUserAuthenticationService extends OAuth2BasedUserAuthenticationService {
     private final RestTemplate restTemplate = new RestTemplate();
     @Setter(onMethod = @__(@Autowired), value = AccessLevel.PRIVATE)
     private JdUserAuthenticationServiceOption option;
@@ -45,10 +46,14 @@ public class JdUserAuthenticationService extends OAuth2BaseUserAuthenticationSer
         if (response == null) {
             throw new InternalAuthenticationServiceException("no response");
         }
-        if (response.get("open_id") == null) {
+        String userId = (String) response.get(option.isOpenIdAsUserId() ? "open_id" : "xid");
+        if (userId == null) {
             //没有openId
             throw new InternalAuthenticationServiceException("error = " + new ObjectMapper().writeValueAsString(response));
         }
-        return JdOpenIdPrincipal.builder().name(String.valueOf(response.get("open_id"))).build();
+        return (option.isOpenIdAsUserId() ? JdOpenIdPrincipal.builder() : JdXIdPrincipal.builder())
+                .name(userId)
+                .build();
+
     }
 }

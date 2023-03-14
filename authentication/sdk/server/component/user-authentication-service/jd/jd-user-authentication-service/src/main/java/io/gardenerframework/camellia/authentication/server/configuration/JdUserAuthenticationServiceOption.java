@@ -27,4 +27,8 @@ public class JdUserAuthenticationServiceOption {
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @NotBlank
     private String appSecret;
+    /**
+     * 是否使用open id作为读取用户的id
+     */
+    private boolean openIdAsUserId = false;
 }

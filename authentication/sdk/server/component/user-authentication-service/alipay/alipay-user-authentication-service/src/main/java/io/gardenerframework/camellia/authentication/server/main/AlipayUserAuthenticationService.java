@@ -23,7 +23,7 @@ import javax.validation.Validator;
  */
 @AuthenticationType("alipay")
 @AlipayUserAuthenticationServiceComponent
-public class AlipayUserAuthenticationService extends OAuth2BaseUserAuthenticationService {
+public class AlipayUserAuthenticationService extends OAuth2BasedUserAuthenticationService {
     private String alipayOptionSign = "";
 
     @Setter(onMethod = @__(@Autowired), value = AccessLevel.PRIVATE)

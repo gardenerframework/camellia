@@ -26,10 +26,10 @@ import java.util.UUID;
  * @author zhanghan30
  * @date 2023/3/6 11:56
  */
-public abstract class OAuth2BaseUserAuthenticationService extends AbstractUserAuthenticationService<OAuth2AuthorizationCodeParameter> {
+public abstract class OAuth2BasedUserAuthenticationService extends AbstractUserAuthenticationService<OAuth2AuthorizationCodeParameter> {
     private final OAuth2StateStore oAuth2StateStore;
 
-    protected OAuth2BaseUserAuthenticationService(@NonNull Validator validator, OAuth2StateStore oAuth2StateStore) {
+    protected OAuth2BasedUserAuthenticationService(@NonNull Validator validator, OAuth2StateStore oAuth2StateStore) {
         super(validator);
         this.oAuth2StateStore = oAuth2StateStore;
     }
