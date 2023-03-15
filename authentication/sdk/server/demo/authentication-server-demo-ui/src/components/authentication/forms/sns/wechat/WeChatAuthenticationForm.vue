@@ -58,7 +58,7 @@ export default {
     )
     if (this.$route.query.code && this.$route.query.state) {
       let stateData = JSON.parse(Base64.decode(this.$route.query.state));
-      if (stateData.wehcat) {
+      if (stateData.wechat) {
         //是回调
         this.login()
       }

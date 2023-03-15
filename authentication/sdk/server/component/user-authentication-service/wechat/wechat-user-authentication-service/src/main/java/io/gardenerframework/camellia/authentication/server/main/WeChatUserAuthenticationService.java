@@ -8,8 +8,10 @@ import io.gardenerframework.camellia.authentication.server.main.schema.subject.p
 import io.gardenerframework.camellia.authentication.server.main.schema.subject.principal.WeChatOpenIdPrincipal;
 import io.gardenerframework.camellia.authentication.server.main.schema.subject.principal.WeChatUnionIdPrincipal;
 import lombok.AccessLevel;
+import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
+import lombok.experimental.SuperBuilder;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -39,9 +41,8 @@ public class WeChatUserAuthenticationService extends OAuth2BasedUserAuthenticati
         super(validator, oAuth2StateStore);
     }
 
-    @Nullable
     @Override
-    protected Principal getPrincipal(@NonNull String authorizationCode) throws Exception {
+    protected AccessToken obtainAccessToken(@NonNull String authorizationCode, @NonNull Map<String, Object> context) throws Exception {
         Map<String, Object> response = restTemplate.getForObject(
                 "https://api.weixin.qq.com/sns/oauth2/access_token?appid={appId}" +
                         "&secret={appSecret}" +
@@ -55,12 +56,29 @@ public class WeChatUserAuthenticationService extends OAuth2BasedUserAuthenticati
         if (response == null) {
             throw new InternalAuthenticationServiceException("no response");
         }
-        String userId = (String) response.get(option.isOpenIdAsUserId() ? "openid" : "unionid");
-        if (userId == null) {
+        String accessToken = (String) response.get("access_token");
+        if (accessToken == null) {
             throw new InternalAuthenticationServiceException("error = " + new ObjectMapper().writeValueAsString(response));
         }
-        return (option.isOpenIdAsUserId() ? WeChatOpenIdPrincipal.builder() : WeChatUnionIdPrincipal.builder())
-                .name(userId)
+        return WeChatAccessToken.builder()
+                .accessToken((String) response.get("access_token"))
+                .refreshToken((String) response.get("refresh_token"))
+                .expireIn(Long.valueOf((Integer)response.get("expires_in")))
+                .scope((String) response.get("scope"))
+                .openId((String) response.get("openid"))
+                .unionId((String) response.get("unionid"))
+                .build();
+
+
+    }
+
+    @Nullable
+    @Override
+    protected Principal getPrincipal(@NonNull AccessToken accessToken, @NonNull Map<String, Object> context) throws Exception {
+        WeChatAccessToken weChatAccessToken = (WeChatAccessToken) accessToken;
+        return (option.isOpenIdAsUserId() ?
+                WeChatOpenIdPrincipal.builder().name(weChatAccessToken.getOpenId()) :
+                WeChatUnionIdPrincipal.builder().name(weChatAccessToken.getUnionId()))
                 .build();
     }
 
@@ -70,5 +88,15 @@ public class WeChatUserAuthenticationService extends OAuth2BasedUserAuthenticati
         MappingJackson2HttpMessageConverter converter = new MappingJackson2HttpMessageConverter();
         converter.setSupportedMediaTypes(Collections.singletonList(MediaType.TEXT_PLAIN));
         restTemplate.getMessageConverters().add(converter);
+    }
+
+    @SuperBuilder
+    @Setter
+    @Getter
+    public static class WeChatAccessToken extends AccessToken {
+        @NonNull
+        private String openId;
+        @Nullable
+        private String unionId;
     }
 }

@@ -7,9 +7,8 @@ import io.gardenerframework.camellia.authentication.server.main.annotation.Authe
 import io.gardenerframework.camellia.authentication.server.main.schema.subject.principal.JdOpenIdPrincipal;
 import io.gardenerframework.camellia.authentication.server.main.schema.subject.principal.JdXIdPrincipal;
 import io.gardenerframework.camellia.authentication.server.main.schema.subject.principal.Principal;
-import lombok.AccessLevel;
-import lombok.NonNull;
-import lombok.Setter;
+import lombok.*;
+import lombok.experimental.SuperBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.lang.Nullable;
 import org.springframework.security.authentication.InternalAuthenticationServiceException;
@@ -33,9 +32,8 @@ public class JdUserAuthenticationService extends OAuth2BasedUserAuthenticationSe
         super(validator, oAuth2StateStore);
     }
 
-    @Nullable
     @Override
-    protected Principal getPrincipal(@NonNull String authorizationCode) throws Exception {
+    protected AccessToken obtainAccessToken(@NonNull String authorizationCode, @NonNull Map<String, Object> context) throws Exception {
         Map<String, Object> response = restTemplate.getForObject(
                 "https://open-oauth.jd.com/oauth2/access_token?app_key={appId}&app_secret={appSecret}&grant_type=authorization_code&code={code}",
                 Map.class,
@@ -46,14 +44,37 @@ public class JdUserAuthenticationService extends OAuth2BasedUserAuthenticationSe
         if (response == null) {
             throw new InternalAuthenticationServiceException("no response");
         }
-        String userId = (String) response.get(option.isOpenIdAsUserId() ? "open_id" : "xid");
-        if (userId == null) {
+        String accessToken = (String) response.get("access_token");
+        if (accessToken == null) {
             //没有openId
             throw new InternalAuthenticationServiceException("error = " + new ObjectMapper().writeValueAsString(response));
         }
-        return (option.isOpenIdAsUserId() ? JdOpenIdPrincipal.builder() : JdXIdPrincipal.builder())
-                .name(userId)
+        return JdAccessToken.builder()
+                .accessToken((String) response.get("accessToken"))
+                .refreshToken((String) response.get("refresh_token"))
+                .expireIn(Long.valueOf((Integer) response.get("expires_in")))
+                .scope((String) response.get("scope"))
+                .openId((String) response.get("open_id"))
+                .xid((String) response.get("xid"))
                 .build();
+    }
 
+    @Nullable
+    @Override
+    protected Principal getPrincipal(@NonNull AccessToken accessToken, @NonNull Map<String, Object> context) throws Exception {
+        JdAccessToken jdAccessToken = (JdAccessToken) accessToken;
+        return (option.isOpenIdAsUserId() ? JdOpenIdPrincipal.builder() : JdXIdPrincipal.builder().name(jdAccessToken.getXid()))
+                .build();
+    }
+
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    @SuperBuilder
+    public static class JdAccessToken extends AccessToken {
+        @NonNull
+        private String openId;
+        @NonNull
+        private String xid;
     }
 }

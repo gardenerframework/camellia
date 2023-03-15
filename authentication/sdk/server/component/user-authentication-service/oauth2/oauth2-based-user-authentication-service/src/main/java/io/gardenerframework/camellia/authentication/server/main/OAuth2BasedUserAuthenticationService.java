@@ -9,7 +9,11 @@ import io.gardenerframework.camellia.authentication.server.main.schema.UserAuthe
 import io.gardenerframework.camellia.authentication.server.main.schema.request.OAuth2AuthorizationCodeParameter;
 import io.gardenerframework.camellia.authentication.server.main.schema.subject.principal.Principal;
 import io.gardenerframework.camellia.authentication.server.main.user.schema.User;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.NonNull;
+import lombok.Setter;
+import lombok.experimental.SuperBuilder;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.lang.Nullable;
 import org.springframework.security.core.AuthenticationException;
@@ -40,14 +44,26 @@ public abstract class OAuth2BasedUserAuthenticationService extends AbstractUserA
     }
 
     /**
+     * 获取access token
+     *
+     * @param authorizationCode 授权码
+     * @param context           上下文
+     * @return access token
+     * @throws Exception 发生问题
+     */
+    protected abstract AccessToken obtainAccessToken(@NonNull String authorizationCode, @NonNull Map<String, Object> context)
+            throws Exception;
+
+    /**
      * 从iam读取用户并转换为登录名
      *
-     * @param authorizationCode iam所需要的授权码
+     * @param accessToken access token
+     * @param context     上下文
      * @return 登录名
      * @throws Exception 发生问题
      */
     @Nullable
-    protected abstract Principal getPrincipal(@NonNull String authorizationCode)
+    protected abstract Principal getPrincipal(@NonNull AccessToken accessToken, @NonNull Map<String, Object> context)
             throws Exception;
 
     @Override
@@ -60,8 +76,11 @@ public abstract class OAuth2BasedUserAuthenticationService extends AbstractUserA
         if (!oAuth2StateStore.verify(this.getClass(), authenticationParameter.getState())) {
             throw new BadStateException(authenticationParameter.getCode());
         }
+        AccessToken accessToken = obtainAccessToken(authenticationParameter.getCode(), context);
+        //存储access token
+        context.put(this.getClass().getName(), accessToken);
         //使用授权码去读取用户，并转换为用户的登录名
-        Principal principal = getPrincipal(authenticationParameter.getCode());
+        Principal principal = getPrincipal(accessToken, context);
         if (principal == null) {
             throw new BadOAuth2AuthorizationCodeException(authenticationParameter.getCode());
         }
@@ -95,5 +114,33 @@ public abstract class OAuth2BasedUserAuthenticationService extends AbstractUserA
         String state = Base64.getEncoder().encodeToString(new ObjectMapper().writeValueAsBytes(stateHolder));
         oAuth2StateStore.save(this.getClass(), state, Duration.ofSeconds(300));
         return state;
+    }
+
+    /**
+     * 从上下文中获取 access token
+     *
+     * @param context 上下文
+     * @return 访问令牌
+     */
+    @Nullable
+    public AccessToken getAccessTokenFromContext(@NonNull Map<String, Object> context) {
+        return (AccessToken) context.get(this.getClass().getName());
+    }
+
+    @Getter
+    @Setter
+    @SuperBuilder
+    @NoArgsConstructor
+    public static class AccessToken {
+        @NonNull
+        private String accessToken;
+
+        @Nullable
+        private String refreshToken;
+
+        private long expireIn;
+
+        @Nullable
+        private String scope;
     }
 }

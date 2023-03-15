@@ -12,7 +12,7 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
-public class AlipayOpenIdPrincipal extends Principal {
+public class AlipayUserIdPrincipal extends Principal {
     private static final long serialVersionUID = SerializationVersionNumber.version;
 
 }

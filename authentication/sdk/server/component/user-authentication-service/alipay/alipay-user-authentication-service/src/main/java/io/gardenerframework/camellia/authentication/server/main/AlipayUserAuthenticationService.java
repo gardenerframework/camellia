@@ -7,15 +7,15 @@ import com.alipay.easysdk.kernel.Config;
 import io.gardenerframework.camellia.authentication.server.configuration.AlipayUserAuthenticationServiceComponent;
 import io.gardenerframework.camellia.authentication.server.configuration.AlipayUserAuthenticationServiceOption;
 import io.gardenerframework.camellia.authentication.server.main.annotation.AuthenticationType;
-import io.gardenerframework.camellia.authentication.server.main.schema.subject.principal.AlipayOpenIdPrincipal;
+import io.gardenerframework.camellia.authentication.server.main.schema.subject.principal.AlipayUserIdPrincipal;
 import io.gardenerframework.camellia.authentication.server.main.schema.subject.principal.Principal;
-import lombok.AccessLevel;
-import lombok.NonNull;
-import lombok.Setter;
+import lombok.*;
+import lombok.experimental.SuperBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.lang.Nullable;
 
 import javax.validation.Validator;
+import java.util.Map;
 
 /**
  * @author zhanghan30
@@ -33,14 +33,25 @@ public class AlipayUserAuthenticationService extends OAuth2BasedUserAuthenticati
         super(validator, oAuth2StateStore);
     }
 
-    @Nullable
     @Override
-    protected Principal getPrincipal(@NonNull String authorizationCode) throws Exception {
-        //初始化阿里客户端
+    protected AccessToken obtainAccessToken(@NonNull String authorizationCode, @NonNull Map<String, Object> context) throws Exception {
         initAlipayClientFactory();
         Client client = Factory.getClient(Client.class);
         AlipaySystemOauthTokenResponse token = client.getToken(authorizationCode);
-        return AlipayOpenIdPrincipal.builder().name(token.getUserId()).build();
+        return AlipayAccessToken.builder()
+                .accessToken(token.getAccessToken())
+                .refreshToken(token.getRefreshToken())
+                .expireIn(token.getExpiresIn())
+                .userId(token.getUserId())
+                .build();
+    }
+
+    @Nullable
+    @Override
+    protected Principal getPrincipal(@NonNull AccessToken accessToken, @NonNull Map<String, Object> context) throws Exception {
+        return AlipayUserIdPrincipal.builder()
+                .name(((AlipayAccessToken) accessToken).getUserId())
+                .build();
     }
 
     private boolean signUpdated() {
@@ -71,5 +82,14 @@ public class AlipayUserAuthenticationService extends OAuth2BasedUserAuthenticati
             config.alipayPublicKey = option.getAliPublicKey();
             Factory.setOptions(config);
         }
+    }
+
+    @Getter
+    @Setter
+    @SuperBuilder
+    @NoArgsConstructor
+    public static class AlipayAccessToken extends AccessToken {
+        @NonNull
+        private String userId;
     }
 }

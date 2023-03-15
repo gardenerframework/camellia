@@ -10,6 +10,7 @@ import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Component;
 
 import javax.validation.Validator;
+import java.util.Map;
 
 /**
  * @author zhanghan30
@@ -22,9 +23,14 @@ public class TestOAuth2BaseUserAuthenticationService extends OAuth2BasedUserAuth
         super(validator, oAuth2StateStore);
     }
 
+    @Override
+    protected AccessToken obtainAccessToken(@NonNull String authorizationCode, @NonNull Map<String, Object> context) throws Exception {
+        return AccessToken.builder().accessToken(authorizationCode).build();
+    }
+
     @Nullable
     @Override
-    protected Principal getPrincipal(@NonNull String authorizationCode) throws Exception {
-        return UsernamePrincipal.builder().name(authorizationCode).build();
+    protected Principal getPrincipal(@NonNull AccessToken accessToken, @NonNull Map<String, Object> context) throws Exception {
+        return UsernamePrincipal.builder().name(accessToken.getAccessToken()).build();
     }
 }
