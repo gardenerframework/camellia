@@ -37,6 +37,7 @@
 import LoadingVeil from "@/components/veil/LoadingVeil";
 import basicAxiosProxy from "@/xhr/axios-aop";
 import i18n from "@/i18n/i18n";
+import {Notification} from "element-ui";
 
 export default {
   name: "SmsAuthenticationForm.vue",
@@ -120,6 +121,12 @@ export default {
                   if (response.data !== undefined && response.data.error !== undefined) {
                     if (response.data.status === 429) {
                       this.coolDown(parseInt((new Date(response.data.details.cooldownCompletionTime) - new Date()) / 1000))
+                    }
+                    if (response.data.status === 401) {
+                      Notification.error({
+                        title: "出错啦",
+                        message: response.data.message
+                      })
                     }
                   }
                 }

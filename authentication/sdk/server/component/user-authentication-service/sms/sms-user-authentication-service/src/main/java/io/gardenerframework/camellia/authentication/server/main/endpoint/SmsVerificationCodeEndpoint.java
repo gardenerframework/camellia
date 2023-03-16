@@ -6,6 +6,7 @@ import io.gardenerframework.camellia.authentication.infra.challenge.core.schema.
 import io.gardenerframework.camellia.authentication.server.common.api.group.AuthenticationServerRestController;
 import io.gardenerframework.camellia.authentication.server.configuration.SmsAuthenticationServiceComponent;
 import io.gardenerframework.camellia.authentication.server.main.exception.client.SmsVerificationCodeNotReadyException;
+import io.gardenerframework.camellia.authentication.server.main.exception.client.UserNotFoundException;
 import io.gardenerframework.camellia.authentication.server.main.schema.request.SendSmsVerificationCodeRequest;
 import io.gardenerframework.camellia.authentication.server.main.schema.subject.principal.MobilePhoneNumberPrincipal;
 import io.gardenerframework.camellia.authentication.server.main.sms.challenge.SmsAuthenticationChallengeResponseService;
@@ -42,12 +43,14 @@ public class SmsVerificationCodeEndpoint {
             @Valid @RequestBody SendSmsVerificationCodeRequest request
     ) throws ChallengeResponseServiceException {
         try {
-            userService.load(
+            if (userService.load(
                     MobilePhoneNumberPrincipal.builder()
                             .name(request.getMobilePhoneNumber())
                             .build(),
                     new HashMap<>()
-            );
+            ) == null) {
+                throw new UserNotFoundException(request.getMobilePhoneNumber());
+            }
             return service.sendChallenge(
                     null,
                     SmsAuthenticationScenario.class,

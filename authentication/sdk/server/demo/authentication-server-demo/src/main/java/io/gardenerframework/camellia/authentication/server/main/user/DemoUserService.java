@@ -54,7 +54,7 @@ public class DemoUserService implements UserService {
         if (weChatAccessToken != null && (principal instanceof WeChatOpenIdPrincipal || principal instanceof WeChatUnionIdPrincipal)) {
             return obtainWeChatUser(principal, weChatAccessToken);
         }
-        return User.builder()
+        return "404".equals(principal.getName()) ? null : User.builder()
                 .id(principal.getName())
                 .credential(PasswordCredentials.builder().password(password).build())
                 .name(principal.getName())
