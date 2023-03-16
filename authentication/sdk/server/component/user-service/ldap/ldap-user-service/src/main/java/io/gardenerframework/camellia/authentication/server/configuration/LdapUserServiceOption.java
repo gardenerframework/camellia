@@ -15,6 +15,7 @@ import javax.validation.constraints.NotBlank;
 @Getter
 @Setter
 @ApiOption(readonly = false)
+@LdapUserServiceComponent
 public class LdapUserServiceOption {
     /**
      * ldap服务器地址
@@ -36,4 +37,9 @@ public class LdapUserServiceOption {
      */
     @NotBlank
     private String baseDomainDn;
+    /**
+     * 读取用户类的那个属性
+     */
+    @NotBlank
+    private String principalAttribute = "sAMAccount";
 }
