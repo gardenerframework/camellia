@@ -5,7 +5,10 @@ import io.gardenerframework.camellia.authentication.server.main.schema.request.C
 import io.gardenerframework.camellia.authentication.server.main.schema.subject.principal.Principal;
 import io.gardenerframework.fragrans.data.cache.client.CacheClient;
 import io.gardenerframework.fragrans.data.cache.manager.BasicCacheManager;
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 import lombok.experimental.SuperBuilder;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.lang.Nullable;
@@ -58,28 +61,41 @@ public abstract class QrCodeService<
     protected abstract String createImage(@NonNull C request, @NonNull String code) throws Exception;
 
     /**
+     * 生成唯一编码
+     *
+     * @param request 请求
+     * @return 编码
+     */
+    protected String generateCode(@NonNull C request) {
+        return UUID.randomUUID().toString();
+    }
+
+    /**
      * 创建二维码
      *
      * @param request 请求
      * @return 二维码
      * @throws Exception 发生问题
      */
-    public QrCodeDetails createCode(@NonNull C request) throws Exception {
-        //码id
-        String code = UUID.randomUUID().toString();
-        //是否生成吗
+    public QrCodeDetails create(@NonNull C request) throws Exception {
+        String code = null;
         String image = null;
-        if (option.isCreateImage()) {
-            image = createImage(request, code);
-        }
-        //存储二维码的状态为CREATED
-        stateCacheManager.set(
+        do {
+            //码id
+            code = generateCode(request);
+            //是否生成吗
+            if (option.isCreateImage()) {
+                image = createImage(request, code);
+            }
+            //存储二维码的状态为CREATED
+            //如果code被占用就再重新生成一个
+        } while (!stateCacheManager.setIfNotPresents(
                 buildNameSpace(),
                 code,
                 STATE,
                 State.CREATED,
                 Duration.ofSeconds(option.getTtl())
-        );
+        ));
         return QrCodeDetails.builder()
                 .expiryTime(Date.from(Instant.now().plus(Duration.ofSeconds(option.getTtl()))))
                 .code(code)
@@ -115,7 +131,7 @@ public abstract class QrCodeService<
      * @param code    二维码
      * @throws Exception 发生问题
      */
-    public void savePrincipalWithCode(@NonNull HttpServletRequest request, @NonNull String code) throws Exception {
+    public void savePrincipal(@NonNull HttpServletRequest request, @NonNull String code) throws Exception {
         Duration ttl = stateCacheManager.ttl(buildNameSpace(), code, STATE);
         if (ttl != null) {
             this.principalCacheManager.set(buildNameSpace(), code, PRINCIPAL, getPrincipalFromRequest(request), ttl);
@@ -130,7 +146,7 @@ public abstract class QrCodeService<
      * @throws Exception 发生问题
      */
     @Nullable
-    public Principal getSavedPrincipal(@NonNull String code) throws Exception {
+    public Principal getPrincipal(@NonNull String code) throws Exception {
         return principalCacheManager.get(buildNameSpace(), code, PRINCIPAL);
     }
 
@@ -176,23 +192,23 @@ public abstract class QrCodeService<
         EXPIRED
     }
 
-    @NoArgsConstructor
     @SuperBuilder
+    @Getter
     public static class QrCodeDetails {
         /**
          * 二维码id
          */
         @NonNull
-        private String code;
+        private final String code;
         /**
          * 如果只是创建随机id，那么不需要什么图片
          */
         @Nullable
-        private String image;
+        private final String image;
         /**
          * 二维码的过期时间
          */
         @NonNull
-        private Date expiryTime;
+        private final Date expiryTime;
     }
 }

@@ -48,7 +48,7 @@ public abstract class QrCodeEndpoint<C extends CreateQrCodeRequest> {
     public QrCodeService.QrCodeDetails create(
             @RequestBody @Valid C request
     ) throws Exception {
-        return service.createCode(request);
+        return service.create(request);
     }
 
     /**
@@ -96,7 +96,7 @@ public abstract class QrCodeEndpoint<C extends CreateQrCodeRequest> {
             throw new InvalidRequestException();
         }
         //保存登录名
-        service.savePrincipalWithCode(request, code);
+        service.savePrincipal(request, code);
         //设置为已确认
         service.changeState(code, QrCodeService.State.CONFIRMED);
     }

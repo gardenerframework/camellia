@@ -1,4 +1,5 @@
 dependencies {
     api "${group}:qrcode-based-user-authentication-service"
     testImplementation "${fragrans.group}:data-cache-spring-redis"
+    testImplementation "${fragrans.group}:api-starter"
 }

@@ -3,6 +3,7 @@ package io.gardenerframework.camellia.authentication.server.configuration;
 import io.gardenerframework.camellia.authentication.server.main.configuration.QrCodeBasedAuthenticationServiceOption;
 import io.gardenerframework.fragrans.api.options.schema.ApiOption;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.validation.constraints.NotBlank;
@@ -15,6 +16,7 @@ import javax.validation.constraints.NotBlank;
 @Getter
 @Setter
 @WeChatMiniProgramQrCodeServiceComponent
+@NoArgsConstructor
 public class WeChatMiniProgramQrCodeAuthenticationServiceOption extends QrCodeBasedAuthenticationServiceOption {
     @NotBlank
     private String appId;

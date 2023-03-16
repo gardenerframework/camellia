@@ -13,15 +13,16 @@ import lombok.NonNull;
 import lombok.Setter;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.lang.Nullable;
 import org.springframework.web.client.RestTemplate;
 
 import javax.servlet.http.HttpServletRequest;
+import java.security.SecureRandom;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.Collections;
-import java.util.Date;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author zhanghan30
@@ -40,23 +41,35 @@ public class WeChatMiniProgramQrCodeService extends QrCodeService<
     }
 
     @Override
+    protected String generateCode(@NonNull CreateWeChatMiniProgramQrCodeRequest request) {
+        //微信要求32个字符以内，所以就简单一些
+        return UUID.randomUUID().toString().substring(0, 32);
+    }
+
+    @Override
     protected String createImage(@NonNull CreateWeChatMiniProgramQrCodeRequest request, @NonNull String code) throws Exception {
         if (accessToken == null || accessToken.isExpired()) {
             obtainAccessToken();
         }
-        Map<String, Object> response = restTemplate.getForObject(
-                "https://api.weixin.qq.com/wxa/getwxacodeunlimit?access_token={token}" +
-                        "&scene={scene}&page={page}&width={width}",
-                Map.class,
-                accessToken.getAccessToken(),
-                code,
-                getOption().getLandingPageUrl(),
-                request.getSize()
+        //如果成功是直接获取到图片
+        ResponseEntity<byte[]> response = restTemplate.postForEntity(
+                "https://api.weixin.qq.com/wxa/getwxacodeunlimit?access_token={token}",
+                new GetUnlimitedQRCodeRequest(
+                        getOption().getLandingPageUrl(),
+                        code,
+                        request.getSize()
+                ),
+                byte[].class,
+                accessToken.getAccessToken()
         );
-        if (response == null || response.get("buffer") == null) {
-            throw new RuntimeException("response = " + new ObjectMapper().writeValueAsString(response));
+        //不是图片就是失败
+        if (!MediaType.IMAGE_JPEG.equals(response.getHeaders().getContentType())) {
+            throw new RuntimeException("response = " + new String(Objects.requireNonNull(response.getBody())));
         }
-        return (String) response.get("buffer");
+        return String.format("data:image/jpeg;base64,%s",
+                Base64.getEncoder()
+                        .encodeToString(Objects.requireNonNull(response.getBody()))
+        );
     }
 
     @Override
@@ -92,6 +105,17 @@ public class WeChatMiniProgramQrCodeService extends QrCodeService<
                 (String) response.get("access_token"),
                 Date.from(Instant.now().plus(Duration.ofSeconds((Integer) response.get("expires_in"))))
         );
+    }
+
+    @AllArgsConstructor
+    @Getter
+    private static class GetUnlimitedQRCodeRequest {
+        @Nullable
+        private final String page;
+        @NonNull
+        private final String scene;
+        private final int width;
+
     }
 
     @AllArgsConstructor

@@ -36,7 +36,7 @@ public abstract class QrCodeBasedAuthenticationService<S extends QrCodeService> 
         QrCodeAuthenticationParameter parameter = new QrCodeAuthenticationParameter(request);
         parameter.validate(validator);
         try {
-            Principal principal = service.getSavedPrincipal(parameter.getCode());
+            Principal principal = service.getPrincipal(parameter.getCode());
             if (principal == null) {
                 //没有登录名
                 throw new BadQrCodeException(parameter.getCode());
