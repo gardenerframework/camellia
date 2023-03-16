@@ -7,21 +7,34 @@ import io.gardenerframework.camellia.authentication.server.common.api.group.Auth
 import io.gardenerframework.camellia.authentication.server.configuration.SmsAuthenticationServiceComponent;
 import io.gardenerframework.camellia.authentication.server.main.exception.client.SmsVerificationCodeNotReadyException;
 import io.gardenerframework.camellia.authentication.server.main.schema.request.SendSmsVerificationCodeRequest;
+import io.gardenerframework.camellia.authentication.server.main.schema.subject.principal.MobilePhoneNumberPrincipal;
 import io.gardenerframework.camellia.authentication.server.main.sms.challenge.SmsAuthenticationChallengeResponseService;
 import io.gardenerframework.camellia.authentication.server.main.sms.challenge.SmsAuthenticationScenario;
 import io.gardenerframework.camellia.authentication.server.main.sms.challenge.schema.SmsAuthenticationChallengeRequest;
+import io.gardenerframework.camellia.authentication.server.main.user.UserService;
 import lombok.AllArgsConstructor;
+import lombok.NonNull;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import javax.validation.Valid;
+import java.util.HashMap;
 
 @AuthenticationServerRestController
 @RequestMapping("/authentication/sms/code")
 @SmsAuthenticationServiceComponent
 @AllArgsConstructor
 public class SmsVerificationCodeEndpoint {
+    /**
+     * 用户服务
+     */
+    @NonNull
+    private final UserService userService;
+    /**
+     *
+     */
+    @NonNull
     private final SmsAuthenticationChallengeResponseService service;
 
     @PostMapping
@@ -29,11 +42,18 @@ public class SmsVerificationCodeEndpoint {
             @Valid @RequestBody SendSmsVerificationCodeRequest request
     ) throws ChallengeResponseServiceException {
         try {
-            //todo，检查用户是否存在
+            userService.load(
+                    MobilePhoneNumberPrincipal.builder()
+                            .name(request.getMobilePhoneNumber())
+                            .build(),
+                    new HashMap<>()
+            );
             return service.sendChallenge(
                     null,
                     SmsAuthenticationScenario.class,
-                    SmsAuthenticationChallengeRequest.builder().mobilePhoneNumber(request.getMobilePhoneNumber()).build()
+                    SmsAuthenticationChallengeRequest.builder()
+                            .mobilePhoneNumber(request.getMobilePhoneNumber())
+                            .build()
             );
         } catch (ChallengeInCooldownException e) {
             //不能发送
