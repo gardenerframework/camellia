@@ -2,4 +2,6 @@ dependencies {
     api "${group}:authentication-server-core"
     api "${fragrans.group}:data-cache-core"
     api "${fragrans.group}:api-standard-error-exceptions"
+    compileOnly "${fragrans.group}:sugar-trait"
+    annotationProcessor "${fragrans.group}:sugar-trait-apt"
 }

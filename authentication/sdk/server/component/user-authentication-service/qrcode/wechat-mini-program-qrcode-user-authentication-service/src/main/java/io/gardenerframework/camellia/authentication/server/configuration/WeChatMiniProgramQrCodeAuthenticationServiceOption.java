@@ -1,12 +1,14 @@
 package io.gardenerframework.camellia.authentication.server.configuration;
 
-import io.gardenerframework.camellia.authentication.server.main.configuration.QrCodeBasedAuthenticationServiceOption;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import io.gardenerframework.fragrans.api.options.schema.ApiOption;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.lang.Nullable;
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Positive;
 
 /**
  * @author zhanghan30
@@ -17,9 +19,20 @@ import javax.validation.constraints.NotBlank;
 @Setter
 @WeChatMiniProgramQrCodeServiceComponent
 @NoArgsConstructor
-public class WeChatMiniProgramQrCodeAuthenticationServiceOption extends QrCodeBasedAuthenticationServiceOption {
+public class WeChatMiniProgramQrCodeAuthenticationServiceOption {
+    /**
+     * 落地页地址
+     */
+    @Nullable
+    private String pageUrl;
+    /**
+     * 存活时间
+     */
+    @Positive
+    long ttl = 120L;
     @NotBlank
     private String appId;
     @NotBlank
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String appSecret;
 }

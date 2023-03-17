@@ -19,7 +19,6 @@ import org.springframework.lang.Nullable;
 import org.springframework.web.client.RestTemplate;
 
 import javax.servlet.http.HttpServletRequest;
-import java.security.SecureRandom;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
@@ -29,21 +28,27 @@ import java.util.*;
  * @date 2023/3/16 18:34
  */
 @WeChatMiniProgramQrCodeServiceComponent
-public class WeChatMiniProgramQrCodeService extends QrCodeService<
-        CreateWeChatMiniProgramQrCodeRequest,
-        WeChatMiniProgramQrCodeAuthenticationServiceOption
-        > implements InitializingBean {
+public class WeChatMiniProgramQrCodeService extends QrCodeService<CreateWeChatMiniProgramQrCodeRequest>
+        implements InitializingBean {
     private final RestTemplate restTemplate = new RestTemplate();
+    @NonNull
+    private final WeChatMiniProgramQrCodeAuthenticationServiceOption option;
     private AccessToken accessToken;
 
-    public WeChatMiniProgramQrCodeService(@NonNull WeChatMiniProgramQrCodeAuthenticationServiceOption option, @NonNull CacheClient client) {
-        super(option, client);
+    public WeChatMiniProgramQrCodeService(@NonNull CacheClient client, @NonNull WeChatMiniProgramQrCodeAuthenticationServiceOption option) {
+        super(client);
+        this.option = option;
     }
 
     @Override
-    protected String generateCode(@NonNull CreateWeChatMiniProgramQrCodeRequest request) {
+    protected String generateCode(@Nullable CreateWeChatMiniProgramQrCodeRequest request) {
         //微信要求32个字符以内，所以就简单一些
         return UUID.randomUUID().toString().substring(0, 32);
+    }
+
+    @Override
+    protected long getTtl() {
+        return option.getTtl();
     }
 
     @Override
@@ -55,7 +60,7 @@ public class WeChatMiniProgramQrCodeService extends QrCodeService<
         ResponseEntity<byte[]> response = restTemplate.postForEntity(
                 "https://api.weixin.qq.com/wxa/getwxacodeunlimit?access_token={token}",
                 new GetUnlimitedQRCodeRequest(
-                        getOption().getLandingPageUrl(),
+                        option.getPageUrl(),
                         code,
                         request.getSize()
                 ),
@@ -91,8 +96,8 @@ public class WeChatMiniProgramQrCodeService extends QrCodeService<
         Map<String, Object> response = restTemplate.getForObject(
                 "https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid={appid}&secret={secret}",
                 Map.class,
-                getOption().getAppId(),
-                getOption().getAppSecret()
+                option.getAppId(),
+                option.getAppSecret()
         );
         if (response.get("access_token") == null) {
             try {

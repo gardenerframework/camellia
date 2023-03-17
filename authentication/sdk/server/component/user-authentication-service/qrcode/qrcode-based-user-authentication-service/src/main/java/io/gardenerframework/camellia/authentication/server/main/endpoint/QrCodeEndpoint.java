@@ -1,11 +1,11 @@
 package io.gardenerframework.camellia.authentication.server.main.endpoint;
 
-import io.gardenerframework.camellia.authentication.server.main.configuration.QrCodeBasedAuthenticationServiceOption;
 import io.gardenerframework.camellia.authentication.server.main.exception.client.InvalidRequestException;
 import io.gardenerframework.camellia.authentication.server.main.qrcode.QrCodeService;
 import io.gardenerframework.camellia.authentication.server.main.schema.request.CreateQrCodeRequest;
 import io.gardenerframework.camellia.authentication.server.main.schema.response.GetQrCodeStateResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.lang.Nullable;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -21,7 +21,7 @@ import javax.validation.constraints.NotBlank;
  */
 @RequiredArgsConstructor
 public abstract class QrCodeEndpoint<C extends CreateQrCodeRequest> {
-    private final QrCodeService<C, ? extends QrCodeBasedAuthenticationServiceOption> service;
+    private final QrCodeService<C> service;
 
     /**
      * 获取二维码的state
@@ -46,7 +46,7 @@ public abstract class QrCodeEndpoint<C extends CreateQrCodeRequest> {
      */
     @PostMapping("/qrcode")
     public QrCodeService.QrCodeDetails create(
-            @RequestBody @Valid C request
+            @RequestBody(required = false) @Valid @Nullable C request
     ) throws Exception {
         return service.create(request);
     }

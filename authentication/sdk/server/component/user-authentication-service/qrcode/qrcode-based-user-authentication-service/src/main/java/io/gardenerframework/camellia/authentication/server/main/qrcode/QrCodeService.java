@@ -1,11 +1,9 @@
 package io.gardenerframework.camellia.authentication.server.main.qrcode;
 
-import io.gardenerframework.camellia.authentication.server.main.configuration.QrCodeBasedAuthenticationServiceOption;
 import io.gardenerframework.camellia.authentication.server.main.schema.request.CreateQrCodeRequest;
 import io.gardenerframework.camellia.authentication.server.main.schema.subject.principal.Principal;
 import io.gardenerframework.fragrans.data.cache.client.CacheClient;
 import io.gardenerframework.fragrans.data.cache.manager.BasicCacheManager;
-import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -24,15 +22,10 @@ import java.util.UUID;
  * @date 2023/3/16 14:32
  */
 @RequiredArgsConstructor
-public abstract class QrCodeService<
-        C extends CreateQrCodeRequest,
-        O extends QrCodeBasedAuthenticationServiceOption
-        > implements InitializingBean {
+public abstract class QrCodeService<C extends CreateQrCodeRequest>
+        implements InitializingBean {
     private static final String STATE = "state";
     private static final String PRINCIPAL = "principal";
-    @Getter(AccessLevel.PROTECTED)
-    @NonNull
-    private final O option;
     private final CacheClient client;
     private BasicCacheManager<State> stateCacheManager;
     private BasicCacheManager<Principal> principalCacheManager;
@@ -66,8 +59,17 @@ public abstract class QrCodeService<
      * @param request 请求
      * @return 编码
      */
-    protected String generateCode(@NonNull C request) {
+    protected String generateCode(@Nullable C request) {
         return UUID.randomUUID().toString();
+    }
+
+    /**
+     * 获取二维码的有效期
+     *
+     * @return 有效期
+     */
+    protected long getTtl() {
+        return 120L;
     }
 
     /**
@@ -77,14 +79,14 @@ public abstract class QrCodeService<
      * @return 二维码
      * @throws Exception 发生问题
      */
-    public QrCodeDetails create(@NonNull C request) throws Exception {
-        String code = null;
+    public QrCodeDetails create(@Nullable C request) throws Exception {
+        String code;
         String image = null;
         do {
             //码id
             code = generateCode(request);
             //是否生成吗
-            if (option.isCreateImage()) {
+            if (request != null && request.getSize() > 0) {
                 image = createImage(request, code);
             }
             //存储二维码的状态为CREATED
@@ -94,10 +96,10 @@ public abstract class QrCodeService<
                 code,
                 STATE,
                 State.CREATED,
-                Duration.ofSeconds(option.getTtl())
+                Duration.ofSeconds(getTtl())
         ));
         return QrCodeDetails.builder()
-                .expiryTime(Date.from(Instant.now().plus(Duration.ofSeconds(option.getTtl()))))
+                .expiryTime(Date.from(Instant.now().plus(Duration.ofSeconds(getTtl()))))
                 .code(code)
                 .image(image)
                 .build();

@@ -35,5 +35,8 @@ public class WeChatMiniProgramQrCodeAuthenticationServiceTest {
         Assertions.assertEquals(QrCodeService.State.SCANNED, weChatMiniProgramQrCodeService.getState(qrCode.getCode()));
         weChatMiniProgramQrCodeService.changeState(qrCode.getCode(), QrCodeService.State.CONFIRMED);
         Assertions.assertEquals(QrCodeService.State.CONFIRMED, weChatMiniProgramQrCodeService.getState(qrCode.getCode()));
+         qrCode = weChatMiniProgramQrCodeService.create(null);
+         Assertions.assertNull(qrCode.getImage());
+
     }
 }

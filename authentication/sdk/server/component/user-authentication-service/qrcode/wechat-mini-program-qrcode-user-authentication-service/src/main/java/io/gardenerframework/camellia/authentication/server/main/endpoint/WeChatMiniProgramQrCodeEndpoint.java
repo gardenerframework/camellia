@@ -1,7 +1,6 @@
 package io.gardenerframework.camellia.authentication.server.main.endpoint;
 
 import io.gardenerframework.camellia.authentication.server.configuration.WeChatMiniProgramQrCodeServiceComponent;
-import io.gardenerframework.camellia.authentication.server.main.configuration.QrCodeBasedAuthenticationServiceOption;
 import io.gardenerframework.camellia.authentication.server.main.qrcode.QrCodeService;
 import io.gardenerframework.camellia.authentication.server.main.schema.request.CreateWeChatMiniProgramQrCodeRequest;
 
@@ -13,7 +12,7 @@ import javax.servlet.http.HttpServletRequest;
  */
 @WeChatMiniProgramQrCodeServiceComponent
 public class WeChatMiniProgramQrCodeEndpoint extends QrCodeEndpoint<CreateWeChatMiniProgramQrCodeRequest> {
-    public WeChatMiniProgramQrCodeEndpoint(QrCodeService<CreateWeChatMiniProgramQrCodeRequest, ? extends QrCodeBasedAuthenticationServiceOption> service) {
+    public WeChatMiniProgramQrCodeEndpoint(QrCodeService<CreateWeChatMiniProgramQrCodeRequest> service) {
         super(service);
     }
 
