@@ -50,7 +50,7 @@ public class JdUserAuthenticationService extends OAuth2BasedUserAuthenticationSe
             throw new InternalAuthenticationServiceException("error = " + new ObjectMapper().writeValueAsString(response));
         }
         return JdAccessToken.builder()
-                .accessToken((String) response.get("accessToken"))
+                .accessToken((String) response.get("access_token"))
                 .refreshToken((String) response.get("refresh_token"))
                 .expireIn(Long.valueOf((Integer) response.get("expires_in")))
                 .scope((String) response.get("scope"))
