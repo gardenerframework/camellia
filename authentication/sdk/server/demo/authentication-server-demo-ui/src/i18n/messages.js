@@ -15,7 +15,7 @@ const messages = {
                 text: "语言"
             },
             footer: {
-                copyright: "版权所属 京东科技"
+                copyright: "版权所属 Gardenerframework"
             },
             avatar: {
                 unauthorized: "请登录",
@@ -141,7 +141,7 @@ const messages = {
                 text: "Language"
             },
             footer: {
-                copyright: "Copyright© JDT"
+                copyright: "Copyright© Gardenerframework"
             },
             avatar: {
                 unauthorized: "Sign in",
