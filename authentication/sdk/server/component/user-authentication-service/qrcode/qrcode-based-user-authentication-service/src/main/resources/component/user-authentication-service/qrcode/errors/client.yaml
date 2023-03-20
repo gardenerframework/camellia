@@ -1,0 +1,10 @@
+io:
+  gardenerframework:
+    camellia:
+      authentication:
+        server:
+          main:
+            exception:
+              client:
+                BadQrCodeException: 二维码无效或可能已过期
+                InvalidRequestException: 非法请求，请使用正确的应用扫码

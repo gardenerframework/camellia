@@ -17,7 +17,7 @@ public interface OAuth2StateStore {
      * @param ttl     有效期
      * @throws Exception 发生的问题
      */
-    void save(@NonNull Class<? extends OAuth2BaseUserAuthenticationService> service, @NonNull String state, Duration ttl) throws Exception;
+    void save(@NonNull Class<? extends OAuth2BasedUserAuthenticationService> service, @NonNull String state, Duration ttl) throws Exception;
 
     /**
      * 检查state是否合法
@@ -27,5 +27,5 @@ public interface OAuth2StateStore {
      * @return 是否有效 - 如果有效则应当直接删除state
      * @throws Exception 发生的问题
      */
-    boolean verify(@NonNull Class<? extends OAuth2BaseUserAuthenticationService> service, @NonNull String state) throws Exception;
+    boolean verify(@NonNull Class<? extends OAuth2BasedUserAuthenticationService> service, @NonNull String state) throws Exception;
 }

@@ -1,21 +1,24 @@
 package io.gardenerframework.camellia.authentication.server.main;
 
-import com.alipay.easysdk.base.oauth.Client;
-import com.alipay.easysdk.base.oauth.models.AlipaySystemOauthTokenResponse;
-import com.alipay.easysdk.factory.Factory;
-import com.alipay.easysdk.kernel.Config;
+import com.alipay.api.AlipayClient;
+import com.alipay.api.AlipayConfig;
+import com.alipay.api.DefaultAlipayClient;
+import com.alipay.api.request.AlipaySystemOauthTokenRequest;
+import com.alipay.api.response.AlipaySystemOauthTokenResponse;
 import io.gardenerframework.camellia.authentication.server.configuration.AlipayUserAuthenticationServiceComponent;
 import io.gardenerframework.camellia.authentication.server.configuration.AlipayUserAuthenticationServiceOption;
 import io.gardenerframework.camellia.authentication.server.main.annotation.AuthenticationType;
-import io.gardenerframework.camellia.authentication.server.main.schema.subject.principal.AlipayOpenIdPrincipal;
+import io.gardenerframework.camellia.authentication.server.main.schema.subject.principal.AlipayUserIdPrincipal;
 import io.gardenerframework.camellia.authentication.server.main.schema.subject.principal.Principal;
-import lombok.AccessLevel;
-import lombok.NonNull;
-import lombok.Setter;
+import lombok.*;
+import lombok.experimental.SuperBuilder;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.lang.Nullable;
+import org.springframework.security.authentication.InternalAuthenticationServiceException;
 
 import javax.validation.Validator;
+import java.util.Map;
 
 /**
  * @author zhanghan30
@@ -23,53 +26,60 @@ import javax.validation.Validator;
  */
 @AuthenticationType("alipay")
 @AlipayUserAuthenticationServiceComponent
-public class AlipayUserAuthenticationService extends OAuth2BaseUserAuthenticationService {
-    private String alipayOptionSign = "";
-
+public class AlipayUserAuthenticationService extends OAuth2BasedUserAuthenticationService implements InitializingBean {
     @Setter(onMethod = @__(@Autowired), value = AccessLevel.PRIVATE)
     private AlipayUserAuthenticationServiceOption option;
+
+    private AlipayClient alipayClient;
 
     public AlipayUserAuthenticationService(@NonNull Validator validator, OAuth2StateStore oAuth2StateStore) {
         super(validator, oAuth2StateStore);
     }
 
+    @Override
+    protected AccessToken obtainAccessToken(@NonNull String authorizationCode, @NonNull Map<String, Object> context) throws Exception {
+        AlipaySystemOauthTokenRequest request = new AlipaySystemOauthTokenRequest();
+        request.setGrantType("authorization_code");
+        request.setCode(authorizationCode);
+        AlipaySystemOauthTokenResponse response = alipayClient.execute(request);
+        if (!response.isSuccess()) {
+            throw new InternalAuthenticationServiceException(response.getBody());
+        }
+        return AlipayAccessToken.builder()
+                .accessToken(response.getAccessToken())
+                .refreshToken(response.getRefreshToken())
+                .expireIn(Long.parseLong(response.getExpiresIn()))
+                .userId(response.getUserId())
+                .build();
+    }
+
     @Nullable
     @Override
-    protected Principal getPrincipal(@NonNull String authorizationCode) throws Exception {
-        //初始化阿里客户端
-        initAlipayClientFactory();
-        Client client = Factory.getClient(Client.class);
-        AlipaySystemOauthTokenResponse token = client.getToken(authorizationCode);
-        return AlipayOpenIdPrincipal.builder().name(token.getUserId()).build();
+    protected Principal getPrincipal(@NonNull AccessToken accessToken, @NonNull Map<String, Object> context) throws Exception {
+        return AlipayUserIdPrincipal.builder()
+                .name(((AlipayAccessToken) accessToken).getUserId())
+                .build();
     }
 
-    private boolean signUpdated() {
-        String sign = String.format("%s:%s:%s:%s",
-                option.getAppId(),
-                option.getPrivateKey(),
-                option.getEncryptKey(),
-                option.getAliPublicKey()
-        );
-        if (alipayOptionSign.equals(sign)) {
-            return false;
-        } else {
-            alipayOptionSign = sign;
-            return true;
-        }
+    @Override
+    public void afterPropertiesSet() throws Exception {
+        AlipayConfig alipayConfig = new AlipayConfig();
+        alipayConfig.setServerUrl("https://openapi.alipay.com/gateway.do");
+        alipayConfig.setAppId(option.getAppId());
+        alipayConfig.setPrivateKey(option.getPrivateKey());
+        alipayConfig.setFormat("json");
+        alipayConfig.setCharset("UTF-8");
+        alipayConfig.setSignType("RSA2");
+        alipayConfig.setAlipayPublicKey(option.getAliPublicKey());
+        alipayClient = new DefaultAlipayClient(alipayConfig);
     }
 
-
-    private synchronized void initAlipayClientFactory() {
-        if (signUpdated()) {
-            Config config = new Config();
-            config.protocol = "https";
-            config.gatewayHost = "openapi.alipay.com";
-            config.signType = "RSA2";
-            config.appId = option.getAppId();
-            config.merchantPrivateKey = option.getPrivateKey();
-            config.encryptKey = option.getEncryptKey();
-            config.alipayPublicKey = option.getAliPublicKey();
-            Factory.setOptions(config);
-        }
+    @Getter
+    @Setter
+    @SuperBuilder
+    @NoArgsConstructor
+    public static class AlipayAccessToken extends AccessToken {
+        @NonNull
+        private String userId;
     }
 }

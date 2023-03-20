@@ -1,0 +1,5 @@
+dependencies {
+    api "${group}:authentication-server-core"
+    api "org.springframework.ldap:spring-ldap-core"
+    api "com.fasterxml.jackson.core:jackson-annotations"
+}

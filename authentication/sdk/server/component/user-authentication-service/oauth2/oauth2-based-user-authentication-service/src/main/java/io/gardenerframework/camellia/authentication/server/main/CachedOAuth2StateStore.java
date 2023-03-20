@@ -32,12 +32,12 @@ public class CachedOAuth2StateStore implements OAuth2StateStore {
     }
 
     @Override
-    public void save(@NonNull Class<? extends OAuth2BaseUserAuthenticationService> service, @NonNull String state, Duration ttl) throws Exception {
+    public void save(@NonNull Class<? extends OAuth2BasedUserAuthenticationService> service, @NonNull String state, Duration ttl) throws Exception {
         stateCacheManager.set(getNamespace(service), state, SUFFIX, state, ttl);
     }
 
     @Override
-    public boolean verify(@NonNull Class<? extends OAuth2BaseUserAuthenticationService> service, @NonNull String state) throws Exception {
+    public boolean verify(@NonNull Class<? extends OAuth2BasedUserAuthenticationService> service, @NonNull String state) throws Exception {
         String saved = stateCacheManager.get(getNamespace(service), state, SUFFIX);
         if (!Objects.equals(saved, state)) {
             return false;
@@ -47,7 +47,7 @@ public class CachedOAuth2StateStore implements OAuth2StateStore {
         }
     }
 
-    protected String[] getNamespace(@NonNull Class<? extends OAuth2BaseUserAuthenticationService> service) {
+    protected String[] getNamespace(@NonNull Class<? extends OAuth2BasedUserAuthenticationService> service) {
         return ArrayUtils.add(NAMESPACE, service.getCanonicalName());
     }
 }

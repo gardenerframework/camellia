@@ -2,7 +2,7 @@ dependencies {
     api "${group}:authentication-server-core"
     api "${group}:oauth2-based-user-authentication-service"
     api "com.fasterxml.jackson.core:jackson-annotations"
-    api "com.alipay.sdk:alipay-easysdk:2.2.0"
+    api "com.alipay.sdk:alipay-sdk-java:4.35.79.ALL"
     testImplementation "${fragrans.group}:data-cache-spring-redis"
     testImplementation "${fragrans.group}:api-starter"
 }
