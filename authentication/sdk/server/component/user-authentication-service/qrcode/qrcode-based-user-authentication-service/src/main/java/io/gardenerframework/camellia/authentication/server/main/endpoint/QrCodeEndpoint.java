@@ -1,5 +1,6 @@
 package io.gardenerframework.camellia.authentication.server.main.endpoint;
 
+import io.gardenerframework.camellia.authentication.server.common.api.group.AuthenticationServerRestController;
 import io.gardenerframework.camellia.authentication.server.main.exception.client.InvalidRequestException;
 import io.gardenerframework.camellia.authentication.server.main.qrcode.QrCodeService;
 import io.gardenerframework.camellia.authentication.server.main.schema.request.CreateQrCodeRequest;
@@ -20,6 +21,7 @@ import javax.validation.constraints.NotBlank;
  * @date 2023/3/16 14:11
  */
 @RequiredArgsConstructor
+@AuthenticationServerRestController
 public abstract class QrCodeEndpoint<C extends CreateQrCodeRequest> {
     private final QrCodeService<C> service;
 

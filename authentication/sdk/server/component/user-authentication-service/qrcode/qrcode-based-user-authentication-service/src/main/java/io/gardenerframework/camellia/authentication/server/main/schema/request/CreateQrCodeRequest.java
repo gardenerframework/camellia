@@ -21,10 +21,10 @@ public abstract class CreateQrCodeRequest {
     @Positive
     private int size = 280;
     /**
-     * 研发rgb
+     * 点或者线的rgb
      * <p>
      * 默认是0x000000
      */
     @PositiveOrZero
-    private long color = 0L;
+    private int color = 0;
 }

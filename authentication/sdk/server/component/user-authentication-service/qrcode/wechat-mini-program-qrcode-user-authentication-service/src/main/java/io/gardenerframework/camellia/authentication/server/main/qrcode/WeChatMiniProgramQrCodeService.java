@@ -33,7 +33,8 @@ public class WeChatMiniProgramQrCodeService extends QrCodeService<CreateWeChatMi
     private final RestTemplate restTemplate = new RestTemplate();
     @NonNull
     private final WeChatMiniProgramQrCodeAuthenticationServiceOption option;
-    private AccessToken accessToken;
+    @Nullable
+    private AccessToken accessToken = null;
 
     public WeChatMiniProgramQrCodeService(@NonNull CacheClient client, @NonNull WeChatMiniProgramQrCodeAuthenticationServiceOption option) {
         super(client);
