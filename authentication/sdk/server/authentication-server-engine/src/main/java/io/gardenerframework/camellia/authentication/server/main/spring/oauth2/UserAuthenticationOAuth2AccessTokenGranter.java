@@ -21,10 +21,11 @@ import org.springframework.security.oauth2.core.oidc.endpoint.OidcParameterNames
 import org.springframework.security.oauth2.jwt.*;
 import org.springframework.security.oauth2.server.authorization.OAuth2Authorization;
 import org.springframework.security.oauth2.server.authorization.OAuth2AuthorizationService;
+import org.springframework.security.oauth2.server.authorization.OAuth2TokenType;
 import org.springframework.security.oauth2.server.authorization.authentication.OAuth2AccessTokenAuthenticationToken;
 import org.springframework.security.oauth2.server.authorization.authentication.OAuth2AuthorizationCodeAuthenticationProvider;
 import org.springframework.security.oauth2.server.authorization.authentication.OAuth2ClientAuthenticationToken;
-import org.springframework.security.oauth2.server.authorization.config.ProviderSettings;
+import org.springframework.security.oauth2.server.authorization.settings.AuthorizationServerSettings;
 import org.springframework.security.oauth2.server.authorization.token.JwtEncodingContext;
 import org.springframework.security.oauth2.server.authorization.token.OAuth2TokenCustomizer;
 
@@ -50,7 +51,7 @@ public class UserAuthenticationOAuth2AccessTokenGranter {
             new Base64StringKeyGenerator(Base64.getUrlEncoder().withoutPadding(), 96);
     private final OAuth2AuthorizationService oAuth2AuthorizationService;
     private final JwtEncoder jwtEncoder;
-    private final ProviderSettings providerSettings;
+    private final AuthorizationServerSettings authorizationServerSettings;
     private final OAuth2TokenCustomizer<JwtEncodingContext> tokenCustomizer;
 
     /**
@@ -92,7 +93,7 @@ public class UserAuthenticationOAuth2AccessTokenGranter {
             UserAuthenticatedAuthentication userAuthentication
     ) {
         OAuth2ClientAuthenticationToken clientPrincipal = getAuthenticatedClientElseThrowInvalidClient(clientAuthentication);
-        String issuer = this.providerSettings != null ? this.providerSettings.getIssuer() : null;
+        String issuer = this.authorizationServerSettings != null ? this.authorizationServerSettings.getIssuer() : null;
         Set<String> authorizedScopes = clientAuthentication.getScopes();
         JwsHeader.Builder headersBuilder = JwtUtils.headers();
         JwtClaimsSet.Builder claimsBuilder = JwtUtils.accessTokenClaims(
@@ -114,7 +115,7 @@ public class UserAuthenticationOAuth2AccessTokenGranter {
         // @formatter:on
         //执行定制
         this.tokenCustomizer.customize(context);
-        JwsHeader headers = context.getHeaders().build();
+        JwsHeader headers = context.getJwsHeader().build();
         JwtClaimsSet claims = context.getClaims().build();
         Jwt jwtAccessToken = this.jwtEncoder.encode(JwtEncoderParameters.from(headers, claims));
 
@@ -153,7 +154,7 @@ public class UserAuthenticationOAuth2AccessTokenGranter {
     private OidcIdToken grantIdToken(OAuth2ClientUserAuthenticationToken clientAuthentication, UserAuthenticatedAuthentication userAuthentication) {
         OAuth2ClientAuthenticationToken clientPrincipal = getAuthenticatedClientElseThrowInvalidClient(clientAuthentication);
         Jwt jwtIdToken = null;
-        String issuer = this.providerSettings != null ? this.providerSettings.getIssuer() : null;
+        String issuer = this.authorizationServerSettings != null ? this.authorizationServerSettings.getIssuer() : null;
         if (clientAuthentication.getScopes().contains(OidcScopes.OPENID)) {
             String nonce = (String) clientAuthentication.getAdditionalParameters().get(OidcParameterNames.NONCE);
             JwsHeader.Builder headersBuilder = JwtUtils.headers();
@@ -174,7 +175,7 @@ public class UserAuthenticationOAuth2AccessTokenGranter {
                     .build();
             // @formatter:on
             this.tokenCustomizer.customize(context);
-            JwsHeader headers = context.getHeaders().build();
+            JwsHeader headers = context.getJwsHeader().build();
             JwtClaimsSet claims = context.getClaims().build();
             jwtIdToken = this.jwtEncoder.encode(JwtEncoderParameters.from(headers, claims));
         }
@@ -210,7 +211,8 @@ public class UserAuthenticationOAuth2AccessTokenGranter {
                 .authorizationGrantType(clientAuthentication.getGrantType())
                 .attribute(Principal.class.getName(), userAuthentication)
                 //fixed refresh token auth provider 获取到null的授权范围而报错
-                .attribute(OAuth2Authorization.AUTHORIZED_SCOPE_ATTRIBUTE_NAME, clientAuthentication.getScopes() == null ? Collections.emptySet() : clientAuthentication.getScopes())
+                //之前是OAuth2Authorization.AUTHORIZED_SCOPE_ATTRIBUTE_NAME
+                .authorizedScopes(clientAuthentication.getScopes() == null ? Collections.emptySet() : clientAuthentication.getScopes())
                 .id(UUID.randomUUID().toString())
                 //这里需要解包，否则认证服务不存
                 .token(new OAuth2AccessToken(accessToken.getTokenType(), accessToken.getTokenValue(), accessToken.getIssuedAt(), accessToken.getExpiresAt(), accessToken.getScopes()),

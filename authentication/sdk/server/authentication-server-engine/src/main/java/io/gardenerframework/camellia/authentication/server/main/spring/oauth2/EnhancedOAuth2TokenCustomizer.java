@@ -4,8 +4,8 @@ import io.gardenerframework.camellia.authentication.server.common.annotation.Aut
 import io.gardenerframework.camellia.authentication.server.main.schema.request.OAuth2TokenParameter;
 import org.springframework.lang.Nullable;
 import org.springframework.security.oauth2.core.OAuth2RefreshToken;
-import org.springframework.security.oauth2.core.OAuth2TokenType;
 import org.springframework.security.oauth2.jwt.JwtClaimsSet;
+import org.springframework.security.oauth2.server.authorization.OAuth2TokenType;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClient;
 import org.springframework.security.oauth2.server.authorization.token.JwtEncodingContext;
 import org.springframework.security.oauth2.server.authorization.token.OAuth2TokenCustomizer;
