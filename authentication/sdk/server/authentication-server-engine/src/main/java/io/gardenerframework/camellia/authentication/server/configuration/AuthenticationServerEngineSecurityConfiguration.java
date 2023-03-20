@@ -22,7 +22,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.OAuth2Error;
-import org.springframework.security.oauth2.server.authorization.config.ProviderSettings;
+import org.springframework.security.oauth2.server.authorization.settings.AuthorizationServerSettings;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 import java.util.Arrays;
@@ -51,7 +51,7 @@ public class AuthenticationServerEngineSecurityConfiguration extends WebSecurity
     private final AuthenticationEndpointMatcher authenticationEndpointMatcher;
     private final AuthenticationEndpointAuthenticationFailureHandler authenticationEndpointAuthenticationFailureHandler;
     private final EnhancedMessageSource messageSource;
-    private final ProviderSettings providerSettings;
+    private final AuthorizationServerSettings authorizationServerSettings;
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
@@ -111,13 +111,13 @@ public class AuthenticationServerEngineSecurityConfiguration extends WebSecurity
     public void accept(ServletApiErrorAttributes servletApiErrorConverter) {
         //排除oauth2的所有端点
         servletApiErrorConverter.getIgnoringUrlPatterns().addAll(Arrays.asList(
-                providerSettings.getAuthorizationEndpoint(),
-                providerSettings.getJwkSetEndpoint(),
-                providerSettings.getTokenEndpoint(),
-                providerSettings.getOidcUserInfoEndpoint(),
-                providerSettings.getTokenIntrospectionEndpoint(),
-                providerSettings.getTokenRevocationEndpoint(),
-                providerSettings.getOidcClientRegistrationEndpoint()
+                authorizationServerSettings.getAuthorizationEndpoint(),
+                authorizationServerSettings.getJwkSetEndpoint(),
+                authorizationServerSettings.getTokenEndpoint(),
+                authorizationServerSettings.getOidcUserInfoEndpoint(),
+                authorizationServerSettings.getTokenIntrospectionEndpoint(),
+                authorizationServerSettings.getTokenRevocationEndpoint(),
+                authorizationServerSettings.getOidcClientRegistrationEndpoint()
         ));
     }
 }

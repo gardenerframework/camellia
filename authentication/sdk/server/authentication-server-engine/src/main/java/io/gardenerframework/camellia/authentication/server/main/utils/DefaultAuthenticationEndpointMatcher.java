@@ -3,11 +3,9 @@ package io.gardenerframework.camellia.authentication.server.main.utils;
 import io.gardenerframework.camellia.authentication.server.common.annotation.AuthenticationServerEngineComponent;
 import io.gardenerframework.camellia.authentication.server.configuration.AuthenticationServerEngineSecurityConfigurer;
 import io.gardenerframework.camellia.authentication.server.configuration.WebAuthenticationEndpointFilterConfigurer;
-import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configurers.oauth2.server.authorization.OAuth2AuthorizationServerConfigurer;
-import org.springframework.security.config.annotation.web.configurers.oauth2.server.authorization.OAuth2EndpointConfigurerRequestMatcherAccessor;
-import org.springframework.security.config.annotation.web.configurers.oauth2.server.authorization.OAuth2TokenEndpointConfigurer;
+import org.springframework.security.oauth2.server.authorization.config.annotation.web.configurers.OAuth2AuthorizationServerConfigurer;
+import org.springframework.security.oauth2.server.authorization.config.annotation.web.configurers.OAuth2EndpointConfigurerRequestMatcherAccessor;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 
 import javax.servlet.http.HttpServletRequest;
@@ -40,7 +38,7 @@ public class DefaultAuthenticationEndpointMatcher
             WebAuthenticationEndpointFilterConfigurer webAuthenticationEndpointFilterConfigurer
     ) {
         oAuth2AuthorizationServerConfigurer.tokenEndpoint(
-                (Customizer<OAuth2TokenEndpointConfigurer>) oAuth2TokenEndpointConfigurer ->
+                oAuth2TokenEndpointConfigurer ->
                         tokenAuthenticationEndpointMatcher = OAuth2EndpointConfigurerRequestMatcherAccessor.getTokenEndpointRequestMatcher(oAuth2TokenEndpointConfigurer)
         );
         this.webAuthenticationEndpointMatcher = webAuthenticationEndpointFilterConfigurer.getEndpointMatcher();
