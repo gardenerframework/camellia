@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.lang.Nullable;
 
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.PositiveOrZero;
 
@@ -19,9 +20,16 @@ import javax.validation.constraints.PositiveOrZero;
 @NoArgsConstructor
 public abstract class AppQrCodeAuthenticationServiceOption {
     /**
-     * 落地页地址
+     * 二维码的边距
      */
-    @Nullable
+    @Positive
+    private int margin = 3;
+    /**
+     * 落地页地址
+     * <p>
+     * 作为app扫码的落地页不允许为空地址
+     */
+    @NotBlank
     private String pageUrl;
     /**
      * 存活时间
@@ -35,5 +43,5 @@ public abstract class AppQrCodeAuthenticationServiceOption {
     private String logoPath;
 
     @PositiveOrZero
-    private float logoRatio = 0.1F;
+    private float logoRatio = 0.15F;
 }

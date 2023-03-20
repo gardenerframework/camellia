@@ -4,6 +4,8 @@ import io.gardenerframework.camellia.authentication.server.configuration.AppQrCo
 import io.gardenerframework.camellia.authentication.server.main.schema.request.CreateQrCodeRequest;
 import io.gardenerframework.fragrans.data.cache.client.CacheClient;
 import io.gardenerframework.fragrans.toolkits.barcode.QrCodeTool;
+import lombok.AccessLevel;
+import lombok.Getter;
 import lombok.NonNull;
 
 /**
@@ -12,9 +14,18 @@ import lombok.NonNull;
  */
 public abstract class AppQrCodeService<C extends CreateQrCodeRequest, O extends AppQrCodeAuthenticationServiceOption> extends QrCodeService<C> {
     private final QrCodeTool qrCodeTool = new QrCodeTool();
+    @Getter(AccessLevel.PROTECTED)
     @NonNull
     private final O option;
 
+    /**
+     * 基于编码和落地页获取url
+     *
+     * @param code 二维码编码
+     * @return 落地页url
+     * @throws Exception 遇到问题
+     */
+    protected abstract String buildPageFinalUrl(@NonNull String code) throws Exception;
 
     protected AppQrCodeService(@NonNull CacheClient client, @NonNull O option) {
         super(client);
@@ -24,9 +35,9 @@ public abstract class AppQrCodeService<C extends CreateQrCodeRequest, O extends 
     @Override
     protected String createImage(@NonNull C request, @NonNull String code) throws Exception {
         return String.format("data:image/png;base64,%s", qrCodeTool.createSquareQrCode(
-                code,
+                buildPageFinalUrl(code),
                 request.getSize(),
-                5,
+                option.getMargin(),
                 option.getLogoPath(),
                 option.getLogoRatio(),
                 request.getColor(),
