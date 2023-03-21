@@ -38,15 +38,12 @@ System(管理后台, 管理后台, administration)
 * 对管理后台开放的管理用接口，主要是
     * /administration/xx
 
-# 功能注册
+# @AdministrationServerRestController vs @AuthenticationServerAdministrationController
 
-基于以往设计的成功实践，后台管理的功能也是按需注册完，比如给定id踢掉线就可以选择向后台管理引擎注册或不注册。
-@AuthenticationServerManagementFeature注解向引擎表达当前激活了一个新的功能。
+AdministrationServerRestController和AuthenticationServerAdministrationRestController是后台管理服务器和认证服务器分别用来标记管理用接口的注解。
+从上面的关系图中不难看出，部分管理用的接口需要认证服务器来提供(比如为了使得管理服务器不要引入干扰业务逻辑的jar包)
 
-```java
-public @interface AuthenticationServerManagementFeature {
-    String value();
-}
-```
+* AdministrationServerRestController: 仅在管理后台使用，表明这是一个管理用的接口
+* AuthenticationServerAdministrationController: 仅在认证中心使用，表明这是一个为管理服务器服务的接口
 
-特性的名称之间不得重复
+# 管理服务器调用认证服务器管理接口的安全认证
