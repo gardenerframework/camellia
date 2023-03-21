@@ -30,7 +30,7 @@ public class AuthorizationServerRestControllerGroupConfigurer implements ApiGrou
 
     @Override
     public ApiGroupContextPathPolicy getPolicy() {
-        return new ApiGroupContextPathPolicy(authenticationServerPathOption.getRestApiContextPath());
+        return new ApiGroupContextPathPolicy(authenticationServerPathOption.getAuthenticationRestApiContextPath());
     }
 
     @Nullable
