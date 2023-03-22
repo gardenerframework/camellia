@@ -1,0 +1,5 @@
+dependencies {
+    api "${group}:authentication-server-core"
+    api "${fragrans.group}:api-group-context-path"
+    testImplementation "${fragrans.group}:data-cache-spring-redis"
+}
