@@ -1,6 +1,7 @@
 package io.gardenerframework.camellia.authentication.server.test.utils;
 
 import lombok.Setter;
+import lombok.experimental.Delegate;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
@@ -25,6 +26,7 @@ import java.util.Map;
 public class TokenAuthenticationClient {
     private final String clientId = "test";
     private final String clientSecret = "123";
+    @Delegate
     private final RestTemplate restTemplate;
     @Setter
     private int port;
@@ -67,4 +69,14 @@ public class TokenAuthenticationClient {
         this.setToken(null);
         return forObject;
     }
+
+    public void getClientToken() {
+        MultiValueMap<String, Object> params = new LinkedMultiValueMap<>();
+        params.put("client_id", Collections.singletonList(this.clientId));
+        params.put("client_secret", Collections.singletonList(this.clientSecret));
+        params.put("scope", Collections.singletonList("openid"));
+        params.put("grant_type", Collections.singletonList("client_credentials"));
+        this.token = (String) this.restTemplate.postForObject("http://localhost:{port}/oauth2/token", new HttpEntity<>(params), Map.class, port).get("access_token");
+    }
+
 }
