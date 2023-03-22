@@ -84,6 +84,7 @@ String[] subprojectNames = [
         'authentication:sdk:server:component:user-service:ldap:ldap-user-service',
         'authentication:sdk:server:component:mfa-authentication-challenge-response-service:sms:sms-mfa-authentication-challenge-response-service',
         'authentication:sdk:server:authentication-server-engine',
+        'authentication:sdk:server:component:administration:user-oauth2-authorization-administration',
         'authentication:sdk:server:administration-server-engine',
 //        'authentication:sdk:server:authentication-server-common'
 //        'sms-authentication:sdk:sms-authentication-core',
