@@ -1,3 +1,8 @@
 dependencies {
     api "${group}:authentication-server-core"
+    api "${fragrans.group}:data-cache-core"
+    api "org.springframework:spring-aop"
+    api "org.aspectj:aspectjweaver"
+    compileOnly "org.springframework.security:spring-security-oauth2-authorization-server"
+    testImplementation "${group}:authentication-server-engine"
 }

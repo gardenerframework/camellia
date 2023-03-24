@@ -14,8 +14,8 @@ public interface UserAuthorizedOAuth2AuthorizationAdministrationEndpointSkeleton
     /**
      * 删除给定的授权
      *
-     * @param request
-     * @throws Exception
+     * @param request http请求
+     * @throws Exception 发生异常
      */
     void removeAuthorization(
             @Valid RemoveUserAuthorizedAuthorizationRequest request
