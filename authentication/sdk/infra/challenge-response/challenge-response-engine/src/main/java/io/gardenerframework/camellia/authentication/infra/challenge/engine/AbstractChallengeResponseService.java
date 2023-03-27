@@ -80,7 +80,7 @@ public abstract class AbstractChallengeResponseService<
      * @param request  请求
      * @return 请求特征
      */
-    @NonNull
+    @Nullable
     protected abstract String getRequestSignature(
             @Nullable RequestingClient client,
             @NonNull Class<? extends Scenario> scenario,
@@ -109,7 +109,7 @@ public abstract class AbstractChallengeResponseService<
      * @param request  请求
      * @return 计时器id
      */
-    @NonNull
+    @Nullable
     protected abstract String getCooldownTimerId(
             @Nullable RequestingClient client,
             @NonNull Class<? extends Scenario> scenario,
@@ -253,9 +253,9 @@ public abstract class AbstractChallengeResponseService<
         //检查cd
         //cd完成的绝对时间
         Date cooldownCompletionTime = null;
+        String timerId;
         try {
-            if (hasCooldown(client, scenario, request)) {
-                String timerId = getCooldownTimerId(client, scenario, request);
+            if (hasCooldown(client, scenario, request) && StringUtils.hasText(timerId = getCooldownTimerId(client, scenario, request))) {
                 Duration timeRemaining = challengeCooldownManager.getTimeRemaining(client, scenario, timerId);
                 if (timeRemaining != null) {
                     throw new ChallengeInCooldownException(timeRemaining);
