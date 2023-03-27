@@ -17,9 +17,13 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public final class AuthenticationServerPathOption {
     /**
+     * 管理接口地址
+     */
+    private String administrationRestApiContextPath = "/administration";
+    /**
      * rest api的上下文路径
      */
-    private String restApiContextPath = "/api";
+    private String authenticationRestApiContextPath = "/api";
     /**
      * 网页端登录入口的地址
      * <p>

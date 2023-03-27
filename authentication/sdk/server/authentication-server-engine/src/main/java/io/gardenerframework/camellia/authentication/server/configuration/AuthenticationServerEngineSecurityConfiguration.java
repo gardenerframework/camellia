@@ -60,12 +60,12 @@ public class AuthenticationServerEngineSecurityConfiguration extends WebSecurity
         http.apply(oAuth2AuthorizationServerConfigurerProxy);
         http.csrf().ignoringRequestMatchers(
                 //所有rest api接口
-                new AntPathRequestMatcher(String.format("%s/**", authenticationServerPathOption.getRestApiContextPath()))
+                new AntPathRequestMatcher(String.format("%s/**", authenticationServerPathOption.getAuthenticationRestApiContextPath()))
         );
         //默认不拦截api接口的请求
         //相关权限验证由api自己完成
         http.authorizeRequests().antMatchers(String.format("%s/**",
-                        authenticationServerPathOption.getRestApiContextPath()),
+                        authenticationServerPathOption.getAuthenticationRestApiContextPath()),
                 authenticationServerPathOption.getWebAuthenticationErrorPage(),
                 authenticationServerPathOption.getWebMfaChallengePage()
         ).permitAll();

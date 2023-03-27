@@ -1,9 +1,8 @@
-package io.gardenerframework.camellia.authentication.server.test.utils;
+package io.gardenerframework.camellia.authentication.server.administration.test.beans;
 
 import lombok.Setter;
 import lombok.experimental.Delegate;
 import org.springframework.http.HttpEntity;
-import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Component;
@@ -50,7 +49,7 @@ public class TokenAuthenticationClient {
         );
     }
 
-    public ResponseEntity<String> login(String authenticationType, @Nullable Map<String, Object> parameters) {
+    public String login(String authenticationType, @Nullable Map<String, Object> parameters) {
         MultiValueMap<String, Object> params = new LinkedMultiValueMap<>();
         params.put("grant_type", Collections.singletonList("user_authentication"));
         params.put("authenticationType", Collections.singletonList(authenticationType));
@@ -60,7 +59,7 @@ public class TokenAuthenticationClient {
                     (k, v) -> params.put(k, Collections.singletonList(v))
             );
         }
-        return restTemplate.postForEntity("http://localhost:{port}/oauth2/token", new HttpEntity<>(params), String.class, port);
+        return (String) restTemplate.postForObject("http://localhost:{port}/oauth2/token", new HttpEntity<>(params), Map.class, port).get("access_token");
     }
 
     public Map<?, ?> getUserInfo(String token) {
@@ -70,7 +69,7 @@ public class TokenAuthenticationClient {
         return forObject;
     }
 
-    public void getClientToken() {
+    public void obtainClientToken() {
         MultiValueMap<String, Object> params = new LinkedMultiValueMap<>();
         params.put("client_id", Collections.singletonList(this.clientId));
         params.put("client_secret", Collections.singletonList(this.clientSecret));

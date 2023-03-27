@@ -1653,4 +1653,4 @@ public class EncryptionKey {
 # 其它组件和示例
 
 * [component](./component): 包含了已经实现的预置组件
-* [authentication-server-management-engine](authentication-server-management-engine): 包含认证服务器管理后台代码
+* [authentication-server-administration-engine](authentication-server-administration-engine): 包含认证服务器管理后台代码
