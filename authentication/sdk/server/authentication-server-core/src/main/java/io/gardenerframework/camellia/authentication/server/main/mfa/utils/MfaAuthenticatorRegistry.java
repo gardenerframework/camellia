@@ -1,8 +1,7 @@
 package io.gardenerframework.camellia.authentication.server.main.mfa.utils;
 
-import io.gardenerframework.camellia.authentication.server.main.mfa.challenge.MfaAuthenticationChallengeResponseService;
-import io.gardenerframework.camellia.authentication.server.main.mfa.challenge.schema.MfaAuthenticationChallengeContext;
-import io.gardenerframework.camellia.authentication.server.main.mfa.challenge.schema.MfaAuthenticationChallengeRequest;
+import io.gardenerframework.camellia.authentication.infra.challenge.core.ChallengeResponseService;
+import io.gardenerframework.camellia.authentication.server.main.mfa.challenge.MfaAuthenticator;
 import lombok.NonNull;
 import org.springframework.lang.Nullable;
 import org.springframework.util.CollectionUtils;
@@ -10,12 +9,12 @@ import org.springframework.util.CollectionUtils;
 import java.util.Collection;
 
 /**
- * mfa挑战应答服务注册表
+ * 认证服务器加载的mfa认证器注册表
  *
  * @author zhanghan30
  * @date 2023/3/6 12:42
  */
-public interface MfaAuthenticationChallengeResponseServiceRegistry {
+public interface MfaAuthenticatorRegistry {
     /**
      * 获取已经注册的服务类型清单
      *
@@ -29,7 +28,7 @@ public interface MfaAuthenticationChallengeResponseServiceRegistry {
      * @param name 类型
      * @return 是否包含
      */
-    default boolean hasMfaAuthenticationChallengeResponseService(@NonNull String name) {
+    default boolean hasAuthenticator(@NonNull String name) {
         Collection<String> authenticatorNames = getAuthenticatorNames();
         return !CollectionUtils.isEmpty(authenticatorNames) && authenticatorNames.contains(name);
     }
@@ -42,6 +41,6 @@ public interface MfaAuthenticationChallengeResponseServiceRegistry {
      * @return 服务
      */
     @Nullable
-    <R extends MfaAuthenticationChallengeRequest, X extends MfaAuthenticationChallengeContext>
-    MfaAuthenticationChallengeResponseService<R, X> getMfaAuthenticationChallengeResponseService(@NonNull String name);
+    @SuppressWarnings("rawtypes")
+    <T extends ChallengeResponseService & MfaAuthenticator> T getAuthenticator(@NonNull String name);
 }

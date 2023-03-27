@@ -2,12 +2,10 @@ package io.gardenerframework.camellia.authentication.server.main.mfa.challenge.s
 
 import io.gardenerframework.camellia.authentication.common.client.schema.OAuth2RequestingClient;
 import io.gardenerframework.camellia.authentication.common.data.serialization.SerializationVersionNumber;
+import io.gardenerframework.camellia.authentication.infra.challenge.core.schema.ChallengeContext;
 import io.gardenerframework.camellia.authentication.server.main.schema.subject.principal.Principal;
 import io.gardenerframework.camellia.authentication.server.main.user.schema.User;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.NonNull;
-import lombok.Setter;
+import lombok.*;
 import org.springframework.lang.Nullable;
 
 /**
@@ -17,8 +15,14 @@ import org.springframework.lang.Nullable;
 @Getter
 @Setter
 @NoArgsConstructor
-public class DefaultMfaAuthenticationChallengeContext implements MfaAuthenticationChallengeContext {
+@AllArgsConstructor
+public class MfaAuthenticationChallengeContext implements ChallengeContext {
     private static final long serialVersionUID = SerializationVersionNumber.version;
+    /**
+     * 当时这个挑战用哪个校验器发出去的
+     */
+    @NonNull
+    private String authenticatorName;
     /**
      * 触发当前mfa认证的登录名
      * <p>

@@ -11,13 +11,11 @@ import io.gardenerframework.camellia.authentication.server.main.event.support.Au
 import io.gardenerframework.camellia.authentication.server.main.exception.NestedAuthenticationException;
 import io.gardenerframework.camellia.authentication.server.main.mfa.advisor.MfaAuthenticatorAdvisor;
 import io.gardenerframework.camellia.authentication.server.main.mfa.challenge.MfaAuthenticationChallengeResponseService;
-import io.gardenerframework.camellia.authentication.server.main.mfa.challenge.MfaAuthenticationScenario;
 import io.gardenerframework.camellia.authentication.server.main.mfa.challenge.schema.MfaAuthenticationChallengeContext;
 import io.gardenerframework.camellia.authentication.server.main.mfa.challenge.schema.MfaAuthenticationChallengeRequest;
 import io.gardenerframework.camellia.authentication.server.main.mfa.exception.client.MfaAuthenticationInCooldownException;
 import io.gardenerframework.camellia.authentication.server.main.mfa.exception.client.MfaAuthenticationRequiredException;
 import io.gardenerframework.camellia.authentication.server.main.mfa.schema.principal.MfaAuthenticationPrincipal;
-import io.gardenerframework.camellia.authentication.server.main.mfa.utils.MfaAuthenticationChallengeResponseServiceRegistry;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -50,15 +48,15 @@ public class MfaAuthenticationListener implements
     @NonNull
     private final Collection<MfaAuthenticatorAdvisor> mfaAuthenticationAdvisors;
     @NonNull
-    private final MfaAuthenticationChallengeResponseServiceRegistry registry;
+    private final MfaAuthenticationChallengeResponseService mfaAuthenticationChallengeResponseService;
     @NonNull
     private ApplicationEventPublisher eventPublisher;
 
     @Override
     @EventListener
     public void onUserAuthenticated(UserAuthenticatedEvent event) throws AuthenticationException {
-        //fix - 支持空注册表，没有任何服务则不需要执行mfa
-        if (CollectionUtils.isEmpty(registry.getAuthenticatorNames())) {
+        //没有advisor
+        if (CollectionUtils.isEmpty(mfaAuthenticationAdvisors)) {
             return;
         }
         //用户认证结束后看看是否要发mfa请求
@@ -83,15 +81,11 @@ public class MfaAuthenticationListener implements
             }
             if (StringUtils.hasText(authenticator)) {
                 //这部分找不到是服务端的问题，不单独开异常
-                MfaAuthenticationChallengeResponseService<MfaAuthenticationChallengeRequest, MfaAuthenticationChallengeContext> service = Objects.requireNonNull(registry.getMfaAuthenticationChallengeResponseService(authenticator));
                 //执行mfa认证
-                Challenge mfaAuthenticationChallenge = service.sendChallenge(
+                Challenge mfaAuthenticationChallenge = mfaAuthenticationChallengeResponseService.sendChallenge(
                         event.getClient(),
-                        MfaAuthenticationScenario.class,
-                        event.getPrincipal(),
-                        event.getUser(),
-                        event.getContext()
-
+                        mfaAuthenticationChallengeResponseService.getClass(),
+                        new MfaAuthenticationChallengeRequest(authenticator, event.getPrincipal(), event.getUser(), event.getContext())
                 );
                 throw new MfaAuthenticationRequiredException(mfaAuthenticationChallenge);
             }

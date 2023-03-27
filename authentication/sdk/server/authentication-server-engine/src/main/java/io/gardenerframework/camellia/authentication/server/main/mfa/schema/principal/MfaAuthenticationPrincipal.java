@@ -6,7 +6,6 @@ import io.gardenerframework.camellia.authentication.server.main.schema.subject.p
 import io.gardenerframework.camellia.authentication.server.main.user.UserService;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.NonNull;
 import lombok.experimental.SuperBuilder;
 
 /**
@@ -23,6 +22,4 @@ import lombok.experimental.SuperBuilder;
 @Getter
 public class MfaAuthenticationPrincipal extends Principal {
     private static final long serialVersionUID = SerializationVersionNumber.version;
-    @NonNull
-    private final String authenticatorName;
 }

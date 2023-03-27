@@ -5,12 +5,9 @@ import io.gardenerframework.camellia.authentication.server.common.annotation.Aut
 import io.gardenerframework.camellia.authentication.server.common.annotation.AuthenticationServerEnginePreserved;
 import io.gardenerframework.camellia.authentication.server.main.exception.NestedAuthenticationException;
 import io.gardenerframework.camellia.authentication.server.main.mfa.challenge.MfaAuthenticationChallengeResponseService;
-import io.gardenerframework.camellia.authentication.server.main.mfa.challenge.MfaAuthenticationScenario;
 import io.gardenerframework.camellia.authentication.server.main.mfa.challenge.schema.MfaAuthenticationChallengeContext;
-import io.gardenerframework.camellia.authentication.server.main.mfa.challenge.schema.MfaAuthenticationChallengeRequest;
 import io.gardenerframework.camellia.authentication.server.main.mfa.exception.client.BadMfaAuthenticationRequestException;
 import io.gardenerframework.camellia.authentication.server.main.mfa.schema.principal.MfaAuthenticationPrincipal;
-import io.gardenerframework.camellia.authentication.server.main.mfa.utils.MfaAuthenticationChallengeResponseServiceRegistry;
 import io.gardenerframework.camellia.authentication.server.main.schema.subject.credentials.PasswordCredentials;
 import io.gardenerframework.camellia.authentication.server.main.schema.subject.principal.Principal;
 import io.gardenerframework.camellia.authentication.server.main.user.UserService;
@@ -34,7 +31,7 @@ import java.util.Objects;
 @AuthenticationServerEnginePreserved
 @AuthenticationServerEngineComponent
 public class MfaAuthenticationUserService implements UserService {
-    private final MfaAuthenticationChallengeResponseServiceRegistry registry;
+    private final MfaAuthenticationChallengeResponseService mfaAuthenticationChallengeResponseService;
 
     @Nullable
     @Override
@@ -47,13 +44,11 @@ public class MfaAuthenticationUserService implements UserService {
     public User load(@NonNull Principal principal, @Nullable Map<String, Object> context) throws AuthenticationException {
         if (principal instanceof MfaAuthenticationPrincipal) {
             String challengeId = principal.getName();
-            String authenticatorName = ((MfaAuthenticationPrincipal) principal).getAuthenticatorName();
-            MfaAuthenticationChallengeResponseService<MfaAuthenticationChallengeRequest, MfaAuthenticationChallengeContext> service = Objects.requireNonNull(registry.getMfaAuthenticationChallengeResponseService(authenticatorName));
             MfaAuthenticationChallengeContext mfaAuthenticationChallengeContext = null;
             try {
-                mfaAuthenticationChallengeContext = service.getContext(
+                mfaAuthenticationChallengeContext = mfaAuthenticationChallengeResponseService.getContext(
                         RequestingClientHolder.getClient(),
-                        MfaAuthenticationScenario.class,
+                        mfaAuthenticationChallengeResponseService.getClass(),
                         challengeId
                 );
                 Objects.requireNonNull(context).put(MfaAuthenticationChallengeContext.class.getName(), mfaAuthenticationChallengeContext);

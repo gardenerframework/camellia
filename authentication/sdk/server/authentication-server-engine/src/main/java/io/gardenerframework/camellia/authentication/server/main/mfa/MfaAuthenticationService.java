@@ -8,14 +8,10 @@ import io.gardenerframework.camellia.authentication.server.main.UserAuthenticati
 import io.gardenerframework.camellia.authentication.server.main.annotation.AuthenticationType;
 import io.gardenerframework.camellia.authentication.server.main.exception.NestedAuthenticationException;
 import io.gardenerframework.camellia.authentication.server.main.mfa.challenge.MfaAuthenticationChallengeResponseService;
-import io.gardenerframework.camellia.authentication.server.main.mfa.challenge.MfaAuthenticationScenario;
-import io.gardenerframework.camellia.authentication.server.main.mfa.challenge.schema.MfaAuthenticationChallengeContext;
-import io.gardenerframework.camellia.authentication.server.main.mfa.challenge.schema.MfaAuthenticationChallengeRequest;
 import io.gardenerframework.camellia.authentication.server.main.mfa.exception.client.BadMfaAuthenticationResponseException;
 import io.gardenerframework.camellia.authentication.server.main.mfa.schema.credentials.MfaResponseCredentials;
 import io.gardenerframework.camellia.authentication.server.main.mfa.schema.principal.MfaAuthenticationPrincipal;
 import io.gardenerframework.camellia.authentication.server.main.mfa.schema.request.MfaResponseParameter;
-import io.gardenerframework.camellia.authentication.server.main.mfa.utils.MfaAuthenticationChallengeResponseServiceRegistry;
 import io.gardenerframework.camellia.authentication.server.main.schema.UserAuthenticationRequestToken;
 import io.gardenerframework.camellia.authentication.server.main.user.schema.User;
 import lombok.AllArgsConstructor;
@@ -26,7 +22,6 @@ import org.springframework.security.core.AuthenticationException;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Validator;
 import java.util.Map;
-import java.util.Objects;
 
 /**
  * @author zhanghan30
@@ -38,7 +33,7 @@ import java.util.Objects;
 @AuthenticationServerEngineComponent
 public class MfaAuthenticationService implements UserAuthenticationService {
     private final Validator validator;
-    private final MfaAuthenticationChallengeResponseServiceRegistry registry;
+    private final MfaAuthenticationChallengeResponseService mfaAuthenticationChallengeResponseService;
 
     @Override
     public UserAuthenticationRequestToken convert(
@@ -51,7 +46,6 @@ public class MfaAuthenticationService implements UserAuthenticationService {
         return new UserAuthenticationRequestToken(
                 MfaAuthenticationPrincipal.builder()
                         .name(mfaResponseParameter.getChallengeId())
-                        .authenticatorName(mfaResponseParameter.getAuthenticator())
                         .build(),
                 MfaResponseCredentials.builder().response(mfaResponseParameter.getResponse()).build()
         );
@@ -66,31 +60,24 @@ public class MfaAuthenticationService implements UserAuthenticationService {
     ) throws AuthenticationException {
         MfaAuthenticationPrincipal principal = (MfaAuthenticationPrincipal) authenticationRequest.getPrincipal();
         MfaResponseCredentials credential = (MfaResponseCredentials) authenticationRequest.getCredentials();
-        //获取service
-        String authenticatorName = principal.getAuthenticatorName();
-        MfaAuthenticationChallengeResponseService<? extends MfaAuthenticationChallengeRequest, ? extends MfaAuthenticationChallengeContext> service = Objects.requireNonNull(registry.getMfaAuthenticationChallengeResponseService(authenticatorName));
         try {
             //尝试验证
-            if (!service.verifyResponse(
+            if (!mfaAuthenticationChallengeResponseService.verifyResponse(
                     client,
-                    MfaAuthenticationScenario.class,
+                    mfaAuthenticationChallengeResponseService.getClass(),
                     principal.getName(), credential.getResponse())) {
                 //mfa验证没有通过
                 throw new BadMfaAuthenticationResponseException(principal.getName());
+            } else {
+                //fix 完成验证后关闭
+                mfaAuthenticationChallengeResponseService.closeChallenge(
+                        client,
+                        mfaAuthenticationChallengeResponseService.getClass(),
+                        principal.getName()
+                );
             }
         } catch (ChallengeResponseServiceException exception) {
             throw new NestedAuthenticationException(exception);
-        } finally {
-            //无论成功还是失败都关闭挑战
-            try {
-                service.closeChallenge(
-                        client,
-                        MfaAuthenticationScenario.class,
-                        principal.getName()
-                );
-            } catch (ChallengeResponseServiceException e) {
-                //omit
-            }
         }
     }
 }

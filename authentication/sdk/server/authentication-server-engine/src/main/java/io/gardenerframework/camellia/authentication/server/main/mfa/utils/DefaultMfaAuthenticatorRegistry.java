@@ -1,12 +1,13 @@
 package io.gardenerframework.camellia.authentication.server.main.mfa.utils;
 
 import io.gardenerframework.camellia.authentication.infra.challenge.core.ChallengeAuthenticatorNameProvider;
+import io.gardenerframework.camellia.authentication.infra.challenge.core.ChallengeResponseService;
 import io.gardenerframework.camellia.authentication.infra.challenge.core.annotation.ChallengeAuthenticator;
 import io.gardenerframework.camellia.authentication.server.common.annotation.AuthenticationServerEngineComponent;
 import io.gardenerframework.camellia.authentication.server.main.mfa.challenge.MfaAuthenticationChallengeResponseService;
-import io.gardenerframework.camellia.authentication.server.main.mfa.challenge.schema.MfaAuthenticationChallengeContext;
-import io.gardenerframework.camellia.authentication.server.main.mfa.challenge.schema.MfaAuthenticationChallengeRequest;
-import io.gardenerframework.fragrans.log.GenericLoggerStaticAccessor;
+import io.gardenerframework.camellia.authentication.server.main.mfa.challenge.MfaAuthenticator;
+import io.gardenerframework.fragrans.log.GenericBasicLogger;
+import io.gardenerframework.fragrans.log.GenericOperationLogger;
 import io.gardenerframework.fragrans.log.common.schema.reason.AlreadyExisted;
 import io.gardenerframework.fragrans.log.common.schema.reason.NotFound;
 import io.gardenerframework.fragrans.log.common.schema.state.Done;
@@ -14,7 +15,6 @@ import io.gardenerframework.fragrans.log.common.schema.verb.Register;
 import io.gardenerframework.fragrans.log.schema.content.GenericBasicLogContent;
 import io.gardenerframework.fragrans.log.schema.content.GenericOperationLogContent;
 import io.gardenerframework.fragrans.log.schema.details.Detail;
-import lombok.AllArgsConstructor;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,6 +22,7 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.lang.Nullable;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -34,21 +35,24 @@ import java.util.Map;
 @RequiredArgsConstructor
 @Slf4j
 @AuthenticationServerEngineComponent
-public class DefaultMfaAuthenticationChallengeResponseServiceRegistry implements MfaAuthenticationChallengeResponseServiceRegistry, InitializingBean {
+@SuppressWarnings("rawtypes")
+public class DefaultMfaAuthenticatorRegistry implements MfaAuthenticatorRegistry, InitializingBean {
+    private final GenericBasicLogger basicLogger;
+    private final GenericOperationLogger operationLogger;
     /**
      * key = 认证器名称
      * <p>
      * value = 服务和激活标记
      */
-    private final Map<String, MfaAuthenticationChallengeResponseService<? extends MfaAuthenticationChallengeRequest, ? extends MfaAuthenticationChallengeContext>> registry = new HashMap<>();
+    private final Map<String, ChallengeResponseService> registry = new HashMap<>(10);
     /**
      * 所有mfa挑战应答服务类
      */
     @NonNull
-    private final Collection<MfaAuthenticationChallengeResponseService<? extends MfaAuthenticationChallengeRequest, ? extends MfaAuthenticationChallengeContext>> services;
+    private final Collection<MfaAuthenticator> services;
 
-    @NonNull
-    private String parseName(MfaAuthenticationChallengeResponseService<? extends MfaAuthenticationChallengeRequest, ? extends MfaAuthenticationChallengeContext> service) {
+    @Nullable
+    private String parseName(ChallengeResponseService service) {
         if (service instanceof ChallengeAuthenticatorNameProvider) {
             return ((ChallengeAuthenticatorNameProvider) service).getChallengeAuthenticatorName();
         } else {
@@ -57,7 +61,7 @@ public class DefaultMfaAuthenticationChallengeResponseServiceRegistry implements
                     ChallengeAuthenticator.class
             );
             if (annotation == null) {
-                GenericLoggerStaticAccessor.basicLogger().error(
+                basicLogger.error(
                         log,
                         GenericBasicLogContent.builder()
                                 .what(ChallengeAuthenticator.class)
@@ -68,7 +72,7 @@ public class DefaultMfaAuthenticationChallengeResponseServiceRegistry implements
                                 .build(),
                         null
                 );
-                throw new IllegalStateException(services.getClass().getCanonicalName() + " needs to be a ChallengeAuthenticatorNameProvider or annotates with ChallengeAuthenticator");
+                return null;
             } else {
                 return annotation.value();
             }
@@ -78,10 +82,10 @@ public class DefaultMfaAuthenticationChallengeResponseServiceRegistry implements
     @Override
     public void afterPropertiesSet() throws Exception {
         if (CollectionUtils.isEmpty(services)) {
-            GenericLoggerStaticAccessor.basicLogger().error(
+            basicLogger.error(
                     log,
                     GenericBasicLogContent.builder()
-                            .what(MfaAuthenticationChallengeResponseService.class)
+                            .what(ChallengeResponseService.class)
                             .how(new NotFound())
                             .build(),
                     null
@@ -91,19 +95,29 @@ public class DefaultMfaAuthenticationChallengeResponseServiceRegistry implements
         }
         services.forEach(
                 service -> {
-                    String name = parseName(service);
+                    if (!(service instanceof ChallengeResponseService)) {
+                        return;
+                    }
+                    String name = parseName((ChallengeResponseService) service);
+                    if (!StringUtils.hasText(name)) {
+                        //没有名称，不是目标挑战服务
+                        return;
+                    }
                     if (registry.get(name) == null) {
                         registry.put(
                                 name,
-                                service
+                                (ChallengeResponseService) service
                         );
                     } else {
-                        GenericLoggerStaticAccessor.basicLogger().error(
+                        basicLogger.error(
                                 log,
                                 GenericBasicLogContent.builder()
                                         .what(MfaAuthenticationChallengeResponseService.class)
                                         .how(new AlreadyExisted())
-                                        .detail(new DefaultMfaAuthenticationChallengeResponseServiceRegistry.MfaAuthenticationChallengeResponseServiceDetail(name))
+                                        .detail(new Detail() {
+                                            private final String serviceClass = service.getClass().getCanonicalName();
+                                            private final String authenticator = name;
+                                        })
                                         .build(),
                                 null
                         );
@@ -111,7 +125,7 @@ public class DefaultMfaAuthenticationChallengeResponseServiceRegistry implements
                     }
                 }
         );
-        GenericLoggerStaticAccessor.operationLogger().info(
+        operationLogger.info(
                 log,
                 GenericOperationLogContent.builder()
                         .what(MfaAuthenticationChallengeResponseService.class)
@@ -132,16 +146,9 @@ public class DefaultMfaAuthenticationChallengeResponseServiceRegistry implements
     @Nullable
     @Override
     @SuppressWarnings("unchecked")
-    public <R extends MfaAuthenticationChallengeRequest, X extends MfaAuthenticationChallengeContext> MfaAuthenticationChallengeResponseService<R, X> getMfaAuthenticationChallengeResponseService(@NonNull String name) {
-        return (MfaAuthenticationChallengeResponseService<R, X>) registry.get(name);
+    public <T extends ChallengeResponseService & MfaAuthenticator> T getAuthenticator(@NonNull String name) {
+        return (T) registry.get(name);
     }
 
-    /**
-     * @author zhanghan30
-     * @date 2022/4/25 1:24 下午
-     */
-    @AllArgsConstructor
-    private static class MfaAuthenticationChallengeResponseServiceDetail implements Detail {
-        private final String name;
-    }
+
 }

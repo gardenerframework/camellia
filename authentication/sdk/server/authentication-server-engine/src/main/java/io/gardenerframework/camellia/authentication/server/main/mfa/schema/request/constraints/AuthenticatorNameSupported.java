@@ -14,6 +14,7 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.FIELD)
 @Constraint(validatedBy = AuthenticatorNameSupportedValidator.class)
+@Deprecated
 public @interface AuthenticatorNameSupported {
     String message() default "will overwrite by validator";
 

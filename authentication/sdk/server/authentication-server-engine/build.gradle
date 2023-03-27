@@ -11,6 +11,7 @@ dependencies {
     api "${fragrans.group}:data-cache-core"
     api "${fragrans.group}:data-traits-application"
     api "${group}:authentication-server-core"
+    api "${group}:challenge-response-engine"
     api "org.bouncycastle:bcprov-jdk15on"
     runtimeOnly "com.fasterxml.jackson.datatype:jackson-datatype-jsr310"
     testImplementation "${fragrans.group}:data-cache-spring-redis"
