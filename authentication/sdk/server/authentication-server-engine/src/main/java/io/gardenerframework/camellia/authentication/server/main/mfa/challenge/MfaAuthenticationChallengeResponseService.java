@@ -66,7 +66,7 @@ public class MfaAuthenticationChallengeResponseService extends AbstractChallenge
         ChallengeResponseService authenticator = registry.getAuthenticator(request.getAuthenticatorName());
         return Objects.requireNonNull(authenticator).sendChallenge(
                 client,
-                scenario,
+                MfaAuthenticationScenario.class,
                 ((MfaAuthenticator) authenticator).authenticationContextToRequest(client, MfaAuthenticationScenario.class, request.getPrincipal(), request.getUser(), request.getContext())
         );
     }
@@ -86,6 +86,7 @@ public class MfaAuthenticationChallengeResponseService extends AbstractChallenge
     @Override
     @SuppressWarnings({"rawtypes", "unchecked"})
     public void closeChallenge(@Nullable RequestingClient client, @NonNull Class<? extends Scenario> scenario, @NonNull String challengeId) throws ChallengeResponseServiceException {
+        //这里要使用原始的场景
         MfaAuthenticationChallengeContext context = getContext(client, scenario, challengeId);
         if (context != null) {
             ChallengeResponseService authenticator = registry.getAuthenticator(context.getAuthenticatorName());
