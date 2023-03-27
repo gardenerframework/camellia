@@ -313,17 +313,12 @@ public abstract class AbstractChallengeResponseService<
             @NonNull String response
     ) throws ChallengeResponseServiceException {
         try {
-            C challenge = challengeStore.loadChallenge(
-                    client,
-                    scenario,
-                    challengeId
-            );
             X context = challengeContextStore.loadContext(
                     client,
                     scenario,
                     challengeId
             );
-            if (challenge == null || context == null) {
+            if (context == null) {
                 //挑战已经过期
                 return false;
             }
