@@ -390,23 +390,25 @@ public abstract class AbstractChallengeResponseService<
             @NonNull R request
     ) throws ChallengeResponseServiceException {
         try {
+            String requestSignature = getRequestSignature(client, scenario, request);
+            if (!StringUtils.hasText(requestSignature)) {
+                //无法抽取请求特征，那还重放什么
+                return null;
+            }
             if (replayChallenge(client, scenario, request)) {
                 //当前请求可以被未完成的挑战重放
-                String requestSignature = getRequestSignature(client, scenario, request);
-                if (StringUtils.hasText(requestSignature)) {
-                    String challengeId = challengeStore.getChallengeId(
+                String challengeId = challengeStore.getChallengeId(
+                        client,
+                        scenario,
+                        requestSignature
+                );
+                if (StringUtils.hasText(challengeId)) {
+                    //返回了请求特征，该特征对应着存储的挑战
+                    return challengeStore.loadChallenge(
                             client,
                             scenario,
-                            requestSignature
+                            challengeId
                     );
-                    if (StringUtils.hasText(challengeId)) {
-                        //返回了请求特征，该特征对应着存储的挑战
-                        return challengeStore.loadChallenge(
-                                client,
-                                scenario,
-                                challengeId
-                        );
-                    }
                 }
             }
             return null;
@@ -491,6 +493,7 @@ public abstract class AbstractChallengeResponseService<
         try {
             String requestSignature = getRequestSignature(client, scenario, request);
             if (StringUtils.hasText(requestSignature)) {
+                //只有请求特征能够定义才保存当前挑战以及挑战id
                 challengeStore.saveChallengeId(
                         client,
                         scenario,
@@ -501,18 +504,19 @@ public abstract class AbstractChallengeResponseService<
                                 challenge.getExpiryTime().toInstant()
                         )
                 );
+                challengeStore.saveChallenge(
+                        client,
+                        scenario,
+                        challenge.getId(),
+                        challenge,
+                        //计算存储的有效期
+                        Duration.between(
+                                Instant.now(),
+                                challenge.getExpiryTime().toInstant()
+                        )
+                );
             }
-            challengeStore.saveChallenge(
-                    client,
-                    scenario,
-                    challenge.getId(),
-                    challenge,
-                    //计算存储的有效期
-                    Duration.between(
-                            Instant.now(),
-                            challenge.getExpiryTime().toInstant()
-                    )
-            );
+
         } catch (Exception e) {
             throw new ChallengeResponseServiceException(e);
         }
