@@ -8,6 +8,7 @@ import org.aspectj.lang.annotation.Aspect;
 import org.springframework.cglib.proxy.Enhancer;
 import org.springframework.cglib.proxy.MethodInterceptor;
 import org.springframework.core.annotation.AnnotationUtils;
+import org.springframework.util.ClassUtils;
 
 /**
  * @author zhanghan30
@@ -20,7 +21,8 @@ public class ChallengeAuthenticatorNameInjector {
             throws Throwable {
         Object challenge = proceedingJoinPoint.proceed(proceedingJoinPoint.getArgs());
         Object service = proceedingJoinPoint.getTarget();
-        if (challenge != null) {
+        //对于还没有被代理的挑战有效
+        if (challenge != null && !ClassUtils.isCglibProxy(challenge)) {
             Enhancer enhancer = new Enhancer();
             enhancer.setSuperclass(challenge.getClass());
             //整合名称接口
@@ -49,7 +51,7 @@ public class ChallengeAuthenticatorNameInjector {
             );
             return enhancer.create();
         } else {
-            return null;
+            return challenge;
         }
     }
 }
