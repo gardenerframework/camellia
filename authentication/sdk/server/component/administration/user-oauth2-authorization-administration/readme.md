@@ -105,3 +105,40 @@ public class UserAuthorizedOAuth2Authorization {
   如果在时间前发生，第一步调用remove方法删除指定授权，然后返回null作为结果
 * 单渠道退出: 在redis中保存用户id + client id，其余玩法一样
 * 单设备退出: 在redis中保存用户id + client id + device id，其它玩法一样
+
+# UserAuthorizedOAuth2AuthorizationAdministrationService
+
+```java
+public interface UserAuthorizedOAuth2AuthorizationAdministrationService {
+    /**
+     * 实际落地移除授权的操作
+     *
+     * @param request 移除请求
+     * @throws Exception 发生问题
+     */
+    void removeOAuth2Authorization(
+            RemoveUserAuthorizedAuthorizationRequest request
+    ) throws Exception;
+}
+```
+
+用来管理用户已经完成的授权的服务，目前主要是提供了移除用户授权的方法
+
+```java
+public class RemoveUserAuthorizedAuthorizationRequest {
+    @NotBlank
+    private String userId;
+    @Nullable
+    private String clientId;
+    @Nullable
+    private String deviceId;
+}
+```
+
+能够移除的纬度是按用户id、客户端id和设备id(未实装)
+
+# CachedUserAuthorizedOAuth2AuthorizationAdministrationService
+
+CachedUserAuthorizedOAuth2AuthorizationAdministrationService是UserAuthorizedOAuth2AuthorizationAdministrationService的一个实现。
+它按照上面的设计说明，将要移除的授权放到redis中，并拦截OAuth2AuthorizationService的findByToken和findById方法，查看授权是否已经被要求移除，如果被要求移除则返回null并移除授权(
+delete on read)。

@@ -1,7 +1,6 @@
 package io.gardenerframework.camellia.authentication.server.administration.authorization.service;
 
 import io.gardenerframework.camellia.authentication.server.administration.authorization.schema.request.RemoveUserAuthorizedAuthorizationRequest;
-import lombok.NonNull;
 
 /**
  * @author zhanghan30
