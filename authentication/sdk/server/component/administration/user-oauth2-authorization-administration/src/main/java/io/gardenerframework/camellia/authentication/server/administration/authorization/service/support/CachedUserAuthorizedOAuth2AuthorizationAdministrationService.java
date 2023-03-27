@@ -15,7 +15,6 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
-import org.springframework.context.annotation.Import;
 import org.springframework.lang.Nullable;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.server.authorization.OAuth2Authorization;
@@ -40,7 +39,6 @@ import java.util.Map;
         ignored = CachedUserAuthorizedOAuth2AuthorizationAdministrationService.class
 )
 @ConditionalOnBean(CacheClient.class)
-@Import(CachedUserAuthorizedOAuth2AuthorizationAdministrationService.OAuth2AuthorizationServiceInterceptor.class)
 @UserAuthorizedOAuth2AuthorizationAdministrationComponent
 public class CachedUserAuthorizedOAuth2AuthorizationAdministrationService
         implements UserAuthorizedOAuth2AuthorizationAdministrationService, InitializingBean {
@@ -127,6 +125,7 @@ public class CachedUserAuthorizedOAuth2AuthorizationAdministrationService
     @ConditionalOnBean(CachedUserAuthorizedOAuth2AuthorizationAdministrationService.class)
     @RequiredArgsConstructor
     @Aspect
+    @UserAuthorizedOAuth2AuthorizationAdministrationComponent
     public static class OAuth2AuthorizationServiceInterceptor {
         private final OAuth2AuthorizationService oAuth2AuthorizationService;
         private final CachedUserAuthorizedOAuth2AuthorizationAdministrationService userAuthorizedOAuth2AuthorizationAdministrationService;

@@ -5,6 +5,7 @@ import io.gardenerframework.camellia.authentication.server.administration.author
 import io.gardenerframework.camellia.authentication.server.administration.configuration.UserAuthorizedOAuth2AuthorizationAdministrationComponent;
 import io.gardenerframework.camellia.authentication.server.common.api.group.AdministrationServerRestController;
 import lombok.RequiredArgsConstructor;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingClass;
 
 /**
  * @author zhanghan30
@@ -13,6 +14,8 @@ import lombok.RequiredArgsConstructor;
 @AdministrationServerRestController
 @RequiredArgsConstructor
 @UserAuthorizedOAuth2AuthorizationAdministrationComponent
+//不是oauth2授权服务器
+@ConditionalOnMissingClass("org.springframework.security.oauth2.server.authorization.web.OAuth2TokenEndpointFilter")
 public class UserAuthorizedOAuth2AuthorizationAdministrationEndpoint implements
         UserAuthorizedOAuth2AuthorizationAdministrationEndpointSkeleton {
     private final UserAuthorizedOAuth2AuthorizationAdministrationService service;
