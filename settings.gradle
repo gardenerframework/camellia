@@ -63,6 +63,7 @@ String[] subprojectNames = [
         'authentication:sdk:common:requesting-client:requesting-client-core',
         'authentication:sdk:infra:challenge-response:challenge-response-core',
         'authentication:sdk:infra:challenge-response:challenge-response-engine',
+        'authentication:sdk:infra:challenge-response:mfa-authentication-server-engine',
         'authentication:sdk:infra:sms:sms-verification-code-challenge-response-core',
         'authentication:sdk:infra:sms:sms-verification-code-challenge-response-engine',
         'authentication:sdk:infra:sms:clients:sms-client-jdcloud',
