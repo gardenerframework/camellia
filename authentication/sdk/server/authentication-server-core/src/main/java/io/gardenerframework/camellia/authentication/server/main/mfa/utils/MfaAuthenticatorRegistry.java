@@ -1,6 +1,8 @@
 package io.gardenerframework.camellia.authentication.server.main.mfa.utils;
 
-import io.gardenerframework.camellia.authentication.infra.challenge.core.ChallengeResponseService;
+import io.gardenerframework.camellia.authentication.infra.challenge.core.schema.Challenge;
+import io.gardenerframework.camellia.authentication.infra.challenge.core.schema.ChallengeContext;
+import io.gardenerframework.camellia.authentication.infra.challenge.core.schema.ChallengeRequest;
 import io.gardenerframework.camellia.authentication.server.main.mfa.challenge.MfaAuthenticator;
 import lombok.NonNull;
 import org.springframework.lang.Nullable;
@@ -41,6 +43,5 @@ public interface MfaAuthenticatorRegistry {
      * @return 服务
      */
     @Nullable
-    @SuppressWarnings("rawtypes")
-    <T extends ChallengeResponseService & MfaAuthenticator> T getAuthenticator(@NonNull String name);
+    <R extends ChallengeRequest, C extends Challenge, X extends ChallengeContext> MfaAuthenticator<R, C, X> getAuthenticator(@NonNull String name);
 }

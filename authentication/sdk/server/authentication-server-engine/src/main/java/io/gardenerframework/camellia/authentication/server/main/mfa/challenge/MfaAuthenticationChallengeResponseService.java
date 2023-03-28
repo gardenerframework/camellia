@@ -67,7 +67,7 @@ public class MfaAuthenticationChallengeResponseService extends AbstractChallenge
         return Objects.requireNonNull(authenticator).sendChallenge(
                 client,
                 MfaAuthenticationScenario.class,
-                ((MfaAuthenticator) authenticator).authenticationContextToRequest(client, MfaAuthenticationScenario.class, request.getPrincipal(), request.getUser(), request.getContext())
+                ((MfaAuthenticator) authenticator).authenticationContextToChallengeRequest(client, MfaAuthenticationScenario.class, request.getPrincipal(), request.getUser(), request.getContext())
         );
     }
 

@@ -7,7 +7,6 @@ import io.gardenerframework.camellia.authentication.infra.challenge.core.Scenari
 import io.gardenerframework.camellia.authentication.infra.challenge.core.annotation.ChallengeAuthenticator;
 import io.gardenerframework.camellia.authentication.infra.challenge.core.exception.ChallengeResponseServiceException;
 import io.gardenerframework.camellia.authentication.infra.challenge.core.schema.Challenge;
-import io.gardenerframework.camellia.authentication.infra.challenge.core.schema.ChallengeRequest;
 import io.gardenerframework.camellia.authentication.infra.challenge.engine.AbstractChallengeResponseService;
 import io.gardenerframework.camellia.authentication.infra.challenge.engine.support.GenericCachedChallengeContextStore;
 import io.gardenerframework.camellia.authentication.infra.challenge.engine.support.GenericCachedChallengeStore;
@@ -42,7 +41,10 @@ public class InMemoryMfaAuthenticationService extends
                 MfaAuthenticationChallengeRequest,
                 Challenge,
                 MfaAuthenticationChallengeContext>
-        implements MfaAuthenticator, AuthenticationEventListenerSkeleton, MfaAuthenticatorAdvisor {
+        implements MfaAuthenticator<
+        MfaAuthenticationChallengeRequest,
+        Challenge,
+        MfaAuthenticationChallengeContext>, AuthenticationEventListenerSkeleton, MfaAuthenticatorAdvisor {
     private final Set<Principal> failedUsers = new HashSet<>(100);
     private final Map<String, Challenge> sentRequests = new HashMap<>(100);
     private final Map<String, Principal> challengedUserPrincipal = new HashMap<>(100);
@@ -155,7 +157,7 @@ public class InMemoryMfaAuthenticationService extends
     }
 
     @Override
-    public ChallengeRequest authenticationContextToRequest(@Nullable RequestingClient client, @NonNull Class<? extends Scenario> scenario, @NonNull Principal principal, @NonNull User user, @NonNull Map<String, Object> context) throws Exception {
+    public MfaAuthenticationChallengeRequest authenticationContextToChallengeRequest(@Nullable RequestingClient client, @NonNull Class<? extends Scenario> scenario, @NonNull Principal principal, @NonNull User user, @NonNull Map<String, Object> context) throws Exception {
         MfaAuthenticationChallengeRequest mfaAuthenticationChallengeRequest = new MfaAuthenticationChallengeRequest();
         mfaAuthenticationChallengeRequest.setUser(user);
         mfaAuthenticationChallengeRequest.setPrincipal(principal);

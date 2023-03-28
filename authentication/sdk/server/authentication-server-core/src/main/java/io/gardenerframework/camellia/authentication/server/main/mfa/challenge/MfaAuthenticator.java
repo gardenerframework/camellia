@@ -3,6 +3,8 @@ package io.gardenerframework.camellia.authentication.server.main.mfa.challenge;
 import io.gardenerframework.camellia.authentication.common.client.schema.RequestingClient;
 import io.gardenerframework.camellia.authentication.infra.challenge.core.ChallengeResponseService;
 import io.gardenerframework.camellia.authentication.infra.challenge.core.Scenario;
+import io.gardenerframework.camellia.authentication.infra.challenge.core.schema.Challenge;
+import io.gardenerframework.camellia.authentication.infra.challenge.core.schema.ChallengeContext;
 import io.gardenerframework.camellia.authentication.infra.challenge.core.schema.ChallengeRequest;
 import io.gardenerframework.camellia.authentication.server.main.schema.subject.principal.Principal;
 import io.gardenerframework.camellia.authentication.server.main.user.schema.User;
@@ -13,8 +15,10 @@ import java.util.Map;
 
 /**
  * 附加在{@link  ChallengeResponseService}上的接口，表达这个认证器是支持认证服务器的mfa场景
+ *
+ * 补充了要求这个认证器是个挑战应答服务
  */
-public interface MfaAuthenticator {
+public interface MfaAuthenticator<R extends ChallengeRequest, C extends Challenge, X extends ChallengeContext> extends ChallengeResponseService<R, C, X> {
     /**
      * 执行mfa认证过程的上下文到认证请求的转换
      *
@@ -26,7 +30,7 @@ public interface MfaAuthenticator {
      * @return 认证请求
      * @throws Exception 发生了问题
      */
-    ChallengeRequest authenticationContextToRequest(
+    R authenticationContextToChallengeRequest(
             @Nullable RequestingClient client,
             @NonNull Class<? extends Scenario> scenario,
             @NonNull Principal principal,
