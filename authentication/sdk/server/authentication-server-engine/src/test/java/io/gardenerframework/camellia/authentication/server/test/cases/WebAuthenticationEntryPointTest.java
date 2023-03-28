@@ -178,8 +178,8 @@ public class WebAuthenticationEntryPointTest {
         @SneakyThrows
         public MfaAuthenticationRequest(ResponseEntity<Void> response) {
             UriComponents url = UriComponentsBuilder.fromHttpUrl(response.getHeaders().get("Location").get(0)).build();
-            this.authenticator = URLDecoder.decode(url.getQueryParams().get("authenticator").get(0), "utf-8");
-            this.challengeId = URLDecoder.decode(url.getQueryParams().get("challengeId").get(0), "utf-8");
+            this.authenticator = URLDecoder.decode(url.getQueryParams().get("challengeAuthenticatorName").get(0), "utf-8");
+            this.challengeId = URLDecoder.decode(url.getQueryParams().get("id").get(0), "utf-8");
         }
     }
 }
