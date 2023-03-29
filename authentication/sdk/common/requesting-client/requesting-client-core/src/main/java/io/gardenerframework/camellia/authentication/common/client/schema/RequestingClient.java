@@ -4,6 +4,7 @@ import io.gardenerframework.camellia.authentication.common.data.serialization.Se
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
+import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
 import java.io.Serializable;
@@ -13,6 +14,7 @@ import java.io.Serializable;
  */
 @SuperBuilder
 @Getter
+@Setter
 @NoArgsConstructor
 public abstract class RequestingClient implements Serializable {
     private static final long serialVersionUID = SerializationVersionNumber.version;
