@@ -4,26 +4,18 @@ import io.gardenerframework.camellia.authentication.infra.challenge.mfa.server.s
 import lombok.*;
 import org.springframework.lang.Nullable;
 
-import javax.validation.constraints.NotNull;
+import javax.validation.constraints.NotBlank;
 import java.util.Map;
 
 /**
  * @author zhanghan30
- * @date 2023/3/28 15:26
+ * @date 2023/3/29 13:34
  */
 @NoArgsConstructor
 @Getter
 @Setter
 @AllArgsConstructor
-public class SendChallengeRequest {
-    /**
-     * 要执行mfa的用户信息，按照实现方的理解来转类型
-     * <p>
-     * 最终这个认证器要能识别这个用户信息
-     */
-    @NonNull
-    @NotNull
-    private Map<String, Object> user;
+public class VerifyResponseRequest {
     /**
      * 实际请求的客户端
      * <p>
@@ -35,6 +27,17 @@ public class SendChallengeRequest {
     /**
      * 执行mfa验证的场景，比如登录，比如下订单
      */
-    @Nullable
+    @NotBlank
+    @NonNull
     private String scenario;
+    /**
+     * 挑战id
+     */
+    @NotBlank
+    private String challengeId;
+    /**
+     * 应答
+     */
+    @NotBlank
+    private String response;
 }

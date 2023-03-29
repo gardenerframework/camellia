@@ -1,0 +1,6 @@
+dependencies {
+    api "${group}:challenge-response-core"
+    api "${fragrans.group}:api-enhance-validation"
+    api "org.springframework.boot:spring-boot-starter-web"
+    testImplementation "${fragrans.group}:api-starter"
+}
