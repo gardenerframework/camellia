@@ -1,0 +1,13 @@
+io:
+  gardenerframework:
+    camellia:
+      authentication:
+        infra:
+          challenge:
+            mfa:
+              server:
+                schema:
+                  request:
+                    constraints:
+                      MfaAuthenticatorSupported: 为空或不支持
+                      RequestingClientSupported: 不支持

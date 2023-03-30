@@ -1,0 +1,4 @@
+dependencies {
+    api "${group}:challenge-response-core"
+    api "${fragrans.group}:enhance-validation-constraints"
+}
