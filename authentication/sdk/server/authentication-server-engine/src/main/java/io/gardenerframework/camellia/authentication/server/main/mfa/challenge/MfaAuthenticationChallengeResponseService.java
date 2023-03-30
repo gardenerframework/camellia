@@ -13,7 +13,7 @@ import io.gardenerframework.camellia.authentication.infra.challenge.engine.suppo
 import io.gardenerframework.camellia.authentication.server.common.annotation.AuthenticationServerEngineComponent;
 import io.gardenerframework.camellia.authentication.server.main.mfa.challenge.schema.MfaAuthenticationChallengeContext;
 import io.gardenerframework.camellia.authentication.server.main.mfa.challenge.schema.MfaAuthenticationChallengeRequest;
-import io.gardenerframework.camellia.authentication.server.main.mfa.utils.MfaAuthenticatorRegistry;
+import io.gardenerframework.camellia.authentication.server.main.mfa.utils.AuthenticationServerEmbeddedMfaAuthenticatorRegistry;
 import lombok.NonNull;
 import org.springframework.lang.Nullable;
 
@@ -22,9 +22,9 @@ import java.util.Objects;
 
 @AuthenticationServerEngineComponent
 public class MfaAuthenticationChallengeResponseService extends AbstractChallengeResponseService<MfaAuthenticationChallengeRequest, Challenge, MfaAuthenticationChallengeContext> implements Scenario {
-    private final MfaAuthenticatorRegistry registry;
+    private final AuthenticationServerEmbeddedMfaAuthenticatorRegistry registry;
 
-    public MfaAuthenticationChallengeResponseService(@NonNull GenericCachedChallengeStore challengeStore, @NonNull ChallengeCooldownManager challengeCooldownManager, @NonNull GenericCachedChallengeContextStore challengeContextStore, MfaAuthenticatorRegistry registry) {
+    public MfaAuthenticationChallengeResponseService(@NonNull GenericCachedChallengeStore challengeStore, @NonNull ChallengeCooldownManager challengeCooldownManager, @NonNull GenericCachedChallengeContextStore challengeContextStore, AuthenticationServerEmbeddedMfaAuthenticatorRegistry registry) {
         super(challengeStore, challengeCooldownManager, challengeContextStore.migrateType());
         this.registry = registry;
     }
@@ -63,11 +63,11 @@ public class MfaAuthenticationChallengeResponseService extends AbstractChallenge
     @Override
     @SuppressWarnings({"rawtypes", "unchecked"})
     protected Challenge sendChallengeInternally(@Nullable RequestingClient client, @NonNull Class<? extends Scenario> scenario, @NonNull MfaAuthenticationChallengeRequest request, @NonNull Map<String, Object> payload) throws Exception {
-        ChallengeResponseService authenticator = registry.getAuthenticator(request.getAuthenticatorName());
+        AuthenticationServerEmbeddedMfaAuthenticator authenticator = registry.getAuthenticator(request.getAuthenticatorName());
         return Objects.requireNonNull(authenticator).sendChallenge(
                 client,
-                MfaAuthenticationScenario.class,
-                ((MfaAuthenticator) authenticator).authenticationContextToChallengeRequest(client, MfaAuthenticationScenario.class, request.getPrincipal(), request.getUser(), request.getContext())
+                AuthenticationServerMfaAuthenticationScenario.class,
+                authenticator.authenticationContextToChallengeRequest(client, AuthenticationServerMfaAuthenticationScenario.class, request.getPrincipal(), request.getUser(), request.getContext())
         );
     }
 
@@ -80,7 +80,7 @@ public class MfaAuthenticationChallengeResponseService extends AbstractChallenge
     @SuppressWarnings({"rawtypes", "unchecked"})
     protected boolean verifyChallengeInternally(@Nullable RequestingClient client, @NonNull Class<? extends Scenario> scenario, @NonNull String challengeId, @NonNull MfaAuthenticationChallengeContext context, @NonNull String response) throws Exception {
         ChallengeResponseService authenticator = registry.getAuthenticator(context.getAuthenticatorName());
-        return Objects.requireNonNull(authenticator).verifyResponse(client, MfaAuthenticationScenario.class, challengeId, response);
+        return Objects.requireNonNull(authenticator).verifyResponse(client, AuthenticationServerMfaAuthenticationScenario.class, challengeId, response);
     }
 
     @Override
@@ -91,7 +91,7 @@ public class MfaAuthenticationChallengeResponseService extends AbstractChallenge
         if (context != null) {
             ChallengeResponseService authenticator = registry.getAuthenticator(context.getAuthenticatorName());
             //内嵌验证器完成挑战
-            Objects.requireNonNull(authenticator).closeChallenge(client, MfaAuthenticationScenario.class, challengeId);
+            Objects.requireNonNull(authenticator).closeChallenge(client, AuthenticationServerMfaAuthenticationScenario.class, challengeId);
         }
         //调用父类
         super.closeChallenge(client, scenario, challengeId);

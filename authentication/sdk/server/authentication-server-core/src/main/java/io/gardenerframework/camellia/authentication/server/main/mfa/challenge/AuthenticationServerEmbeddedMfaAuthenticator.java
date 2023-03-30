@@ -18,12 +18,12 @@ import java.util.Map;
  *
  * 补充了要求这个认证器是个挑战应答服务
  */
-public interface MfaAuthenticator<R extends ChallengeRequest, C extends Challenge, X extends ChallengeContext> extends ChallengeResponseService<R, C, X> {
+public interface AuthenticationServerEmbeddedMfaAuthenticator<R extends ChallengeRequest, C extends Challenge, X extends ChallengeContext> extends ChallengeResponseService<R, C, X> {
     /**
      * 执行mfa认证过程的上下文到认证请求的转换
      *
      * @param client    当亲正在进行mfa登录的客户端
-     * @param scenario  场景，固定为{@link MfaAuthenticationScenario}
+     * @param scenario  场景，固定为{@link AuthenticationServerMfaAuthenticationScenario}
      * @param principal 当前正在登录的用户名
      * @param user      已经完成读取的用户
      * @param context   登录过程中发生的上下文

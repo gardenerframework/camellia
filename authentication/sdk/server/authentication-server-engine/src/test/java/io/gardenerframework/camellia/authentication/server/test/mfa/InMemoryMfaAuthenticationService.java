@@ -14,7 +14,7 @@ import io.gardenerframework.camellia.authentication.infra.challenge.engine.suppo
 import io.gardenerframework.camellia.authentication.server.main.event.listener.AuthenticationEventListenerSkeleton;
 import io.gardenerframework.camellia.authentication.server.main.event.schema.AuthenticationFailedEvent;
 import io.gardenerframework.camellia.authentication.server.main.mfa.advisor.MfaAuthenticatorAdvisor;
-import io.gardenerframework.camellia.authentication.server.main.mfa.challenge.MfaAuthenticator;
+import io.gardenerframework.camellia.authentication.server.main.mfa.challenge.AuthenticationServerEmbeddedMfaAuthenticator;
 import io.gardenerframework.camellia.authentication.server.main.mfa.challenge.schema.MfaAuthenticationChallengeRequest;
 import io.gardenerframework.camellia.authentication.server.main.schema.subject.principal.Principal;
 import io.gardenerframework.camellia.authentication.server.main.user.schema.User;
@@ -42,7 +42,7 @@ public class InMemoryMfaAuthenticationService extends
                 MfaAuthenticationChallengeRequest,
                 Challenge,
                 InMemoryMfaAuthenticationService.TestContext>
-        implements MfaAuthenticator<
+        implements AuthenticationServerEmbeddedMfaAuthenticator<
         MfaAuthenticationChallengeRequest,
         Challenge,
         InMemoryMfaAuthenticationService.TestContext>, AuthenticationEventListenerSkeleton, MfaAuthenticatorAdvisor {

@@ -7,8 +7,8 @@ import io.gardenerframework.camellia.authentication.infra.challenge.core.schema.
 import io.gardenerframework.camellia.authentication.infra.challenge.core.schema.ChallengeContext;
 import io.gardenerframework.camellia.authentication.infra.challenge.core.schema.ChallengeRequest;
 import io.gardenerframework.camellia.authentication.server.common.annotation.AuthenticationServerEngineComponent;
+import io.gardenerframework.camellia.authentication.server.main.mfa.challenge.AuthenticationServerEmbeddedMfaAuthenticator;
 import io.gardenerframework.camellia.authentication.server.main.mfa.challenge.MfaAuthenticationChallengeResponseService;
-import io.gardenerframework.camellia.authentication.server.main.mfa.challenge.MfaAuthenticator;
 import io.gardenerframework.fragrans.log.GenericBasicLogger;
 import io.gardenerframework.fragrans.log.GenericOperationLogger;
 import io.gardenerframework.fragrans.log.common.schema.reason.AlreadyExisted;
@@ -38,7 +38,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 @Slf4j
 @AuthenticationServerEngineComponent
-public class DefaultMfaAuthenticatorRegistry implements MfaAuthenticatorRegistry, InitializingBean {
+public class DefaultMfaAuthenticatorRegistry implements AuthenticationServerEmbeddedMfaAuthenticatorRegistry, InitializingBean {
     private final GenericBasicLogger basicLogger;
     private final GenericOperationLogger operationLogger;
     /**
@@ -46,15 +46,15 @@ public class DefaultMfaAuthenticatorRegistry implements MfaAuthenticatorRegistry
      * <p>
      * value = 服务和激活标记
      */
-    private final Map<String, MfaAuthenticator<? extends ChallengeRequest, ? extends Challenge, ? extends ChallengeContext>> registry = new HashMap<>(10);
+    private final Map<String, AuthenticationServerEmbeddedMfaAuthenticator<? extends ChallengeRequest, ? extends Challenge, ? extends ChallengeContext>> registry = new HashMap<>(10);
     /**
      * 所有mfa挑战应答服务类
      */
     @NonNull
-    private final Collection<MfaAuthenticator<? extends ChallengeRequest, ? extends Challenge, ? extends ChallengeContext>> services;
+    private final Collection<AuthenticationServerEmbeddedMfaAuthenticator<? extends ChallengeRequest, ? extends Challenge, ? extends ChallengeContext>> services;
 
     @Nullable
-    private String parseName(MfaAuthenticator<? extends ChallengeRequest, ? extends Challenge, ? extends ChallengeContext> service) {
+    private String parseName(AuthenticationServerEmbeddedMfaAuthenticator<? extends ChallengeRequest, ? extends Challenge, ? extends ChallengeContext> service) {
         if (service instanceof ChallengeAuthenticatorNameProvider) {
             return ((ChallengeAuthenticatorNameProvider) service).getChallengeAuthenticatorName();
         } else {
@@ -145,8 +145,8 @@ public class DefaultMfaAuthenticatorRegistry implements MfaAuthenticatorRegistry
     @Nullable
     @Override
     @SuppressWarnings("unchecked")
-    public <R extends ChallengeRequest, C extends Challenge, X extends ChallengeContext> MfaAuthenticator<R, C, X> getAuthenticator(@NonNull String name) {
-        return (MfaAuthenticator<R, C, X>) registry.get(name);
+    public <R extends ChallengeRequest, C extends Challenge, X extends ChallengeContext> AuthenticationServerEmbeddedMfaAuthenticator<R, C, X> getAuthenticator(@NonNull String name) {
+        return (AuthenticationServerEmbeddedMfaAuthenticator<R, C, X>) registry.get(name);
     }
 
 }

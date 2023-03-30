@@ -1,6 +1,6 @@
 package io.gardenerframework.camellia.authentication.server.main.mfa.schema.request.constraints;
 
-import io.gardenerframework.camellia.authentication.server.main.mfa.utils.MfaAuthenticatorRegistry;
+import io.gardenerframework.camellia.authentication.server.main.mfa.utils.AuthenticationServerEmbeddedMfaAuthenticatorRegistry;
 import io.gardenerframework.fragrans.validation.constraints.AbstractConstraintValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
@@ -15,7 +15,7 @@ import java.util.Map;
 @Deprecated
 public class AuthenticatorNameSupportedValidator extends AbstractConstraintValidator<AuthenticatorNameSupported, String> {
     @Autowired
-    private MfaAuthenticatorRegistry registry;
+    private AuthenticationServerEmbeddedMfaAuthenticatorRegistry registry;
 
     @Override
     protected boolean validate(String value, ConstraintValidatorContext context, Map<String, Object> data) {
