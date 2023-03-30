@@ -6,7 +6,7 @@ ext {
             //spring boot 版本
             boot: '2.7.9',
             //spring cloud 版本
-            cloud: '2021.0.4'
+            cloud: '2021.0.5'
     ) as Properties
     sonar = '2.7' as String
     groupConstraints = [
