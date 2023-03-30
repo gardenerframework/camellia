@@ -137,4 +137,111 @@ user和requestingClient都需要调用方按照mfa服务能理解的json格式�
 
 # 验证挑战
 
-POST "/mfa/{authenticator}:verify"
+POST "/mfa/{authenticator}:verify"接口用来验证挑战，参数是
+
+```java
+public class VerifyResponseRequest {
+    /**
+     * 实际请求的客户端
+     * <p>
+     * 最终这个认证器要能识别这个客户端
+     */
+    @Nullable
+    @RequestingClientSupported
+    private Map<String, Object> requestingClient;
+    /**
+     * 执行mfa验证的场景，比如登录，比如下订单
+     */
+    @NotBlank
+    @NonNull
+    private String scenario;
+    /**
+     * 挑战id
+     */
+    @NotBlank
+    private String challengeId;
+    /**
+     * 应答
+     */
+    @NotBlank
+    private String response;
+}
+```
+
+"challengeId"和"response"分别代表挑战id和响应内容
+
+# 关闭挑战
+
+POST "/mfa/{authenticator}:close"接口用来验证挑战，参数是
+
+```java
+public class CloseChallengeRequest {
+    /**
+     * 实际请求的客户端
+     * <p>
+     * 最终这个认证器要能识别这个客户端
+     */
+    @Nullable
+    @RequestingClientSupported
+    private Map<String, Object> requestingClient;
+    /**
+     * 执行mfa验证的场景，比如登录，比如下订单
+     */
+    @NotBlank
+    @NonNull
+    private String scenario;
+    /**
+     * 挑战id
+     */
+    @NotBlank
+    private String challengeId;
+}
+```
+
+"challengeId"是要关闭的挑战id
+
+# 微服务客户端
+
+[mfa-authentication-server-client](mfa-authentication-server-client)定义了基于spring cloud openfeign的客户端
+
+```java
+public interface MfaAuthenticationClientPrototype<C extends Challenge> extends MfaAuthenticationEndpointSkeleton<C> {
+    @Override
+    @GetMapping("/mfa")
+    ListAuthenticatorsResponse listAuthenticators() throws Exception;
+
+    @PostMapping("/mfa/{authenticator}:send")
+    @Override
+    C sendChallenge(
+            @PathVariable("authenticator") @Valid String authenticator,
+            @Valid @RequestBody SendChallengeRequest request
+    ) throws Exception;
+
+    @PostMapping("/mfa/{authenticator}:verify")
+    @Override
+    ResponseVerificationResponse verifyResponse(
+            @PathVariable("authenticator") @Valid String authenticator,
+            @Valid @RequestBody VerifyResponseRequest request
+    ) throws Exception;
+
+    @PostMapping("/mfa/{authenticator}:close")
+    @Override
+    void closeChallenge(
+            @PathVariable("authenticator") @Valid String authenticator,
+            @Valid @RequestBody CloseChallengeRequest request
+    ) throws Exception;
+}
+```
+
+MfaAuthenticationClientPrototype是feign client的接口原型。具体使用时，按照调用返回的挑战类型，继承客户端原型后使用，例如
+
+```java
+
+@FeignClient(name = "mfa-authentication", decode404 = true)
+public interface SampleChallengeClient extends
+        MfaAuthenticationClientPrototype<SampleChallenge> {
+
+}
+```
+
+这样也便于开发人员在使用时按照实际的mfa认证服务在微服务管理系统中的注册名进行调用
