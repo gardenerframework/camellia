@@ -3,7 +3,7 @@ package io.gardenerframework.camellia.authentication.server.main.mfa.utils;
 import io.gardenerframework.camellia.authentication.infra.challenge.core.schema.Challenge;
 import io.gardenerframework.camellia.authentication.infra.challenge.core.schema.ChallengeContext;
 import io.gardenerframework.camellia.authentication.infra.challenge.core.schema.ChallengeRequest;
-import io.gardenerframework.camellia.authentication.server.main.mfa.challenge.AuthenticationServerEmbeddedMfaAuthenticator;
+import io.gardenerframework.camellia.authentication.server.main.mfa.challenge.AuthenticationServerMfaAuthenticator;
 import lombok.NonNull;
 import org.springframework.lang.Nullable;
 import org.springframework.util.CollectionUtils;
@@ -16,7 +16,7 @@ import java.util.Collection;
  * @author zhanghan30
  * @date 2023/3/6 12:42
  */
-public interface AuthenticationServerEmbeddedMfaAuthenticatorRegistry {
+public interface AuthenticationServerMfaAuthenticatorRegistry {
     /**
      * 获取已经注册的服务类型清单
      *
@@ -43,5 +43,5 @@ public interface AuthenticationServerEmbeddedMfaAuthenticatorRegistry {
      * @return 服务
      */
     @Nullable
-    <R extends ChallengeRequest, C extends Challenge, X extends ChallengeContext> AuthenticationServerEmbeddedMfaAuthenticator<R, C, X> getAuthenticator(@NonNull String name);
+    <R extends ChallengeRequest, C extends Challenge, X extends ChallengeContext> AuthenticationServerMfaAuthenticator<R, C, X> getAuthenticator(@NonNull String name);
 }

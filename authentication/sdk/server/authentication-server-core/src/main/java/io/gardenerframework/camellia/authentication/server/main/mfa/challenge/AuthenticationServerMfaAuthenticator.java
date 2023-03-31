@@ -18,7 +18,7 @@ import java.util.Map;
  *
  * 补充了要求这个认证器是个挑战应答服务
  */
-public interface AuthenticationServerEmbeddedMfaAuthenticator<R extends ChallengeRequest, C extends Challenge, X extends ChallengeContext> extends ChallengeResponseService<R, C, X> {
+public interface AuthenticationServerMfaAuthenticator<R extends ChallengeRequest, C extends Challenge, X extends ChallengeContext> extends ChallengeResponseService<R, C, X> {
     /**
      * 执行mfa认证过程的上下文到认证请求的转换
      *

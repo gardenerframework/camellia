@@ -25,7 +25,7 @@ import java.util.UUID;
 public class TestMfaAuthenticator implements MfaAuthenticator<
         TestChallengeRequest, TestChallenge, TestChallengeContext> {
     @Override
-    public TestChallengeRequest createChallengeRequest(@NonNull Map<String, Object> userData, @Nullable RequestingClient client, Class<? extends Scenario> scenario) {
+    public TestChallengeRequest createChallengeRequest(@NonNull Map<String, Object> userData, @Nullable RequestingClient client, Class<? extends Scenario> scenario,  Map<String, Object> arg) {
         return new TestChallengeRequest();
     }
 

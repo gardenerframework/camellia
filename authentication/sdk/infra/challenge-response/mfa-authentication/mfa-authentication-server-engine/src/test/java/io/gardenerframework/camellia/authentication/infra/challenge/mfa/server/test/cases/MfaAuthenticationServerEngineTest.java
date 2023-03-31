@@ -50,7 +50,8 @@ public class MfaAuthenticationServerEngineTest {
                 new SendChallengeRequest(
                         new HashMap<>(),
                         objectMapper.convertValue(client, Map.class),
-                        TestScenario.class.getName()),
+                        TestScenario.class.getName(),
+                        null),
                 TestChallenge.class,
                 port
         );

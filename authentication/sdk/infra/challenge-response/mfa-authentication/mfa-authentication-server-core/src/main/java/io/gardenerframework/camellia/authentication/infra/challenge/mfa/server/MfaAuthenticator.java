@@ -22,14 +22,16 @@ public interface MfaAuthenticator<
     /**
      * 获取挑战请求
      *
-     * @param userData 用户数据
-     * @param client   客户端
-     * @param scenario 场景
+     * @param userData            用户数据
+     * @param client              客户端
+     * @param scenario            场景
+     * @param additionalArguments 前段请求发出来的额外参数
      * @return 挑战请求
      */
     R createChallengeRequest(
             @NonNull Map<String, Object> userData,
             @Nullable RequestingClient client,
-            @NonNull Class<? extends Scenario> scenario
+            @NonNull Class<? extends Scenario> scenario,
+            @Nullable Map<String, Object> additionalArguments
     );
 }

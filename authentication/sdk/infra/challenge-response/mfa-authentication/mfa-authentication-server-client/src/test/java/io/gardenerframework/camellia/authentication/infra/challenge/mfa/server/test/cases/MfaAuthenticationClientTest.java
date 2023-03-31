@@ -3,6 +3,7 @@ package io.gardenerframework.camellia.authentication.infra.challenge.mfa.server.
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.gardenerframework.camellia.authentication.common.client.schema.OAuth2RequestingClient;
 import io.gardenerframework.camellia.authentication.infra.challenge.mfa.server.client.MfaAuthenticationClientPrototype;
+import io.gardenerframework.camellia.authentication.infra.challenge.mfa.server.schema.request.CloseChallengeRequest;
 import io.gardenerframework.camellia.authentication.infra.challenge.mfa.server.schema.request.SendChallengeRequest;
 import io.gardenerframework.camellia.authentication.infra.challenge.mfa.server.schema.response.ListAuthenticatorsResponse;
 import io.gardenerframework.camellia.authentication.infra.challenge.mfa.server.test.MfaAuthenticationClientTestApplication;
@@ -44,7 +45,8 @@ public class MfaAuthenticationClientTest {
         SendChallengeRequest request = new SendChallengeRequest(
                 new HashMap<>(),
                 objectMapper.convertValue(client, Map.class),
-                TestScenario.class.getName()
+                TestScenario.class.getName(),
+                null
         );
         TestChallenge challenge = testChallengeClient.sendChallenge(
                 "test",
@@ -53,6 +55,11 @@ public class MfaAuthenticationClientTest {
         Assertions.assertNotNull(challenge.getId());
         Assertions.assertNotNull(challenge.getField());
         Assertions.assertEquals(TestScenario.class.getName(), challenge.getField());
+        testChallengeClient.closeChallenge("test", new CloseChallengeRequest(
+                objectMapper.convertValue(client, Map.class),
+                TestScenario.class.getName(),
+                challenge.getId()
+        ));
     }
 
     @FeignClient(name = "mfa-authentication", decode404 = true)

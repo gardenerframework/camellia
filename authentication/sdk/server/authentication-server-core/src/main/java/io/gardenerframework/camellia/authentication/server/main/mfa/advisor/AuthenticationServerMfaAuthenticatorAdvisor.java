@@ -13,7 +13,7 @@ import java.util.Map;
  * @date 2023/2/24 18:51
  */
 @FunctionalInterface
-public interface MfaAuthenticatorAdvisor {
+public interface AuthenticationServerMfaAuthenticatorAdvisor {
     /**
      * 是否应当进行mfa的决策
      *

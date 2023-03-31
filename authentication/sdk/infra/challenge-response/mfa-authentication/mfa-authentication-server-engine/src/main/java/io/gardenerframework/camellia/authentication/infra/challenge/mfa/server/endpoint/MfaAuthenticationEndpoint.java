@@ -63,8 +63,12 @@ public class MfaAuthenticationEndpoint implements MfaAuthenticationEndpointSkele
         return authenticatorInstance.sendChallenge(
                 client,
                 scenario,
-                authenticatorInstance.createChallengeRequest(request.getUser(), client, scenario)
-        );
+                authenticatorInstance.createChallengeRequest(
+                        request.getUser(),
+                        client,
+                        scenario,
+                        request.getAdditionalArguments()
+                ));
     }
 
     @PostMapping("/{authenticator}:verify")
@@ -89,7 +93,7 @@ public class MfaAuthenticationEndpoint implements MfaAuthenticationEndpointSkele
     @PostMapping("/{authenticator}:close")
     @Override
     public void closeChallenge(
-            @Valid @MfaAuthenticatorSupported String authenticator,
+            @Valid @MfaAuthenticatorSupported @PathVariable("authenticator") String authenticator,
             @Valid @RequestBody CloseChallengeRequest request
     ) throws Exception {
         RequestingClient client = deserializeRequestingClient(request.getRequestingClient());

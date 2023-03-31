@@ -13,7 +13,7 @@ import io.gardenerframework.camellia.authentication.infra.challenge.engine.suppo
 import io.gardenerframework.camellia.authentication.server.common.annotation.AuthenticationServerEngineComponent;
 import io.gardenerframework.camellia.authentication.server.main.mfa.challenge.schema.MfaAuthenticationChallengeContext;
 import io.gardenerframework.camellia.authentication.server.main.mfa.challenge.schema.MfaAuthenticationChallengeRequest;
-import io.gardenerframework.camellia.authentication.server.main.mfa.utils.AuthenticationServerEmbeddedMfaAuthenticatorRegistry;
+import io.gardenerframework.camellia.authentication.server.main.mfa.utils.CompositeAuthenticationServerMfaAuthenticatorRegistry;
 import lombok.NonNull;
 import org.springframework.lang.Nullable;
 
@@ -22,9 +22,9 @@ import java.util.Objects;
 
 @AuthenticationServerEngineComponent
 public class MfaAuthenticationChallengeResponseService extends AbstractChallengeResponseService<MfaAuthenticationChallengeRequest, Challenge, MfaAuthenticationChallengeContext> implements Scenario {
-    private final AuthenticationServerEmbeddedMfaAuthenticatorRegistry registry;
+    private final CompositeAuthenticationServerMfaAuthenticatorRegistry registry;
 
-    public MfaAuthenticationChallengeResponseService(@NonNull GenericCachedChallengeStore challengeStore, @NonNull ChallengeCooldownManager challengeCooldownManager, @NonNull GenericCachedChallengeContextStore challengeContextStore, AuthenticationServerEmbeddedMfaAuthenticatorRegistry registry) {
+    public MfaAuthenticationChallengeResponseService(@NonNull GenericCachedChallengeStore challengeStore, @NonNull ChallengeCooldownManager challengeCooldownManager, @NonNull GenericCachedChallengeContextStore challengeContextStore, CompositeAuthenticationServerMfaAuthenticatorRegistry registry) {
         super(challengeStore, challengeCooldownManager, challengeContextStore.migrateType());
         this.registry = registry;
     }
@@ -63,7 +63,7 @@ public class MfaAuthenticationChallengeResponseService extends AbstractChallenge
     @Override
     @SuppressWarnings({"rawtypes", "unchecked"})
     protected Challenge sendChallengeInternally(@Nullable RequestingClient client, @NonNull Class<? extends Scenario> scenario, @NonNull MfaAuthenticationChallengeRequest request, @NonNull Map<String, Object> payload) throws Exception {
-        AuthenticationServerEmbeddedMfaAuthenticator authenticator = registry.getAuthenticator(request.getAuthenticatorName());
+        AuthenticationServerMfaAuthenticator authenticator = registry.getAuthenticator(request.getAuthenticatorName());
         return Objects.requireNonNull(authenticator).sendChallenge(
                 client,
                 AuthenticationServerMfaAuthenticationScenario.class,

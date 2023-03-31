@@ -15,6 +15,7 @@ import java.util.Map;
 @Getter
 @Setter
 @AllArgsConstructor
+@RequiredArgsConstructor
 public class SendChallengeRequest {
     /**
      * 要执行mfa的用户信息，按照实现方的理解来转类型
@@ -37,4 +38,9 @@ public class SendChallengeRequest {
      */
     @Nullable
     private String scenario;
+    /**
+     * 其它前端请求的扩展参数
+     */
+    @Nullable
+    private Map<String, Object> additionalArguments;
 }

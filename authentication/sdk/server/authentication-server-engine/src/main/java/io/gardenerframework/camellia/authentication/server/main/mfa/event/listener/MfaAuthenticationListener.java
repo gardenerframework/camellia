@@ -9,7 +9,7 @@ import io.gardenerframework.camellia.authentication.server.main.event.schema.Aut
 import io.gardenerframework.camellia.authentication.server.main.event.schema.UserAuthenticatedEvent;
 import io.gardenerframework.camellia.authentication.server.main.event.support.AuthenticationEventBuilder;
 import io.gardenerframework.camellia.authentication.server.main.exception.NestedAuthenticationException;
-import io.gardenerframework.camellia.authentication.server.main.mfa.advisor.MfaAuthenticatorAdvisor;
+import io.gardenerframework.camellia.authentication.server.main.mfa.advisor.AuthenticationServerMfaAuthenticatorAdvisor;
 import io.gardenerframework.camellia.authentication.server.main.mfa.challenge.MfaAuthenticationChallengeResponseService;
 import io.gardenerframework.camellia.authentication.server.main.mfa.challenge.schema.MfaAuthenticationChallengeContext;
 import io.gardenerframework.camellia.authentication.server.main.mfa.challenge.schema.MfaAuthenticationChallengeRequest;
@@ -46,7 +46,7 @@ public class MfaAuthenticationListener implements
      * 获取mfa认证器的组件
      */
     @NonNull
-    private final Collection<MfaAuthenticatorAdvisor> mfaAuthenticationAdvisors;
+    private final Collection<AuthenticationServerMfaAuthenticatorAdvisor> mfaAuthenticationAdvisors;
     @NonNull
     private final MfaAuthenticationChallengeResponseService mfaAuthenticationChallengeResponseService;
     @NonNull
@@ -66,7 +66,7 @@ public class MfaAuthenticationListener implements
         //此时mfa服务应当返回上一次的mfa挑战id直到ttl到达后再做决策
         try {
             String authenticator = null;
-            for (MfaAuthenticatorAdvisor advisor : mfaAuthenticationAdvisors) {
+            for (AuthenticationServerMfaAuthenticatorAdvisor advisor : mfaAuthenticationAdvisors) {
                 authenticator = advisor.getAuthenticator(
                         event.getRequest(),
                         event.getClient(),

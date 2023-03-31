@@ -13,8 +13,8 @@ import io.gardenerframework.camellia.authentication.infra.challenge.engine.suppo
 import io.gardenerframework.camellia.authentication.infra.challenge.engine.support.GenericCachedChallengeStore;
 import io.gardenerframework.camellia.authentication.server.main.event.listener.AuthenticationEventListenerSkeleton;
 import io.gardenerframework.camellia.authentication.server.main.event.schema.AuthenticationFailedEvent;
-import io.gardenerframework.camellia.authentication.server.main.mfa.advisor.MfaAuthenticatorAdvisor;
-import io.gardenerframework.camellia.authentication.server.main.mfa.challenge.AuthenticationServerEmbeddedMfaAuthenticator;
+import io.gardenerframework.camellia.authentication.server.main.mfa.advisor.AuthenticationServerMfaAuthenticatorAdvisor;
+import io.gardenerframework.camellia.authentication.server.main.mfa.challenge.AuthenticationServerMfaAuthenticator;
 import io.gardenerframework.camellia.authentication.server.main.mfa.challenge.schema.MfaAuthenticationChallengeRequest;
 import io.gardenerframework.camellia.authentication.server.main.schema.subject.principal.Principal;
 import io.gardenerframework.camellia.authentication.server.main.user.schema.User;
@@ -42,10 +42,10 @@ public class InMemoryMfaAuthenticationService extends
                 MfaAuthenticationChallengeRequest,
                 Challenge,
                 InMemoryMfaAuthenticationService.TestContext>
-        implements AuthenticationServerEmbeddedMfaAuthenticator<
+        implements AuthenticationServerMfaAuthenticator<
         MfaAuthenticationChallengeRequest,
         Challenge,
-        InMemoryMfaAuthenticationService.TestContext>, AuthenticationEventListenerSkeleton, MfaAuthenticatorAdvisor {
+        InMemoryMfaAuthenticationService.TestContext>, AuthenticationEventListenerSkeleton, AuthenticationServerMfaAuthenticatorAdvisor {
     private final Set<Principal> failedUsers = new HashSet<>(100);
     private final Map<String, Challenge> sentRequests = new HashMap<>(100);
     private final Map<String, Principal> challengedUserPrincipal = new HashMap<>(100);
