@@ -4,3 +4,4 @@ io:
       messages:
         basenames:
           - mfa-authentication-server-core/errors/constraints
+          - mfa-authentication-server-core/errors/client

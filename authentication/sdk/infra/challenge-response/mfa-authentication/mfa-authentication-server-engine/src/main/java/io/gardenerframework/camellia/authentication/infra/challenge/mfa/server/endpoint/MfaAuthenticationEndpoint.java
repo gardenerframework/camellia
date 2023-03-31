@@ -2,12 +2,14 @@ package io.gardenerframework.camellia.authentication.infra.challenge.mfa.server.
 
 import io.gardenerframework.camellia.authentication.common.client.schema.RequestingClient;
 import io.gardenerframework.camellia.authentication.infra.challenge.core.Scenario;
+import io.gardenerframework.camellia.authentication.infra.challenge.core.exception.ChallengeInCooldownException;
 import io.gardenerframework.camellia.authentication.infra.challenge.core.schema.Challenge;
 import io.gardenerframework.camellia.authentication.infra.challenge.core.schema.ChallengeContext;
 import io.gardenerframework.camellia.authentication.infra.challenge.core.schema.ChallengeRequest;
 import io.gardenerframework.camellia.authentication.infra.challenge.mfa.server.MfaAuthenticationServerScenario;
 import io.gardenerframework.camellia.authentication.infra.challenge.mfa.server.MfaAuthenticator;
 import io.gardenerframework.camellia.authentication.infra.challenge.mfa.server.configuration.MfaAuthenticationServerEngineComponent;
+import io.gardenerframework.camellia.authentication.infra.challenge.mfa.server.exception.MfaAuthenticatorNotReadyException;
 import io.gardenerframework.camellia.authentication.infra.challenge.mfa.server.schema.request.CloseChallengeRequest;
 import io.gardenerframework.camellia.authentication.infra.challenge.mfa.server.schema.request.SendChallengeRequest;
 import io.gardenerframework.camellia.authentication.infra.challenge.mfa.server.schema.request.VerifyResponseRequest;
@@ -60,15 +62,20 @@ public class MfaAuthenticationEndpoint implements MfaAuthenticationEndpointSkele
         RequestingClient client = deserializeRequestingClient(request.getRequestingClient());
         Class<? extends Scenario> scenario = deserializeScenario(request.getScenario());
         MfaAuthenticator<ChallengeRequest, Challenge, ChallengeContext> authenticatorInstance = Objects.requireNonNull(registry.getAuthenticator(authenticator));
-        return authenticatorInstance.sendChallenge(
-                client,
-                scenario,
-                authenticatorInstance.createChallengeRequest(
-                        request.getUser(),
-                        client,
-                        scenario,
-                        request.getAdditionalArguments()
-                ));
+        try {
+            return authenticatorInstance.sendChallenge(
+                    client,
+                    scenario,
+                    authenticatorInstance.createChallengeRequest(
+                            request.getUser(),
+                            client,
+                            scenario,
+                            request.getAdditionalArguments()
+                    ));
+        } catch (ChallengeInCooldownException e) {
+            //抛出mfa认证器没有准备好的异常
+            throw new MfaAuthenticatorNotReadyException(e.getTimeRemaining());
+        }
     }
 
     @PostMapping("/{authenticator}:verify")

@@ -1,4 +1,5 @@
 dependencies {
     api "${group}:challenge-response-core"
     api "${fragrans.group}:enhance-validation-constraints"
+    api "${fragrans.group}:api-standard-error-exceptions"
 }

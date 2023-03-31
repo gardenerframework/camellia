@@ -134,6 +134,7 @@ String[] subprojectNames = [
 //        'uac:sdk:uac-application-connector:uac-application-connector-rbac:uac-application-connector-rbac-common',
 //        'uac:sdk:uac-application-connector:uac-application-connector-rbac:uac-application-connector-rbac-service',
 //        'uac:sdk:uac-application-connector:uac-application-connector-rbac:uac-application-connector-rbac-engine',
+        'authentication:demo:mfa-authentication-server-demo',
         'authentication:demo:authentication-server-demo'
 ]
 gradle.ext.subprojectNames = subprojectNames

@@ -17,13 +17,15 @@ import io.gardenerframework.camellia.authentication.infra.challenge.mfa.server.s
 import io.gardenerframework.camellia.authentication.infra.challenge.mfa.server.schema.request.VerifyResponseRequest;
 import io.gardenerframework.camellia.authentication.server.common.annotation.AuthenticationServerEngineComponent;
 import io.gardenerframework.camellia.authentication.server.main.mfa.challenge.AuthenticationServerMfaAuthenticator;
+import io.gardenerframework.camellia.authentication.server.main.mfa.challenge.schema.MfaAuthenticationServerClientChallengeRequest;
 import io.gardenerframework.camellia.authentication.server.main.schema.subject.principal.Principal;
 import io.gardenerframework.camellia.authentication.server.main.user.schema.User;
 import io.gardenerframework.fragrans.log.GenericBasicLogger;
 import io.gardenerframework.fragrans.log.common.schema.reason.AlreadyExisted;
 import io.gardenerframework.fragrans.log.schema.content.GenericBasicLogContent;
 import io.gardenerframework.fragrans.log.schema.details.Detail;
-import lombok.*;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
@@ -58,10 +60,13 @@ public class MfaAuthenticationClientAuthenticationServerMfaAuthenticatorRegistry
      * 那些客户毒案表达了自己和某个远程认证的名称绑定
      */
     private final Map<String, MfaAuthenticationClientPrototype<? extends Challenge>> knownRemoteAuthenticatorClientMappings;
+
+    private final Collection<MfaAuthenticationServerClientChallengeRequestFactory> mfaAuthenticationServerClientChallengeRequestFactories;
     /**
      * 当名称没有找到绑定时使用的默认客户毒案
      */
     private MfaAuthenticationClientPrototype<? extends Challenge> defaultClient;
+
 
     @Nullable
     private String parseName(MfaAuthenticationClientPrototype<? extends Challenge> client) {
@@ -96,8 +101,7 @@ public class MfaAuthenticationClientAuthenticationServerMfaAuthenticatorRegistry
         }
         return (AuthenticationServerMfaAuthenticator<R, C, X>) new AuthenticationServerMfaAuthenticatorAdapter(
                 client == null ? defaultClient : client,
-                name,
-                objectMapper
+                name
         );
     }
 
@@ -143,30 +147,20 @@ public class MfaAuthenticationClientAuthenticationServerMfaAuthenticatorRegistry
                 }
             }
         }
-    }
-
-    @AllArgsConstructor
-    @Getter
-    @Setter
-    private static class MfaAuthenticationServerClientChallengeRequest implements ChallengeRequest {
-        /**
-         * 请求的用户
-         */
-        @NonNull
-        private User user;
-        /**
-         * 请求的参数
-         */
-        @Nullable
-        private Map<String, Object> additionalArguments;
+        //加入一个兜底工厂
+        mfaAuthenticationServerClientChallengeRequestFactories.add(
+                (authenticatorName, client, scenario, principal, user, context) -> new MfaAuthenticationServerClientChallengeRequest(
+                        objectMapper.convertValue(user, new TypeReference<Map<String, Object>>() {
+                        }),
+                        null
+                )
+        );
     }
 
     @RequiredArgsConstructor
-    private static class AuthenticationServerMfaAuthenticatorAdapter implements AuthenticationServerMfaAuthenticator<MfaAuthenticationServerClientChallengeRequest, Challenge, ChallengeContext> {
+    private class AuthenticationServerMfaAuthenticatorAdapter implements AuthenticationServerMfaAuthenticator<MfaAuthenticationServerClientChallengeRequest, Challenge, ChallengeContext> {
         private final MfaAuthenticationClientPrototype<? extends Challenge> mfaAuthenticationClient;
         private final String authenticatorName;
-
-        private final ObjectMapper objectMapper;
 
         @Override
         public MfaAuthenticationServerClientChallengeRequest authenticationContextToChallengeRequest(
@@ -176,20 +170,29 @@ public class MfaAuthenticationClientAuthenticationServerMfaAuthenticatorRegistry
                 @NonNull User user,
                 @NonNull Map<String, Object> context
         ) throws Exception {
-            return new MfaAuthenticationServerClientChallengeRequest(
-                    user,
-                    null
-            );
+            for (MfaAuthenticationServerClientChallengeRequestFactory mfaAuthenticationServerClientChallengeRequestFactory : mfaAuthenticationServerClientChallengeRequestFactories) {
+                MfaAuthenticationServerClientChallengeRequest mfaAuthenticationServerClientChallengeRequest = mfaAuthenticationServerClientChallengeRequestFactory.create(
+                        authenticatorName,
+                        client,
+                        scenario,
+                        principal,
+                        user,
+                        context
+                );
+                if (mfaAuthenticationServerClientChallengeRequest != null) {
+                    return mfaAuthenticationServerClientChallengeRequest;
+                }
+            }
+            throw new IllegalStateException("no factory can create MfaAuthenticationServerClientChallengeRequest for " + authenticatorName);
         }
 
         @Override
-        public Challenge sendChallenge(@Nullable RequestingClient client, @NonNull Class<? extends Scenario> scenario, @NonNull MfaAuthenticationClientAuthenticationServerMfaAuthenticatorRegistry.MfaAuthenticationServerClientChallengeRequest request) throws ChallengeResponseServiceException, ChallengeInCooldownException {
+        public Challenge sendChallenge(@Nullable RequestingClient client, @NonNull Class<? extends Scenario> scenario, @NonNull MfaAuthenticationServerClientChallengeRequest request) throws ChallengeResponseServiceException, ChallengeInCooldownException {
             try {
                 Challenge challenge = mfaAuthenticationClient.sendChallenge(
                         authenticatorName,
                         new SendChallengeRequest(
-                                objectMapper.convertValue(request.getUser(), new TypeReference<Map<String, Object>>() {
-                                }),
+                                request.getUser(),
                                 client == null ? null : objectMapper.convertValue(client, new TypeReference<Map<String, Object>>() {
                                 }),
                                 scenario.getName(),
