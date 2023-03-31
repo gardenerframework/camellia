@@ -1,0 +1,9 @@
+dependencies {
+    //认证引擎
+    api "${group}:mfa-authentication-server-engine"
+    api "${fragrans.group}:api-starter"
+    api "${group}:sms-verification-code-challenge-response-engine"
+    api "${group}:sms-client-jdcloud"
+    //redis缓存访问软件
+    runtimeOnly "${fragrans.group}:data-cache-spring-redis"
+}

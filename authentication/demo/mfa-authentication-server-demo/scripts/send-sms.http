@@ -1,0 +1,8 @@
+POST http://localhost:18089/mfa/sms:send
+Content-Type: application/json
+
+{
+  "user": {
+    "mobilePhoneNumber": "13581837282"
+  }
+}

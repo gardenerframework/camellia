@@ -1,4 +1,4 @@
-package io.gardenerframework.camellia.authentication.server.configuration;
+package io.gardenerframework.camellia.authentication.infra.challenge.mfa.server.demo.configuration;
 
 import io.gardenerframework.camellia.authentication.common.client.schema.RequestingClient;
 import io.gardenerframework.camellia.authentication.infra.challenge.core.Scenario;
