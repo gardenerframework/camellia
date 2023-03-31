@@ -24,7 +24,7 @@ public class OAuth2RequestingClientDeserializer implements Converter<Map<String,
     @Override
     public OAuth2RequestingClient convert(Map<String, Object> source) {
         OAuth2RequestingClient oAuth2RequestingClient = objectMapper.convertValue(source, OAuth2RequestingClient.class);
-        if (oAuth2RequestingClient != null && oAuth2RequestingClient.getClientId() != null && oAuth2RequestingClient.getGrantType() != null) {
+        if (oAuth2RequestingClient != null && oAuth2RequestingClient.getClientId() != null && oAuth2RequestingClient.getGrantType() != null && oAuth2RequestingClient.getScopes() != null) {
             return oAuth2RequestingClient;
         }
         return null;
