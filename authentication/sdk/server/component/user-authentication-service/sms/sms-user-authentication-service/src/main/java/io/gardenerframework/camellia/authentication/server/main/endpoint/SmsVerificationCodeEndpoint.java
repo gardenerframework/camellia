@@ -11,7 +11,6 @@ import io.gardenerframework.camellia.authentication.server.main.schema.request.S
 import io.gardenerframework.camellia.authentication.server.main.schema.subject.principal.MobilePhoneNumberPrincipal;
 import io.gardenerframework.camellia.authentication.server.main.sms.challenge.SmsAuthenticationChallengeResponseService;
 import io.gardenerframework.camellia.authentication.server.main.sms.challenge.SmsAuthenticationScenario;
-import io.gardenerframework.camellia.authentication.server.main.sms.challenge.schema.SmsAuthenticationChallengeRequest;
 import io.gardenerframework.camellia.authentication.server.main.user.UserService;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;

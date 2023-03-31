@@ -8,10 +8,10 @@ import io.gardenerframework.camellia.authentication.infra.challenge.engine.suppo
 import io.gardenerframework.camellia.authentication.infra.challenge.engine.support.GenericCachedChallengeStore;
 import io.gardenerframework.camellia.authentication.infra.sms.challenge.AbstractSmsVerificationCodeChallengeResponseService;
 import io.gardenerframework.camellia.authentication.infra.sms.challenge.client.SmsVerificationCodeClient;
+import io.gardenerframework.camellia.authentication.infra.sms.challenge.schema.SmsVerificationCodeChallengeContext;
+import io.gardenerframework.camellia.authentication.infra.sms.challenge.schema.SmsVerificationCodeChallengeRequest;
 import io.gardenerframework.camellia.authentication.server.configuration.SmsAuthenticationOption;
 import io.gardenerframework.camellia.authentication.server.configuration.SmsAuthenticationServiceComponent;
-import io.gardenerframework.camellia.authentication.server.main.sms.challenge.schema.SmsAuthenticationChallengeContext;
-import io.gardenerframework.camellia.authentication.server.main.sms.challenge.schema.SmsAuthenticationChallengeRequest;
 import lombok.NonNull;
 import org.springframework.lang.Nullable;
 
@@ -22,9 +22,9 @@ import java.util.Map;
 
 @SmsAuthenticationServiceComponent
 public class SmsAuthenticationChallengeResponseService extends AbstractSmsVerificationCodeChallengeResponseService<
-        SmsAuthenticationChallengeRequest,
+        SmsVerificationCodeChallengeRequest,
         Challenge,
-        SmsAuthenticationChallengeContext> {
+        SmsVerificationCodeChallengeContext> {
     @NonNull
     private final SmsAuthenticationOption option;
 
@@ -40,7 +40,7 @@ public class SmsAuthenticationChallengeResponseService extends AbstractSmsVerifi
     }
 
     @Override
-    protected int getCooldownTime(@Nullable RequestingClient client, @NonNull Class<? extends Scenario> scenario, @NonNull SmsAuthenticationChallengeRequest request) {
+    protected int getCooldownTime(@Nullable RequestingClient client, @NonNull Class<? extends Scenario> scenario, @NonNull SmsVerificationCodeChallengeRequest request) {
         return option.getVerificationCodeCooldown();
     }
 
@@ -48,7 +48,7 @@ public class SmsAuthenticationChallengeResponseService extends AbstractSmsVerifi
     protected Challenge createSmsVerificationChallenge(
             @Nullable RequestingClient client,
             @NonNull Class<? extends Scenario> scenario,
-            @NonNull SmsAuthenticationChallengeRequest request,
+            @NonNull SmsVerificationCodeChallengeRequest request,
             @NonNull Map<String, Object> payload
     ) {
         return Challenge.builder()
@@ -59,16 +59,15 @@ public class SmsAuthenticationChallengeResponseService extends AbstractSmsVerifi
     }
 
     @Override
-    protected @NonNull SmsAuthenticationChallengeContext createSmsVerificationChallengeContext(
+    protected @NonNull SmsVerificationCodeChallengeContext createSmsVerificationChallengeContext(
             @Nullable RequestingClient client,
             @NonNull Class<? extends Scenario> scenario,
-            @NonNull SmsAuthenticationChallengeRequest request,
+            @NonNull SmsVerificationCodeChallengeRequest request,
             @NonNull Challenge challenge,
             @NonNull Map<String, Object> payload
     ) {
         //验证码外面会搞定
         //fix 不填会报错
-        return SmsAuthenticationChallengeContext.builder().code("")
-                .build();
+        return new SmsVerificationCodeChallengeContext();
     }
 }
