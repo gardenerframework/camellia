@@ -3,6 +3,7 @@ package io.gardenerframework.camellia.authentication.server.main.endpoint;
 import io.gardenerframework.camellia.authentication.infra.challenge.core.exception.ChallengeInCooldownException;
 import io.gardenerframework.camellia.authentication.infra.challenge.core.exception.ChallengeResponseServiceException;
 import io.gardenerframework.camellia.authentication.infra.challenge.core.schema.Challenge;
+import io.gardenerframework.camellia.authentication.infra.sms.challenge.schema.SmsVerificationCodeChallengeRequest;
 import io.gardenerframework.camellia.authentication.server.common.api.group.AuthenticationServerRestController;
 import io.gardenerframework.camellia.authentication.server.configuration.SmsAuthenticationServiceComponent;
 import io.gardenerframework.camellia.authentication.server.main.exception.client.SmsVerificationCodeNotReadyException;
@@ -53,7 +54,7 @@ public class SmsVerificationCodeEndpoint {
             return service.sendChallenge(
                     null,
                     SmsAuthenticationScenario.class,
-                    SmsAuthenticationChallengeRequest.builder()
+                    SmsVerificationCodeChallengeRequest.builder()
                             .mobilePhoneNumber(request.getMobilePhoneNumber())
                             .build()
             );
