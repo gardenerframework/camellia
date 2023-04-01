@@ -48,7 +48,12 @@ public class ChallengeAuthenticatorNameInjector {
                         }
                     }
             );
-            return enhancer.create();
+            try {
+                return enhancer.create();
+            } catch (Exception e) {
+                //创建失败，无法代理，拉吹
+                return challenge;
+            }
         } else {
             return challenge;
         }
