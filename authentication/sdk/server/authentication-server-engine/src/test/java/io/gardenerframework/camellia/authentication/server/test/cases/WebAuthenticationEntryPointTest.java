@@ -2,7 +2,7 @@ package io.gardenerframework.camellia.authentication.server.test.cases;
 
 import io.gardenerframework.camellia.authentication.server.main.annotation.AuthenticationType;
 import io.gardenerframework.camellia.authentication.server.main.mfa.MfaAuthenticationService;
-import io.gardenerframework.camellia.authentication.server.main.mfa.exception.client.BadMfaAuthenticationRequestException;
+import io.gardenerframework.camellia.authentication.server.main.mfa.exception.client.BadMfaRequestException;
 import io.gardenerframework.camellia.authentication.server.test.AuthenticationServerEngineTestApplication;
 import io.gardenerframework.camellia.authentication.server.test.authentication.main.AccountStatusErrorRequest;
 import io.gardenerframework.camellia.authentication.server.test.authentication.main.MfaTriggerRequest;
@@ -131,7 +131,7 @@ public class WebAuthenticationEntryPointTest {
         error = new WebAuthenticationError(authenticationClient.login(AnnotationUtils.findAnnotation(MfaAuthenticationService.class, AuthenticationType.class).value(), request));
         Assertions.assertEquals(HttpStatus.BAD_REQUEST.value(), error.getStatus());
         Assertions.assertEquals(HttpStatus.BAD_REQUEST.getReasonPhrase(), error.getPhrase());
-        Assertions.assertEquals(messageSource.getMessage(new BadMfaAuthenticationRequestException(""), Locale.getDefault()), error.getMessage());
+        Assertions.assertEquals(messageSource.getMessage(new BadMfaRequestException(""), Locale.getDefault()), error.getMessage());
 
         //执行认证
         request.put("challengeId", challengeId);
@@ -143,7 +143,7 @@ public class WebAuthenticationEntryPointTest {
         error = new WebAuthenticationError(authenticationClient.login(AnnotationUtils.findAnnotation(MfaAuthenticationService.class, AuthenticationType.class).value(), request));
         Assertions.assertEquals(HttpStatus.BAD_REQUEST.value(), error.getStatus());
         Assertions.assertEquals(HttpStatus.BAD_REQUEST.getReasonPhrase(), error.getPhrase());
-        Assertions.assertEquals(messageSource.getMessage(new BadMfaAuthenticationRequestException(""), Locale.getDefault()), error.getMessage());
+        Assertions.assertEquals(messageSource.getMessage(new BadMfaRequestException(""), Locale.getDefault()), error.getMessage());
 
         //之后正常登录也没问题
         request.put("username", username);

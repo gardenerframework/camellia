@@ -7,10 +7,7 @@ import io.gardenerframework.camellia.authentication.server.main.annotation.Authe
 import io.gardenerframework.camellia.authentication.server.main.schema.subject.principal.Principal;
 import io.gardenerframework.camellia.authentication.server.main.schema.subject.principal.WeChatOpenIdPrincipal;
 import io.gardenerframework.camellia.authentication.server.main.schema.subject.principal.WeChatUnionIdPrincipal;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NonNull;
-import lombok.Setter;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;

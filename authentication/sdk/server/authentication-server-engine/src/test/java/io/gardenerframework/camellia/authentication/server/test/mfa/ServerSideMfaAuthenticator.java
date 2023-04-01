@@ -47,16 +47,6 @@ public class ServerSideMfaAuthenticator implements MfaAuthenticator<
     public static int port;
 
     @Override
-    public ServerSideChallengeRequest createChallengeRequest(
-            Map<String, Object> userData,
-            @Nullable RequestingClient client,
-            Class<? extends Scenario> scenario,
-            @Nullable Map<String, Object> additionalArguments
-    ) {
-        return new ServerSideChallengeRequest();
-    }
-
-    @Override
     public ServerSideChallenge sendChallenge(@Nullable RequestingClient client, @NonNull Class<? extends Scenario> scenario, @NonNull ServerSideChallengeRequest request) throws ChallengeResponseServiceException, ChallengeInCooldownException {
         return ServerSideChallenge.builder()
                 .id(UUID.randomUUID().toString())
@@ -148,8 +138,11 @@ public class ServerSideMfaAuthenticator implements MfaAuthenticator<
         return Collections.singletonList("test");
     }
 
+    @Getter
+    @Setter
+    @NoArgsConstructor
     public static class ServerSideChallengeRequest implements ChallengeRequest {
-
+        private String any;
     }
 
     public static class ServerSideChallengeContext implements ChallengeContext {

@@ -1,4 +1,4 @@
-package com.jdcloud.gardener.camellia.authorization.test.cases;
+package io.gardenerframework.camellia.authentication.server.test.cases;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -7,8 +7,8 @@ import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import io.gardenerframework.camellia.authentication.server.main.annotation.AuthenticationType;
 import io.gardenerframework.camellia.authentication.server.main.exception.OAuth2ErrorCodes;
 import io.gardenerframework.camellia.authentication.server.main.mfa.MfaAuthenticationService;
-import io.gardenerframework.camellia.authentication.server.main.mfa.exception.client.BadMfaAuthenticationRequestException;
-import io.gardenerframework.camellia.authentication.server.main.mfa.exception.client.MfaAuthenticationRequiredException;
+import io.gardenerframework.camellia.authentication.server.main.mfa.exception.client.BadMfaRequestException;
+import io.gardenerframework.camellia.authentication.server.main.mfa.exception.client.MfaRequiredException;
 import io.gardenerframework.camellia.authentication.server.main.spring.oauth2.OAuth2AuthorizationIdModifier;
 import io.gardenerframework.camellia.authentication.server.main.user.schema.User;
 import io.gardenerframework.camellia.authentication.server.test.AuthenticationServerEngineTestApplication;
@@ -130,11 +130,11 @@ public class TokenAuthenticationEntryPointTest {
             OAuth2Error oAuth2Error = OAuth2Error.create(exception);
             Assertions.assertEquals(HttpStatus.UNAUTHORIZED, exception.getStatusCode());
             Assertions.assertEquals(
-                    messageSource.getMessage(MfaAuthenticationRequiredException.class, Locale.getDefault()),
+                    messageSource.getMessage(MfaRequiredException.class, Locale.getDefault()),
                     oAuth2Error.getErrorDescription()
             );
-            Assertions.assertEquals(MfaAuthenticationRequiredException.class.getCanonicalName(), oAuth2Error.getErrorCode());
-            Assertions.assertEquals(OAuth2ErrorCodes.MFA_AUTHENTICATION_REQUIRED, oAuth2Error.getError());
+            Assertions.assertEquals(MfaRequiredException.class.getCanonicalName(), oAuth2Error.getErrorCode());
+            Assertions.assertEquals(OAuth2ErrorCodes.MFA_REQUIRED, oAuth2Error.getError());
             details.putAll(oAuth2Error.details);
             mfaRequired = true;
         }
@@ -153,10 +153,10 @@ public class TokenAuthenticationEntryPointTest {
             OAuth2Error oAuth2Error = OAuth2Error.create(exception);
             Assertions.assertEquals(HttpStatus.UNAUTHORIZED, exception.getStatusCode());
             Assertions.assertEquals(
-                    messageSource.getMessage(MfaAuthenticationRequiredException.class, Locale.getDefault()),
+                    messageSource.getMessage(MfaRequiredException.class, Locale.getDefault()),
                     oAuth2Error.getErrorDescription()
             );
-            Assertions.assertEquals(OAuth2ErrorCodes.MFA_AUTHENTICATION_REQUIRED, oAuth2Error.getError());
+            Assertions.assertEquals(OAuth2ErrorCodes.MFA_REQUIRED, oAuth2Error.getError());
             details.putAll(oAuth2Error.details);
             mfaRequired = true;
         }
@@ -174,7 +174,7 @@ public class TokenAuthenticationEntryPointTest {
             OAuth2Error oAuth2Error = OAuth2Error.create(exception);
             Assertions.assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
             Assertions.assertEquals(
-                    messageSource.getMessage(BadMfaAuthenticationRequestException.class, Locale.getDefault()),
+                    messageSource.getMessage(BadMfaRequestException.class, Locale.getDefault()),
                     oAuth2Error.getErrorDescription()
             );
             Assertions.assertEquals(OAuth2ErrorCodes.INVALID_REQUEST, oAuth2Error.getError());

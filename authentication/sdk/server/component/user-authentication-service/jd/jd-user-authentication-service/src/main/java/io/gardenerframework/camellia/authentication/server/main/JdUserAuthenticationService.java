@@ -7,7 +7,10 @@ import io.gardenerframework.camellia.authentication.server.main.annotation.Authe
 import io.gardenerframework.camellia.authentication.server.main.schema.subject.principal.JdOpenIdPrincipal;
 import io.gardenerframework.camellia.authentication.server.main.schema.subject.principal.JdXIdPrincipal;
 import io.gardenerframework.camellia.authentication.server.main.schema.subject.principal.Principal;
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NonNull;
+import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.lang.Nullable;
@@ -69,7 +72,6 @@ public class JdUserAuthenticationService extends OAuth2BasedUserAuthenticationSe
 
     @Getter
     @Setter
-    @NoArgsConstructor
     @SuperBuilder
     public static class JdAccessToken extends AccessToken {
         @NonNull

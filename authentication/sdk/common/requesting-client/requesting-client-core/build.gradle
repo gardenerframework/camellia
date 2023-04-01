@@ -1,4 +1,5 @@
 dependencies {
     api "org.springframework:spring-core"
     api "${group}:authentication-common-toolkits"
+    api "jakarta.validation:jakarta.validation-api"
 }

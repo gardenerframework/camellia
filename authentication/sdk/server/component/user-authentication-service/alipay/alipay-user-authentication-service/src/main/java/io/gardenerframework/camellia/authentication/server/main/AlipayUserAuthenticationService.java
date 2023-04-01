@@ -10,7 +10,10 @@ import io.gardenerframework.camellia.authentication.server.configuration.AlipayU
 import io.gardenerframework.camellia.authentication.server.main.annotation.AuthenticationType;
 import io.gardenerframework.camellia.authentication.server.main.schema.subject.principal.AlipayUserIdPrincipal;
 import io.gardenerframework.camellia.authentication.server.main.schema.subject.principal.Principal;
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NonNull;
+import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -77,7 +80,6 @@ public class AlipayUserAuthenticationService extends OAuth2BasedUserAuthenticati
     @Getter
     @Setter
     @SuperBuilder
-    @NoArgsConstructor
     public static class AlipayAccessToken extends AccessToken {
         @NonNull
         private String userId;

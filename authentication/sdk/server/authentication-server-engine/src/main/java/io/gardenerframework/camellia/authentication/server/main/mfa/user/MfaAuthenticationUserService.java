@@ -4,10 +4,10 @@ import io.gardenerframework.camellia.authentication.infra.challenge.core.excepti
 import io.gardenerframework.camellia.authentication.server.common.annotation.AuthenticationServerEngineComponent;
 import io.gardenerframework.camellia.authentication.server.common.annotation.AuthenticationServerEnginePreserved;
 import io.gardenerframework.camellia.authentication.server.main.exception.NestedAuthenticationException;
-import io.gardenerframework.camellia.authentication.server.main.mfa.challenge.AuthenticationServerMfaAuthenticationChallengeResponseService;
-import io.gardenerframework.camellia.authentication.server.main.mfa.challenge.schema.AuthenticationServerMfaAuthenticationChallengeContext;
-import io.gardenerframework.camellia.authentication.server.main.mfa.exception.client.BadMfaAuthenticationRequestException;
-import io.gardenerframework.camellia.authentication.server.main.mfa.schema.principal.MfaAuthenticationPrincipal;
+import io.gardenerframework.camellia.authentication.server.main.mfa.challenge.AuthenticationServerMfaChallengeResponseService;
+import io.gardenerframework.camellia.authentication.server.main.mfa.challenge.schema.AuthenticationServerMfaChallengeContext;
+import io.gardenerframework.camellia.authentication.server.main.mfa.exception.client.BadMfaRequestException;
+import io.gardenerframework.camellia.authentication.server.main.mfa.schema.principal.MfaPrincipal;
 import io.gardenerframework.camellia.authentication.server.main.schema.subject.credentials.PasswordCredentials;
 import io.gardenerframework.camellia.authentication.server.main.schema.subject.principal.Principal;
 import io.gardenerframework.camellia.authentication.server.main.user.UserService;
@@ -31,7 +31,7 @@ import java.util.Objects;
 @AuthenticationServerEnginePreserved
 @AuthenticationServerEngineComponent
 public class MfaAuthenticationUserService implements UserService {
-    private final AuthenticationServerMfaAuthenticationChallengeResponseService authenticationServerMfaAuthenticationChallengeResponseService;
+    private final AuthenticationServerMfaChallengeResponseService authenticationServerMfaChallengeResponseService;
 
     @Nullable
     @Override
@@ -42,23 +42,23 @@ public class MfaAuthenticationUserService implements UserService {
     @Nullable
     @Override
     public User load(@NonNull Principal principal, @Nullable Map<String, Object> context) throws AuthenticationException {
-        if (principal instanceof MfaAuthenticationPrincipal) {
+        if (principal instanceof MfaPrincipal) {
             String challengeId = principal.getName();
-            AuthenticationServerMfaAuthenticationChallengeContext authenticationServerMfaAuthenticationChallengeContext = null;
+            AuthenticationServerMfaChallengeContext authenticationServerMfaChallengeContext = null;
             try {
-                authenticationServerMfaAuthenticationChallengeContext = authenticationServerMfaAuthenticationChallengeResponseService.getContext(
+                authenticationServerMfaChallengeContext = authenticationServerMfaChallengeResponseService.getContext(
                         RequestingClientHolder.getClient(),
-                        authenticationServerMfaAuthenticationChallengeResponseService.getClass(),
+                        authenticationServerMfaChallengeResponseService.getClass(),
                         challengeId
                 );
-                Objects.requireNonNull(context).put(AuthenticationServerMfaAuthenticationChallengeContext.class.getName(), authenticationServerMfaAuthenticationChallengeContext);
+                Objects.requireNonNull(context).put(AuthenticationServerMfaChallengeContext.class.getName(), authenticationServerMfaChallengeContext);
             } catch (ChallengeResponseServiceException e) {
                 throw new NestedAuthenticationException(e);
             }
-            if (authenticationServerMfaAuthenticationChallengeContext == null) {
-                throw new BadMfaAuthenticationRequestException(challengeId);
+            if (authenticationServerMfaChallengeContext == null) {
+                throw new BadMfaRequestException(challengeId);
             }
-            return authenticationServerMfaAuthenticationChallengeContext.getUser();
+            return authenticationServerMfaChallengeContext.getUser();
         } else {
             //不是mfa的登录凭据，不进行读取
             return null;

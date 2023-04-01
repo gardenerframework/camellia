@@ -1,1 +1,0 @@
-org.springframework.boot.autoconfigure.EnableAutoConfiguration=io.gardenerframework.camellia.authentication.infra.challenge.mfa.server.configuration.MfaAuthenticationServerEngineConfiguration

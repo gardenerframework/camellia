@@ -11,7 +11,6 @@ import io.gardenerframework.camellia.authentication.infra.sms.challenge.Abstract
 import io.gardenerframework.camellia.authentication.infra.sms.challenge.client.SmsVerificationCodeClient;
 import io.gardenerframework.camellia.authentication.infra.sms.challenge.schema.SmsVerificationCodeChallengeContext;
 import io.gardenerframework.camellia.authentication.infra.sms.challenge.schema.SmsVerificationCodeChallengeRequest;
-import io.gardenerframework.fragrans.api.validation.ValidationEnhancedObjectMapper;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
@@ -29,20 +28,11 @@ import java.util.UUID;
 @Component
 public class SmsDemoMfaAuthenticator extends AbstractSmsVerificationCodeChallengeResponseService<SmsVerificationCodeChallengeRequest, Challenge, SmsVerificationCodeChallengeContext> implements
         MfaAuthenticator<SmsVerificationCodeChallengeRequest, Challenge, SmsVerificationCodeChallengeContext> {
-    private final ValidationEnhancedObjectMapper objectMapper;
 
-    protected SmsDemoMfaAuthenticator(@NonNull GenericCachedChallengeStore challengeStore, @NonNull ChallengeCooldownManager challengeCooldownManager, @NonNull GenericCachedChallengeContextStore challengeContextStore, @NonNull SmsVerificationCodeClient smsVerificationCodeClient, ValidationEnhancedObjectMapper objectMapper) {
+    protected SmsDemoMfaAuthenticator(@NonNull GenericCachedChallengeStore challengeStore, @NonNull ChallengeCooldownManager challengeCooldownManager, @NonNull GenericCachedChallengeContextStore challengeContextStore, @NonNull SmsVerificationCodeClient smsVerificationCodeClient) {
         super(challengeStore, challengeCooldownManager, challengeContextStore.migrateType(), smsVerificationCodeClient);
-        this.objectMapper = objectMapper;
     }
 
-    @Override
-    public SmsVerificationCodeChallengeRequest createChallengeRequest(Map<String, Object> userData, @Nullable RequestingClient client, Class<? extends Scenario> scenario, @Nullable Map<String, Object> additionalArguments) {
-        MobilePhoneNumber mobilePhoneNumber = objectMapper.convert(userData, MobilePhoneNumber.class);
-        return SmsVerificationCodeChallengeRequest.builder()
-                .mobilePhoneNumber(mobilePhoneNumber.getMobilePhoneNumber())
-                .build();
-    }
 
     @Override
     protected Challenge createSmsVerificationChallenge(@Nullable RequestingClient client, @NonNull Class<? extends Scenario> scenario, @NonNull SmsVerificationCodeChallengeRequest request, @NonNull Map<String, Object> payload) {

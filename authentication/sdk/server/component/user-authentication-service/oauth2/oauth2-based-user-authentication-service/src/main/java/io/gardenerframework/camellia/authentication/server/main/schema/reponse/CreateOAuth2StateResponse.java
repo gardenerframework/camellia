@@ -12,5 +12,5 @@ import lombok.*;
 @Setter
 public class CreateOAuth2StateResponse {
     @NonNull
-    private String state;
+    private String state = "";
 }

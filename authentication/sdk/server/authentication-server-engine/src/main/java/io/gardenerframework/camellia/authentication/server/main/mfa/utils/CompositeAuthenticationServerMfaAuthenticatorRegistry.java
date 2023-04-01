@@ -5,6 +5,11 @@ import io.gardenerframework.camellia.authentication.infra.challenge.core.schema.
 import io.gardenerframework.camellia.authentication.infra.challenge.core.schema.ChallengeRequest;
 import io.gardenerframework.camellia.authentication.server.common.annotation.AuthenticationServerEngineComponent;
 import io.gardenerframework.camellia.authentication.server.main.mfa.challenge.AuthenticationServerMfaAuthenticator;
+import io.gardenerframework.fragrans.log.GenericBasicLogger;
+import io.gardenerframework.fragrans.log.GenericLoggerStaticAccessor;
+import io.gardenerframework.fragrans.log.common.schema.reason.NotFound;
+import io.gardenerframework.fragrans.log.schema.content.GenericBasicLogContent;
+import io.gardenerframework.fragrans.log.schema.details.Detail;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,6 +25,7 @@ import java.util.Collection;
 @Slf4j
 @AuthenticationServerEngineComponent
 public class CompositeAuthenticationServerMfaAuthenticatorRegistry {
+    private GenericBasicLogger basicLogger;
     private final Collection<AuthenticationServerMfaAuthenticatorRegistry> registries;
 
     @Nullable
@@ -30,6 +36,17 @@ public class CompositeAuthenticationServerMfaAuthenticatorRegistry {
                 return authenticator;
             }
         }
+        GenericLoggerStaticAccessor.basicLogger().warn(
+                log,
+                GenericBasicLogContent.builder()
+                        .what(AuthenticationServerMfaAuthenticator.class)
+                        .how(new NotFound())
+                        .detail(new Detail() {
+                            private final String authenticatorName = name;
+                        })
+                        .build(),
+                null
+        );
         return null;
     }
 }
