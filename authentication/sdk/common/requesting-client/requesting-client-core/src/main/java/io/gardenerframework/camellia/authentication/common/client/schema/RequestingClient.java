@@ -7,6 +7,7 @@ import lombok.NonNull;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
+import javax.validation.constraints.NotBlank;
 import java.io.Serializable;
 
 /**
@@ -22,5 +23,6 @@ public abstract class RequestingClient implements Serializable {
      * client id
      */
     @NonNull
-    private String clientId;
+    @NotBlank
+    private String clientId = "";
 }

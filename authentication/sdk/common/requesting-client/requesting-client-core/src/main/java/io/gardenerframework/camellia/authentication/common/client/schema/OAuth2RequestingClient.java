@@ -4,6 +4,9 @@ import io.gardenerframework.camellia.authentication.common.data.serialization.Se
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -19,11 +22,13 @@ public class OAuth2RequestingClient extends RequestingClient {
      * 访问的授权类型
      */
     @NonNull
-    private String grantType;
+    @NotBlank
+    private String grantType = "";
     /**
      * 对用户信息的访问范围
      */
     @NonNull
     @Singular
-    private Set<@NonNull String> scopes;
+    @NotNull
+    private Set<@NonNull String> scopes = new HashSet<>();
 }
