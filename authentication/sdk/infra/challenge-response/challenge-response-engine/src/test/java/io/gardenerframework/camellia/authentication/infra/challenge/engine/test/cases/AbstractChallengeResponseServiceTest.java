@@ -196,7 +196,7 @@ public class AbstractChallengeResponseServiceTest {
     @NoArgsConstructor
     public static class TestChallengeContext implements ChallengeContext {
         @NonNull
-        private String response;
+        private String response = "";
         private String saveInContext;
     }
 }

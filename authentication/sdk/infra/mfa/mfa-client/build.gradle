@@ -1,0 +1,7 @@
+dependencies {
+    api "${group}:mfa-server-core"
+    api "org.springframework.cloud:spring-cloud-starter-openfeign"
+    testImplementation "${group}:mfa-server-engine"
+    testImplementation "${fragrans.group}:api-starter"
+    testImplementation "org.springframework.cloud:spring-cloud-starter-loadbalancer"
+}
