@@ -16,12 +16,17 @@ import io.gardenerframework.camellia.authentication.server.main.mfa.challenge.sc
 import io.gardenerframework.camellia.authentication.server.main.mfa.challenge.schema.AuthenticationServerMfaChallengeContext;
 import io.gardenerframework.camellia.authentication.server.main.mfa.challenge.schema.AuthenticationServerMfaChallengeRequest;
 import io.gardenerframework.camellia.authentication.server.main.mfa.utils.CompositeAuthenticationServerMfaAuthenticatorRegistry;
+import io.gardenerframework.camellia.authentication.server.main.schema.subject.principal.Principal;
+import io.gardenerframework.camellia.authentication.server.main.user.schema.User;
 import io.gardenerframework.fragrans.log.GenericLoggerStaticAccessor;
 import io.gardenerframework.fragrans.log.common.schema.reason.NotFound;
 import io.gardenerframework.fragrans.log.schema.content.GenericBasicLogContent;
 import io.gardenerframework.fragrans.log.schema.details.Detail;
+import lombok.AccessLevel;
 import lombok.NonNull;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.lang.Nullable;
 
 import java.util.Collection;
@@ -35,13 +40,14 @@ public class AuthenticationServerMfaChallengeResponseService extends AbstractCha
         AuthenticationServerMfaChallenge,
         AuthenticationServerMfaChallengeContext
         > implements Scenario {
-    private final CompositeAuthenticationServerMfaAuthenticatorRegistry registry;
-    private final Collection<AuthenticationServerMfaAuthenticatorChallengeRequestFactory<? extends ChallengeRequest>> requestFactories;
+    @Setter(value = AccessLevel.PRIVATE, onMethod = @__({@Autowired}))
+    private CompositeAuthenticationServerMfaAuthenticatorRegistry registry;
+    @Setter(value = AccessLevel.PRIVATE, onMethod = @__({@Autowired}))
+    private Collection<AuthenticationServerMfaAuthenticatorChallengeRequestFactory<? extends ChallengeRequest>> requestFactories;
+    private final CompositeAuthenticationServerMfaAuthenticatorChallengeRequestFactory compositeRequestFactory = new CompositeAuthenticationServerMfaAuthenticatorChallengeRequestFactory();
 
-    public AuthenticationServerMfaChallengeResponseService(@NonNull GenericCachedChallengeStore challengeStore, @NonNull ChallengeCooldownManager challengeCooldownManager, @NonNull GenericCachedChallengeContextStore challengeContextStore, CompositeAuthenticationServerMfaAuthenticatorRegistry registry, Collection<AuthenticationServerMfaAuthenticatorChallengeRequestFactory<? extends ChallengeRequest>> requestFactories) {
+    public AuthenticationServerMfaChallengeResponseService(@NonNull GenericCachedChallengeStore challengeStore, @NonNull ChallengeCooldownManager challengeCooldownManager, @NonNull GenericCachedChallengeContextStore challengeContextStore) {
         super(challengeStore.migrateType(), challengeCooldownManager, challengeContextStore.migrateType());
-        this.registry = registry;
-        this.requestFactories = requestFactories;
     }
 
     @Override
@@ -78,40 +84,20 @@ public class AuthenticationServerMfaChallengeResponseService extends AbstractCha
     @Override
     @SuppressWarnings({"rawtypes", "unchecked"})
     protected AuthenticationServerMfaChallenge sendChallengeInternally(@Nullable RequestingClient client, @NonNull Class<? extends Scenario> scenario, @NonNull AuthenticationServerMfaChallengeRequest request, @NonNull Map<String, Object> payload) throws Exception {
-        AuthenticationServerMfaAuthenticator authenticator = registry.getAuthenticator(request.getAuthenticatorName());
-        ChallengeRequest challengeRequest = null;
-        for (AuthenticationServerMfaAuthenticatorChallengeRequestFactory<? extends ChallengeRequest> requestFactory : requestFactories) {
-            challengeRequest = requestFactory.create(
-                    request.getAuthenticatorName(),
-                    client,
-                    scenario,
-                    request.getPrincipal(),
-                    request.getUser(),
-                    request.getContext()
-            );
-            if(challengeRequest != null) {
-                //中断
-                break;
-            }
-        }
-        if (challengeRequest == null) {
-            GenericLoggerStaticAccessor.basicLogger().error(
-                    log,
-                    GenericBasicLogContent.builder()
-                            .what(AuthenticationServerMfaAuthenticatorChallengeRequestFactory.class)
-                            .how(new NotFound())
-                            .detail(new Detail() {
-                                private final String authenticatorName = request.getAuthenticatorName();
-                            })
-                            .build(),
-                    null
-            );
-            throw new IllegalStateException("no request factory for " + request.getAuthenticatorName());
-        }
-        Challenge challengeFromAuthenticator = Objects.requireNonNull(authenticator).sendChallenge(
+        AuthenticationServerMfaAuthenticator authenticator = Objects.requireNonNull(registry.getAuthenticator(request.getAuthenticatorName()));
+        ChallengeRequest challengeRequest = Objects.requireNonNull(compositeRequestFactory.create(
+                request.getAuthenticatorName(),
+                client,
+                scenario,
+                request.getPrincipal(),
+                request.getUser(),
+                request.getContext()
+        ));
+        Challenge challengeFromAuthenticator = authenticator.sendChallenge(
                 client,
                 AuthenticationServerMfaScenario.class,
-                challengeRequest);
+                challengeRequest
+        );
         return AuthenticationServerMfaChallenge.builder()
                 .id(challengeFromAuthenticator.getId())
                 .target(challengeFromAuthenticator)
@@ -146,5 +132,32 @@ public class AuthenticationServerMfaChallengeResponseService extends AbstractCha
         }
         //调用父类
         super.closeChallenge(client, scenario, challengeId);
+    }
+
+    private class CompositeAuthenticationServerMfaAuthenticatorChallengeRequestFactory implements AuthenticationServerMfaAuthenticatorChallengeRequestFactory<ChallengeRequest> {
+        @Nullable
+        @Override
+        public ChallengeRequest create(String authenticatorName, @Nullable RequestingClient client, @NonNull Class<? extends Scenario> scenario, @NonNull Principal principal, @NonNull User user, @NonNull Map<String, Object> context) {
+            for (AuthenticationServerMfaAuthenticatorChallengeRequestFactory<? extends ChallengeRequest> requestFactory : requestFactories) {
+                ChallengeRequest challengeRequest = requestFactory.create(authenticatorName, client, scenario, principal, user, context);
+                if (challengeRequest != null) {
+                    //中断
+                    return challengeRequest;
+                }
+            }
+            String authenticatorNameHolder = authenticatorName;
+            GenericLoggerStaticAccessor.basicLogger().warn(
+                    log,
+                    GenericBasicLogContent.builder()
+                            .what(AuthenticationServerMfaAuthenticatorChallengeRequestFactory.class)
+                            .how(new NotFound())
+                            .detail(new Detail() {
+                                private final String authenticatorName = authenticatorNameHolder;
+                            })
+                            .build(),
+                    null
+            );
+            return null;
+        }
     }
 }

@@ -4,6 +4,8 @@ import io.gardenerframework.camellia.authentication.infra.challenge.core.schema.
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 
+import javax.validation.constraints.NotBlank;
+
 @SuperBuilder
 @Getter
 @Setter
@@ -11,5 +13,6 @@ import lombok.experimental.SuperBuilder;
 public class SmsVerificationCodeChallengeRequest implements ChallengeRequest {
     @NonNull
     @Builder.Default
+    @NotBlank
     private String mobilePhoneNumber = "";
 }
