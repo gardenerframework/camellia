@@ -8,5 +8,5 @@ import io.gardenerframework.camellia.authentication.infra.challenge.core.Scenari
  * @author zhanghan30
  * @date 2023/2/27 14:47
  */
-public class AuthenticationServerMfaAuthenticationScenario implements Scenario {
+public class AuthenticationServerMfaScenario implements Scenario {
 }

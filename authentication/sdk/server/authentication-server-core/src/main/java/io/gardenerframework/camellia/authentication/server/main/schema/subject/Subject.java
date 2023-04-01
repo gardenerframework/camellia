@@ -10,6 +10,7 @@ import org.springframework.lang.Nullable;
 import org.springframework.security.core.CredentialsContainer;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 
@@ -37,7 +38,8 @@ public abstract class Subject implements Serializable,
      * id
      */
     @NonNull
-    private String id;
+    @Builder.Default
+    private String id = "";
     /**
      * 登录凭据
      * <p>
@@ -51,9 +53,9 @@ public abstract class Subject implements Serializable,
     /**
      * 用户的所有可用登录名
      */
-    @Singular
     @NonNull
-    private Collection<@NonNull Principal> principals;
+    @Builder.Default
+    private Collection<@NonNull Principal> principals = new ArrayList<>();
     /**
      * 被锁定
      */

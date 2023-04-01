@@ -1,7 +1,7 @@
 package io.gardenerframework.camellia.authentication.server.test.mfa;
 
 import io.gardenerframework.camellia.authentication.infra.challenge.core.annotation.ChallengeAuthenticator;
-import io.gardenerframework.camellia.authentication.infra.challenge.mfa.server.client.MfaAuthenticationClientPrototype;
+import io.gardenerframework.camellia.authentication.infra.challenge.mfa.server.client.MfaClient;
 import org.springframework.cloud.openfeign.FeignClient;
 
 /**
@@ -10,5 +10,6 @@ import org.springframework.cloud.openfeign.FeignClient;
  */
 @ChallengeAuthenticator("server-side")
 @FeignClient(name = "test", path = "/api")
-public interface ServerSideAuthenticatorClient extends MfaAuthenticationClientPrototype<ServerSideMfaAuthenticator.ServerSideChallenge> {
+public interface ServerSideAuthenticatorClient extends MfaClient<ServerSideMfaAuthenticator.ServerSideChallenge> {
+
 }

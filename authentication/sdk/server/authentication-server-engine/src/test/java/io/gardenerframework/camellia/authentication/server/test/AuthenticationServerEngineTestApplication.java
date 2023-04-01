@@ -1,7 +1,7 @@
 package io.gardenerframework.camellia.authentication.server.test;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.gardenerframework.camellia.authentication.infra.challenge.mfa.server.endpoint.MfaAuthenticationEndpoint;
+import io.gardenerframework.camellia.authentication.infra.challenge.mfa.server.endpoint.MfaEndpoint;
 import io.gardenerframework.camellia.authentication.server.client.schema.response.ClientAppearance;
 import io.gardenerframework.camellia.authentication.server.main.user.schema.User;
 import io.gardenerframework.camellia.authentication.server.test.mfa.ServerSideAuthenticatorClient;
@@ -121,7 +121,7 @@ public class AuthenticationServerEngineTestApplication {
 
             @Override
             public Collection<Class<?>> getAdditionalMembers() {
-                return Collections.singletonList(MfaAuthenticationEndpoint.class);
+                return Collections.singletonList(MfaEndpoint.class);
             }
         };
     }

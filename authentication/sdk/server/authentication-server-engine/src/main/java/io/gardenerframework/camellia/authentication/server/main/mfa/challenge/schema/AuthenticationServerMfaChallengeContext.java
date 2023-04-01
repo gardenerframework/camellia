@@ -5,7 +5,10 @@ import io.gardenerframework.camellia.authentication.common.data.serialization.Se
 import io.gardenerframework.camellia.authentication.infra.challenge.core.schema.ChallengeContext;
 import io.gardenerframework.camellia.authentication.server.main.schema.subject.principal.Principal;
 import io.gardenerframework.camellia.authentication.server.main.user.schema.User;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NonNull;
+import lombok.Setter;
 import org.springframework.lang.Nullable;
 
 /**
@@ -14,9 +17,8 @@ import org.springframework.lang.Nullable;
  */
 @Getter
 @Setter
-@NoArgsConstructor
 @AllArgsConstructor
-public class AuthenticationServerMfaAuthenticationChallengeContext implements ChallengeContext {
+public class AuthenticationServerMfaChallengeContext implements ChallengeContext {
     private static final long serialVersionUID = SerializationVersionNumber.version;
     /**
      * 当时这个挑战用哪个校验器发出去的

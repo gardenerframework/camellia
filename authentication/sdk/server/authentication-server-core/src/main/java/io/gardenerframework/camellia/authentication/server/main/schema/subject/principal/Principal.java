@@ -37,5 +37,6 @@ public abstract class Principal implements
      * 名字
      */
     @NonNull
-    private String name;
+    @Builder.Default
+    private String name = "";
 }

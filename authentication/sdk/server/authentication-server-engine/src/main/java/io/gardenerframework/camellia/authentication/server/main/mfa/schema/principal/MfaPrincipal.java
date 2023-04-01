@@ -20,6 +20,6 @@ import lombok.experimental.SuperBuilder;
 @AuthenticationServerEnginePreserved
 @EqualsAndHashCode(callSuper = true)
 @Getter
-public class MfaAuthenticationPrincipal extends Principal {
+public class MfaPrincipal extends Principal {
     private static final long serialVersionUID = SerializationVersionNumber.version;
 }

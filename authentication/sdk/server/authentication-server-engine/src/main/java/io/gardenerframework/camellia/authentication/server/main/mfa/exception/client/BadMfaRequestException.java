@@ -4,27 +4,18 @@ import io.gardenerframework.camellia.authentication.server.common.annotation.Aut
 import io.gardenerframework.camellia.authentication.server.main.exception.AuthenticationServerAuthenticationExceptions;
 import io.gardenerframework.camellia.authentication.server.main.exception.OAuth2ErrorCodes;
 import io.gardenerframework.camellia.authentication.server.main.exception.annotation.OAuth2ErrorCode;
-import lombok.Getter;
-import lombok.NonNull;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
-import java.time.Duration;
-
 /**
  * @author zhanghan30
- * @date 2023/2/27 19:28
+ * @date 2023/2/27 19:52
  */
 @OAuth2ErrorCode(OAuth2ErrorCodes.INVALID_REQUEST)
-@ResponseStatus(HttpStatus.TOO_MANY_REQUESTS)
+@ResponseStatus(HttpStatus.BAD_REQUEST)
 @AuthenticationServerEnginePreserved
-public class MfaAuthenticationInCooldownException extends AuthenticationServerAuthenticationExceptions.ClientSideException {
-    @NonNull
-    @Getter
-    private final Duration timeRemaining;
-
-    public MfaAuthenticationInCooldownException(@NonNull Duration timeRemaining) {
-        super(timeRemaining.toString());
-        this.timeRemaining = timeRemaining;
+public class BadMfaRequestException extends AuthenticationServerAuthenticationExceptions.ClientSideException {
+    public BadMfaRequestException(String challengeId) {
+        super(challengeId);
     }
 }

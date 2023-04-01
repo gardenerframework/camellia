@@ -2,7 +2,6 @@ package io.gardenerframework.camellia.authentication.server.main.mfa.challenge.s
 
 import io.gardenerframework.camellia.authentication.infra.challenge.core.schema.Challenge;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
@@ -10,8 +9,7 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @Getter
 @Setter
-@NoArgsConstructor
-public class AuthenticationServerMfaAuthenticationChallenge extends Challenge {
+public class AuthenticationServerMfaChallenge extends Challenge {
     /**
      * 内部实际发送的挑战
      * <p>

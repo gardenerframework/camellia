@@ -7,10 +7,10 @@ io:
             mfa:
               exception:
                 client:
-                  MfaAuthenticationRequiredException: 需要进行多因子认证
-                  BadMfaAuthenticationResponseException: 验证失败
-                  MfaAuthenticationInCooldownException: 请求过于频繁
-                  BadMfaAuthenticationRequestException: 不正确的请求
+                  MfaRequiredException: 需要进行多因子认证
+                  BadMfaResponseException: 验证失败
+                  MfaAuthenticatorNotReadyException: 请求过于频繁
+                  BadMfaRequestException: 不正确的请求
             exception:
               client:
 

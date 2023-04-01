@@ -14,6 +14,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
 import java.time.Instant;
+import java.util.Collections;
 import java.util.Date;
 import java.util.Map;
 
@@ -37,7 +38,7 @@ public class TestUserService implements UserService {
         return TestUserPrincipal.builder()
                 .id(principal.getName())
                 .username(principal.getName())
-                .principal(principal)
+                .principals(Collections.singletonList(principal))
                 .enabled(!(principal instanceof DisabledPrincipal))
                 .locked(principal instanceof LockedPrincipal)
                 .subjectExpiryDate(principal instanceof AccountExpiredPrincipal ? Date.from(Instant.now().minusSeconds(100)) : null)

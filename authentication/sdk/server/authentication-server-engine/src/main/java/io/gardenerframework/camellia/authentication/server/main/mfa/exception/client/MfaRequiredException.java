@@ -19,10 +19,10 @@ import java.util.Map;
  * @author ZhangHan
  * @date 2022/4/21 23:29
  */
-@OAuth2ErrorCode(OAuth2ErrorCodes.MFA_AUTHENTICATION_REQUIRED)
+@OAuth2ErrorCode(OAuth2ErrorCodes.MFA_REQUIRED)
 @ResponseStatus(HttpStatus.UNAUTHORIZED)
 @AuthenticationServerEnginePreserved
-public class MfaAuthenticationRequiredException extends AuthenticationServerAuthenticationExceptions.ClientSideException implements ApiErrorDetailsSupplier {
+public class MfaRequiredException extends AuthenticationServerAuthenticationExceptions.ClientSideException implements ApiErrorDetailsSupplier {
     /**
      * mfa认证上下文
      */
@@ -30,7 +30,7 @@ public class MfaAuthenticationRequiredException extends AuthenticationServerAuth
     @NonNull
     private final Challenge mfaAuthenticationChallenge;
 
-    public MfaAuthenticationRequiredException(@NonNull Challenge MfaAuthenticationChallenge) {
+    public MfaRequiredException(@NonNull Challenge MfaAuthenticationChallenge) {
         super(MfaAuthenticationChallenge.getId());
         this.mfaAuthenticationChallenge = MfaAuthenticationChallenge;
     }

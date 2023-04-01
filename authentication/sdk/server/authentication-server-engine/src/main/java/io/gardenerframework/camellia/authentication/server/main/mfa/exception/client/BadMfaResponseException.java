@@ -9,13 +9,13 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 
 /**
  * @author zhanghan30
- * @date 2023/2/27 19:52
+ * @date 2023/2/27 19:31
  */
-@OAuth2ErrorCode(OAuth2ErrorCodes.INVALID_REQUEST)
-@ResponseStatus(HttpStatus.BAD_REQUEST)
+@ResponseStatus(HttpStatus.UNAUTHORIZED)
+@OAuth2ErrorCode(OAuth2ErrorCodes.UNAUTHORIZED)
 @AuthenticationServerEnginePreserved
-public class BadMfaAuthenticationRequestException extends AuthenticationServerAuthenticationExceptions.ClientSideException {
-    public BadMfaAuthenticationRequestException(String challengeId) {
+public class BadMfaResponseException extends AuthenticationServerAuthenticationExceptions.ClientSideException {
+    public BadMfaResponseException(String challengeId) {
         super(challengeId);
     }
 }

@@ -12,16 +12,13 @@ import io.gardenerframework.camellia.authentication.infra.challenge.core.excepti
 import io.gardenerframework.camellia.authentication.infra.challenge.core.schema.Challenge;
 import io.gardenerframework.camellia.authentication.infra.challenge.core.schema.ChallengeContext;
 import io.gardenerframework.camellia.authentication.infra.challenge.core.schema.ChallengeRequest;
-import io.gardenerframework.camellia.authentication.infra.challenge.mfa.server.client.MfaAuthenticationClientPrototype;
+import io.gardenerframework.camellia.authentication.infra.challenge.mfa.server.client.MfaClient;
 import io.gardenerframework.camellia.authentication.infra.challenge.mfa.server.exception.MfaAuthenticatorNotReadyException;
 import io.gardenerframework.camellia.authentication.infra.challenge.mfa.server.schema.request.CloseChallengeRequest;
 import io.gardenerframework.camellia.authentication.infra.challenge.mfa.server.schema.request.SendChallengeRequest;
 import io.gardenerframework.camellia.authentication.infra.challenge.mfa.server.schema.request.VerifyResponseRequest;
 import io.gardenerframework.camellia.authentication.server.common.annotation.AuthenticationServerEngineComponent;
 import io.gardenerframework.camellia.authentication.server.main.mfa.challenge.AuthenticationServerMfaAuthenticator;
-import io.gardenerframework.camellia.authentication.server.main.mfa.challenge.schema.MfaAuthenticationServerClientChallengeRequest;
-import io.gardenerframework.camellia.authentication.server.main.schema.subject.principal.Principal;
-import io.gardenerframework.camellia.authentication.server.main.user.schema.User;
 import io.gardenerframework.fragrans.api.standard.schema.ApiError;
 import io.gardenerframework.fragrans.log.GenericBasicLogger;
 import io.gardenerframework.fragrans.log.common.schema.reason.AlreadyExisted;
@@ -40,8 +37,8 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import java.time.Duration;
-import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -51,7 +48,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 @Slf4j
 @AuthenticationServerEngineComponent
-@ConditionalOnClass(MfaAuthenticationClientPrototype.class)
+@ConditionalOnClass(MfaClient.class)
 public class MfaAuthenticationClientAuthenticationServerMfaAuthenticatorRegistry implements
         AuthenticationServerMfaAuthenticatorRegistry, InitializingBean {
     private final GenericBasicLogger basicLogger;
@@ -59,23 +56,15 @@ public class MfaAuthenticationClientAuthenticationServerMfaAuthenticatorRegistry
     /**
      * 注册的所有客户端
      */
-    private final Collection<MfaAuthenticationClientPrototype<? extends Challenge>> clients;
+    private final Collection<MfaClient<? extends Challenge>> clients;
     /**
      * 那些客户毒案表达了自己和某个远程认证的名称绑定
      */
-    private final Map<String, MfaAuthenticationClientPrototype<? extends Challenge>> knownRemoteAuthenticatorClientMappings;
-
-    private final Collection<MfaAuthenticationServerClientChallengeRequestFactory> mfaAuthenticationServerClientChallengeRequestFactories;
-    /**
-     * 当名称没有找到绑定时使用的默认客户毒案
-     */
-    private MfaAuthenticationClientPrototype<? extends Challenge> defaultClient;
-
-    private CompositeMfaAuthenticationServerClientChallengeRequestFactory mfaAuthenticationServerClientChallengeRequestFactory;
+    private final Map<String, MfaClient<? extends Challenge>> knownRemoteAuthenticatorClientMappings = new HashMap<>();
 
 
     @Nullable
-    private String parseName(MfaAuthenticationClientPrototype<? extends Challenge> client) {
+    private String parseName(MfaClient<? extends Challenge> client) {
         if (client instanceof ChallengeAuthenticatorNameProvider) {
             return ((ChallengeAuthenticatorNameProvider) client).getChallengeAuthenticatorName();
         } else {
@@ -91,22 +80,17 @@ public class MfaAuthenticationClientAuthenticationServerMfaAuthenticatorRegistry
         }
     }
 
-    @Override
-    public Collection<String> getAuthenticatorNames() {
-        return null;
-    }
-
     @Nullable
     @Override
     @SuppressWarnings("unchecked")
     public <R extends ChallengeRequest, C extends Challenge, X extends ChallengeContext> AuthenticationServerMfaAuthenticator<R, C, X> getAuthenticator(@NonNull String name) {
-        MfaAuthenticationClientPrototype<? extends Challenge> client = knownRemoteAuthenticatorClientMappings.get(name);
-        if (client == null && defaultClient == null) {
+        MfaClient<? extends Challenge> client = knownRemoteAuthenticatorClientMappings.get(name);
+        if (client == null) {
             //没有人负责这个认证名称
             return null;
         }
         return (AuthenticationServerMfaAuthenticator<R, C, X>) new AuthenticationServerMfaAuthenticatorAdapter(
-                client == null ? defaultClient : client,
+                client,
                 name
         );
     }
@@ -114,14 +98,14 @@ public class MfaAuthenticationClientAuthenticationServerMfaAuthenticatorRegistry
     @Override
     public void afterPropertiesSet() throws Exception {
         if (!CollectionUtils.isEmpty(clients)) {
-            for (MfaAuthenticationClientPrototype<? extends Challenge> client : clients) {
+            for (MfaClient<? extends Challenge> client : clients) {
                 String name = parseName(client);
                 if (StringUtils.hasText(name)) {
                     if (knownRemoteAuthenticatorClientMappings.get(name) != null) {
                         basicLogger.error(
                                 log,
                                 GenericBasicLogContent.builder()
-                                        .what(MfaAuthenticationClientPrototype.class)
+                                        .what(MfaClient.class)
                                         .how(new AlreadyExisted())
                                         .detail(new Detail() {
                                             private final String clientClass = client.getClass().getCanonicalName();
@@ -133,101 +117,26 @@ public class MfaAuthenticationClientAuthenticationServerMfaAuthenticatorRegistry
                         throw new IllegalStateException("fail to start due to duplicated challenge authenticator client name");
                     }
                     knownRemoteAuthenticatorClientMappings.put(name, client);
-                } else {
-                    if (defaultClient != null) {
-                        basicLogger.error(
-                                log,
-                                GenericBasicLogContent.builder()
-                                        .what(MfaAuthenticationClientPrototype.class)
-                                        .how(new AlreadyExisted())
-                                        .detail(new Detail() {
-                                            private final String clientClass = client.getClass().getCanonicalName();
-                                            private final String authenticator = name;
-                                        })
-                                        .build(),
-                                null
-                        );
-                        throw new IllegalStateException("fail to start due to duplicated bottom challenge authenticator client");
-                    }
-                    defaultClient = client;
                 }
             }
-        }
-        mfaAuthenticationServerClientChallengeRequestFactory = new CompositeMfaAuthenticationServerClientChallengeRequestFactory(mfaAuthenticationServerClientChallengeRequestFactories);
-
-    }
-
-
-    private class CompositeMfaAuthenticationServerClientChallengeRequestFactory implements MfaAuthenticationServerClientChallengeRequestFactory {
-        private final Collection<MfaAuthenticationServerClientChallengeRequestFactory> factories;
-
-        private CompositeMfaAuthenticationServerClientChallengeRequestFactory(Collection<MfaAuthenticationServerClientChallengeRequestFactory> factories) {
-            this.factories = new ArrayList<>(factories);
-            this.factories.add((authenticatorName, client, scenario, principal, user, context) -> new MfaAuthenticationServerClientChallengeRequest(
-                    objectMapper.convertValue(user, new TypeReference<Map<String, Object>>() {
-                    }),
-                    null
-            ));
-        }
-
-        @Nullable
-        @Override
-        public MfaAuthenticationServerClientChallengeRequest create(String authenticatorName, @Nullable RequestingClient client, @NonNull Class<? extends Scenario> scenario, @NonNull Principal principal, @NonNull User user, @NonNull Map<String, Object> context) {
-            for (MfaAuthenticationServerClientChallengeRequestFactory factory : factories) {
-                MfaAuthenticationServerClientChallengeRequest mfaAuthenticationServerClientChallengeRequest = factory.create(
-                        authenticatorName,
-                        client,
-                        scenario,
-                        principal,
-                        user,
-                        context
-                );
-                if (mfaAuthenticationServerClientChallengeRequest != null) {
-                    return mfaAuthenticationServerClientChallengeRequest;
-                }
-            }
-            return null;
         }
     }
 
     @RequiredArgsConstructor
-    private class AuthenticationServerMfaAuthenticatorAdapter implements AuthenticationServerMfaAuthenticator<MfaAuthenticationServerClientChallengeRequest, Challenge, ChallengeContext> {
-        private final MfaAuthenticationClientPrototype<? extends Challenge> mfaAuthenticationClient;
+    private class AuthenticationServerMfaAuthenticatorAdapter implements AuthenticationServerMfaAuthenticator<ChallengeRequest, Challenge, ChallengeContext> {
+        private final MfaClient<? extends Challenge> mfaAuthenticationClient;
         private final String authenticatorName;
-
         @Override
-        public MfaAuthenticationServerClientChallengeRequest authenticationContextToChallengeRequest(
-                @Nullable RequestingClient client,
-                @NonNull Class<? extends Scenario> scenario,
-                @NonNull Principal principal,
-                @NonNull User user,
-                @NonNull Map<String, Object> context
-        ) throws Exception {
-            MfaAuthenticationServerClientChallengeRequest mfaAuthenticationServerClientChallengeRequest = mfaAuthenticationServerClientChallengeRequestFactory.create(
-                    authenticatorName,
-                    client,
-                    scenario,
-                    principal,
-                    user,
-                    context
-            );
-            if (mfaAuthenticationServerClientChallengeRequest != null) {
-                return mfaAuthenticationServerClientChallengeRequest;
-            }
-            throw new IllegalStateException("no factory can create MfaAuthenticationServerClientChallengeRequest for " + authenticatorName);
-        }
-
-        @Override
-        public Challenge sendChallenge(@Nullable RequestingClient client, @NonNull Class<? extends Scenario> scenario, @NonNull MfaAuthenticationServerClientChallengeRequest request) throws ChallengeResponseServiceException, ChallengeInCooldownException {
+        public Challenge sendChallenge(@Nullable RequestingClient client, @NonNull Class<? extends Scenario> scenario, @NonNull ChallengeRequest request) throws ChallengeResponseServiceException, ChallengeInCooldownException {
             try {
                 Challenge challenge = mfaAuthenticationClient.sendChallenge(
                         authenticatorName,
                         new SendChallengeRequest(
-                                request.getUser(),
+                                objectMapper.convertValue(request, new TypeReference<Map<String, Object>>() {
+                                }),
                                 client == null ? null : objectMapper.convertValue(client, new TypeReference<Map<String, Object>>() {
                                 }),
-                                scenario.getName(),
-                                request.getAdditionalArguments()
+                                scenario.getName()
                         )
                 );
                 if (!(challenge instanceof ChallengeAuthenticatorNameProvider)) {
