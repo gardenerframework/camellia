@@ -6,7 +6,7 @@
         <h1>{{ $t('components.page.mfaAuthenticationPage.title') }} </h1>
         <p class="text"> {{ $t('components.page.mfaAuthenticationPage.text') }}</p>
         <div class="mfa-authenticator-container">
-          <sms-authenticator v-if="this.$route.query.authenticator==='sms'" :duration="duration"></sms-authenticator>
+          <sms-authenticator v-if="this.$route.query.challengeAuthenticatorName==='sms'" :duration="duration"></sms-authenticator>
         </div>
         <span v-if="duration > 0"> {{ $t('components.page.mfaAuthenticationPage.timeLimit') }}</span>
         <span class="time-limit"> {{
@@ -48,7 +48,7 @@ export default {
     }
   },
   mounted() {
-    this.expiryTime = this.$route.query.expiryTime ? new Date(decodeURIComponent(this.$route.query.expiryTime) + ":00") : null;
+    this.expiryTime = this.$route.query.expiryTime ? new Date(decodeURIComponent(this.$route.query.expiryTime)) : null;
     this.countdown()
   }
 }

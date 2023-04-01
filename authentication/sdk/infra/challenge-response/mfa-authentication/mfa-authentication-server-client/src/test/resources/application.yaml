@@ -1,0 +1,5 @@
+server:
+  port: 18888
+logging:
+  level:
+    root: debug

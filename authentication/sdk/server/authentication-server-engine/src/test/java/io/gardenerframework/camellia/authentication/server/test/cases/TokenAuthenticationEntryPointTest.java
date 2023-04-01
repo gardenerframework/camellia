@@ -139,10 +139,10 @@ public class TokenAuthenticationEntryPointTest {
             mfaRequired = true;
         }
         Assertions.assertTrue(mfaRequired);
-        Assertions.assertEquals("test", details.get("authenticator"));
-        Assertions.assertNotNull(details.get("challengeId"));
+        Assertions.assertEquals("test", details.get("challengeAuthenticatorName"));
+        Assertions.assertNotNull(details.get("id"));
 
-        String challengeId = (String) details.get("challengeId");
+        String challengeId = (String) details.get("id");
 
         //不进行mfa认证依然要求mfa
         mfaRequired = false;
@@ -161,13 +161,12 @@ public class TokenAuthenticationEntryPointTest {
             mfaRequired = true;
         }
         Assertions.assertTrue(mfaRequired);
-        Assertions.assertEquals("test", details.get("authenticator"));
-        Assertions.assertEquals(challengeId, details.get("challengeId"));
+        Assertions.assertEquals("test", details.get("challengeAuthenticatorName"));
+        Assertions.assertEquals(challengeId, details.get("id"));
 
         //给一个错误的challengeId
         request.put("challengeId", UUID.randomUUID().toString());
         request.put("response", UUID.randomUUID().toString());
-        request.put("authenticator", "test");
         boolean invalidMfaChallengeIdFound = false;
         try {
             authenticationClient.login(AnnotationUtils.findAnnotation(MfaAuthenticationService.class, AuthenticationType.class).value(), request);

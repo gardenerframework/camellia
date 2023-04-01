@@ -1,6 +1,13 @@
-# 引言
+# 简介
 
 挑战与应答是用来对操作人进行认证的常用手段，比如短信认证就是一种挑战与应答，认证方将一个短信单独发送给请求方，请求方通过填写正确的验证码来证明手机确实被自己持
+
+在当前模块中
+
+[challenge-response-core](challenge-response-core) & [challenge-response-engine](challenge-response-engine)
+负责挑战与应答的核心共功能定义
+
+[mfa-authentication](mfa-authentication)负责多因子验证这个场景的http服务化能力定义
 
 # 基本机制
 

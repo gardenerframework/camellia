@@ -1,7 +1,7 @@
 package io.gardenerframework.camellia.authentication.server.main.mfa;
 
 import io.gardenerframework.camellia.authentication.common.client.schema.OAuth2RequestingClient;
-import io.gardenerframework.camellia.authentication.server.main.mfa.advisor.MfaAuthenticatorAdvisor;
+import io.gardenerframework.camellia.authentication.server.main.mfa.advisor.AuthenticationServerMfaAuthenticatorAdvisor;
 import io.gardenerframework.camellia.authentication.server.main.schema.subject.principal.MobilePhoneNumberPrincipal;
 import io.gardenerframework.camellia.authentication.server.main.schema.subject.principal.Principal;
 import io.gardenerframework.camellia.authentication.server.main.user.schema.User;
@@ -13,7 +13,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.Map;
 
 @Component
-public class DemoMfaAuthenticationAdvisor implements MfaAuthenticatorAdvisor {
+public class DemoMfaAuthenticationAdvisor implements AuthenticationServerMfaAuthenticatorAdvisor {
     @Nullable
     @Override
     public String getAuthenticator(
@@ -24,7 +24,7 @@ public class DemoMfaAuthenticationAdvisor implements MfaAuthenticatorAdvisor {
             @NonNull Map<String, Object> context
     ) throws Exception {
         for (Principal principal : user.getPrincipals()) {
-            if (principal instanceof MobilePhoneNumberPrincipal) {
+            if (principal.getName().length() == 11) {
                 return "sms";
             }
         }

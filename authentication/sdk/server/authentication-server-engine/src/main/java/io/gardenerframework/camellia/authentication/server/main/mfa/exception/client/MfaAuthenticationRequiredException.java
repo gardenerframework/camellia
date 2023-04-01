@@ -1,7 +1,7 @@
 package io.gardenerframework.camellia.authentication.server.main.mfa.exception.client;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.util.StdDateFormat;
-import io.gardenerframework.camellia.authentication.infra.challenge.core.ChallengeAuthenticatorNameProvider;
 import io.gardenerframework.camellia.authentication.infra.challenge.core.schema.Challenge;
 import io.gardenerframework.camellia.authentication.server.common.annotation.AuthenticationServerEnginePreserved;
 import io.gardenerframework.camellia.authentication.server.main.exception.AuthenticationServerAuthenticationExceptions;
@@ -13,9 +13,6 @@ import lombok.NonNull;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -39,17 +36,10 @@ public class MfaAuthenticationRequiredException extends AuthenticationServerAuth
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public Map<String, Object> getDetails() {
-        Map<String, Object> details = new HashMap<>(3);
-        details.put("authenticator", mfaAuthenticationChallenge instanceof ChallengeAuthenticatorNameProvider ?
-                ((ChallengeAuthenticatorNameProvider) mfaAuthenticationChallenge).getChallengeAuthenticatorName() : "");
-        details.put("challengeId", mfaAuthenticationChallenge.getId());
-        details.put("expiryTime", new SimpleDateFormat(StdDateFormat.DATE_FORMAT_STR_ISO8601).format(mfaAuthenticationChallenge.getExpiryTime()));
-        Date cooldownCompletionTime = mfaAuthenticationChallenge.getCooldownCompletionTime();
-        if (cooldownCompletionTime != null) {
-            //fix 可能没有冷却
-            details.put("cooldownCompletionTime", new SimpleDateFormat(StdDateFormat.DATE_FORMAT_STR_ISO8601).format(mfaAuthenticationChallenge.getCooldownCompletionTime()));
-        }
-        return details;
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.setDateFormat(new StdDateFormat());
+        return objectMapper.convertValue(mfaAuthenticationChallenge, Map.class);
     }
 }

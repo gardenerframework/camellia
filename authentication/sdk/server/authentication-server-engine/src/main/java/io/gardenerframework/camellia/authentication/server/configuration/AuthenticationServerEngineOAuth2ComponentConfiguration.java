@@ -13,11 +13,11 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.context.annotation.*;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.type.AnnotatedTypeMetadata;
-import org.springframework.security.config.annotation.web.configuration.OAuth2AuthorizationServerConfiguration;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
-import org.springframework.security.oauth2.server.authorization.config.ProviderSettings;
+import org.springframework.security.oauth2.server.authorization.config.annotation.web.configuration.OAuth2AuthorizationServerConfiguration;
+import org.springframework.security.oauth2.server.authorization.settings.AuthorizationServerSettings;
 import org.springframework.util.Assert;
 
 import javax.crypto.Cipher;
@@ -42,8 +42,8 @@ public class AuthenticationServerEngineOAuth2ComponentConfiguration {
     private final AuthenticationServerPathOption authenticationServerPathOption;
 
     @Bean
-    public ProviderSettings providerSettings() {
-        return ProviderSettings.builder()
+    public AuthorizationServerSettings providerSettings() {
+        return AuthorizationServerSettings.builder()
                 .authorizationEndpoint(authenticationServerPathOption.getOAuth2AuthorizationEndpoint())
                 .tokenEndpoint(authenticationServerPathOption.getOAuth2TokenEndpoint())
                 .oidcUserInfoEndpoint(authenticationServerPathOption.getOidcUserInfoEndpoint())

@@ -19,7 +19,8 @@ import java.util.Collections;
  */
 @RequiredArgsConstructor
 @AuthenticationServerEngineComponent
-public class AuthorizationServerRestControllerGroupConfigurer implements ApiGroupProvider, ApiGroupPolicyProvider<ApiGroupContextPathPolicy> {
+public class AuthorizationServerRestControllerGroupConfigurer
+        implements ApiGroupProvider, ApiGroupPolicyProvider<ApiGroupContextPathPolicy> {
     private final AuthenticationServerPathOption authenticationServerPathOption;
 
 
@@ -30,7 +31,7 @@ public class AuthorizationServerRestControllerGroupConfigurer implements ApiGrou
 
     @Override
     public ApiGroupContextPathPolicy getPolicy() {
-        return new ApiGroupContextPathPolicy(authenticationServerPathOption.getRestApiContextPath());
+        return new ApiGroupContextPathPolicy(authenticationServerPathOption.getAuthenticationRestApiContextPath());
     }
 
     @Nullable
