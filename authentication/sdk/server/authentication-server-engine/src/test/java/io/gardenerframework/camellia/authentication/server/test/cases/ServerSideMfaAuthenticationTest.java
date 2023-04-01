@@ -2,7 +2,6 @@ package io.gardenerframework.camellia.authentication.server.test.cases;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.jdcloud.gardener.camellia.authorization.test.cases.TokenAuthenticationEntryPointTest;
 import io.gardenerframework.camellia.authentication.server.main.exception.OAuth2ErrorCodes;
 import io.gardenerframework.camellia.authentication.server.main.mfa.exception.client.MfaRequiredException;
 import io.gardenerframework.camellia.authentication.server.main.mfa.utils.EmbeddedAuthenticationServerMfaAuthenticatorRegistry;

@@ -28,11 +28,11 @@ public class MfaRequiredException extends AuthenticationServerAuthenticationExce
      */
     @Getter
     @NonNull
-    private final Challenge mfaAuthenticationChallenge;
+    private final Challenge challenge;
 
-    public MfaRequiredException(@NonNull Challenge MfaAuthenticationChallenge) {
-        super(MfaAuthenticationChallenge.getId());
-        this.mfaAuthenticationChallenge = MfaAuthenticationChallenge;
+    public MfaRequiredException(@NonNull Challenge challenge) {
+        super(challenge.getId());
+        this.challenge = challenge;
     }
 
     @Override
@@ -40,6 +40,6 @@ public class MfaRequiredException extends AuthenticationServerAuthenticationExce
     public Map<String, Object> getDetails() {
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.setDateFormat(new StdDateFormat());
-        return objectMapper.convertValue(mfaAuthenticationChallenge, Map.class);
+        return objectMapper.convertValue(challenge, Map.class);
     }
 }

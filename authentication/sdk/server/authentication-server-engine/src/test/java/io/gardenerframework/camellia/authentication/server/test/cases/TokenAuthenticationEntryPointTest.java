@@ -1,4 +1,4 @@
-package com.jdcloud.gardener.camellia.authorization.test.cases;
+package io.gardenerframework.camellia.authentication.server.test.cases;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;

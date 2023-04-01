@@ -107,7 +107,7 @@ public class MfaAuthenticationListener implements
             AuthenticationServerMfaChallengeContext authenticationServerMfaChallengeContext = Objects.requireNonNull(
                     (AuthenticationServerMfaChallengeContext) event.getContext()
                             .get(AuthenticationServerMfaChallengeContext.class.getName()),
-                    "no MfaAuthenticationChallengeContext load from context. review MfaAuthenticationUserService.load!"
+                    "no AuthenticationServerMfaChallengeContext load from context. review MfaAuthenticationUserService.load!"
             );
             AuthenticationSuccessEvent replay = buildAuthenticationEvent(
                     AuthenticationSuccessEvent.builder(),
