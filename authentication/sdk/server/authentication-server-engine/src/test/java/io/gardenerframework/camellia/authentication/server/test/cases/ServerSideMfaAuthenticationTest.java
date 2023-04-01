@@ -6,7 +6,7 @@ import com.jdcloud.gardener.camellia.authorization.test.cases.TokenAuthenticatio
 import io.gardenerframework.camellia.authentication.server.main.exception.OAuth2ErrorCodes;
 import io.gardenerframework.camellia.authentication.server.main.mfa.exception.client.MfaRequiredException;
 import io.gardenerframework.camellia.authentication.server.main.mfa.utils.EmbeddedAuthenticationServerMfaAuthenticatorRegistry;
-import io.gardenerframework.camellia.authentication.server.main.mfa.utils.MfaAuthenticationClientAuthenticationServerMfaAuthenticatorRegistry;
+import io.gardenerframework.camellia.authentication.server.main.mfa.utils.MfaClientAuthenticationServerMfaAuthenticatorRegistry;
 import io.gardenerframework.camellia.authentication.server.test.AuthenticationServerEngineTestApplication;
 import io.gardenerframework.camellia.authentication.server.test.mfa.ServerSideMfaAuthenticator;
 import io.gardenerframework.camellia.authentication.server.test.utils.TokenAuthenticationClient;
@@ -38,7 +38,7 @@ public class ServerSideMfaAuthenticationTest {
     private EmbeddedAuthenticationServerMfaAuthenticatorRegistry embeddedAuthenticationServerMfaAuthenticatorRegistry;
 
     @Autowired
-    private MfaAuthenticationClientAuthenticationServerMfaAuthenticatorRegistry mfaAuthenticationClientAuthenticationServerMfaAuthenticatorRegistry;
+    private MfaClientAuthenticationServerMfaAuthenticatorRegistry mfaClientAuthenticationServerMfaAuthenticatorRegistry;
 
     @Autowired
     private TokenAuthenticationClient tokenAuthenticationClient;
@@ -56,7 +56,7 @@ public class ServerSideMfaAuthenticationTest {
         );
         //mfa client注册表中有
         Assertions.assertNotNull(
-                mfaAuthenticationClientAuthenticationServerMfaAuthenticatorRegistry
+                mfaClientAuthenticationServerMfaAuthenticatorRegistry
                         .getAuthenticator("server-side")
         );
     }

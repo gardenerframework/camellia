@@ -4,7 +4,7 @@ import io.gardenerframework.camellia.authentication.infra.challenge.core.excepti
 import io.gardenerframework.camellia.authentication.server.common.annotation.AuthenticationServerEngineComponent;
 import io.gardenerframework.camellia.authentication.server.common.annotation.AuthenticationServerEnginePreserved;
 import io.gardenerframework.camellia.authentication.server.main.exception.NestedAuthenticationException;
-import io.gardenerframework.camellia.authentication.server.main.mfa.challenge.AuthenticationServerMfaAuthenticationChallengeResponseService;
+import io.gardenerframework.camellia.authentication.server.main.mfa.challenge.AuthenticationServerMfaChallengeResponseService;
 import io.gardenerframework.camellia.authentication.server.main.mfa.challenge.schema.AuthenticationServerMfaChallengeContext;
 import io.gardenerframework.camellia.authentication.server.main.mfa.exception.client.BadMfaRequestException;
 import io.gardenerframework.camellia.authentication.server.main.mfa.schema.principal.MfaPrincipal;
@@ -31,7 +31,7 @@ import java.util.Objects;
 @AuthenticationServerEnginePreserved
 @AuthenticationServerEngineComponent
 public class MfaAuthenticationUserService implements UserService {
-    private final AuthenticationServerMfaAuthenticationChallengeResponseService authenticationServerMfaAuthenticationChallengeResponseService;
+    private final AuthenticationServerMfaChallengeResponseService authenticationServerMfaChallengeResponseService;
 
     @Nullable
     @Override
@@ -46,9 +46,9 @@ public class MfaAuthenticationUserService implements UserService {
             String challengeId = principal.getName();
             AuthenticationServerMfaChallengeContext authenticationServerMfaChallengeContext = null;
             try {
-                authenticationServerMfaChallengeContext = authenticationServerMfaAuthenticationChallengeResponseService.getContext(
+                authenticationServerMfaChallengeContext = authenticationServerMfaChallengeResponseService.getContext(
                         RequestingClientHolder.getClient(),
-                        authenticationServerMfaAuthenticationChallengeResponseService.getClass(),
+                        authenticationServerMfaChallengeResponseService.getClass(),
                         challengeId
                 );
                 Objects.requireNonNull(context).put(AuthenticationServerMfaChallengeContext.class.getName(), authenticationServerMfaChallengeContext);

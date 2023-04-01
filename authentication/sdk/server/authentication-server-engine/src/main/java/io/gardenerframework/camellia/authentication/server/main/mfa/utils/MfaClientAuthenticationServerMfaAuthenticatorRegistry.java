@@ -49,7 +49,7 @@ import java.util.Map;
 @Slf4j
 @AuthenticationServerEngineComponent
 @ConditionalOnClass(MfaClient.class)
-public class MfaAuthenticationClientAuthenticationServerMfaAuthenticatorRegistry implements
+public class MfaClientAuthenticationServerMfaAuthenticatorRegistry implements
         AuthenticationServerMfaAuthenticatorRegistry, InitializingBean {
     private final GenericBasicLogger basicLogger;
     private final ObjectMapper objectMapper;

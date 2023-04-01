@@ -9,7 +9,7 @@ import io.gardenerframework.camellia.authentication.server.main.event.schema.Use
 import io.gardenerframework.camellia.authentication.server.main.event.support.AuthenticationEventBuilder;
 import io.gardenerframework.camellia.authentication.server.main.exception.NestedAuthenticationException;
 import io.gardenerframework.camellia.authentication.server.main.mfa.advisor.AuthenticationServerMfaAuthenticatorAdvisor;
-import io.gardenerframework.camellia.authentication.server.main.mfa.challenge.AuthenticationServerMfaAuthenticationChallengeResponseService;
+import io.gardenerframework.camellia.authentication.server.main.mfa.challenge.AuthenticationServerMfaChallengeResponseService;
 import io.gardenerframework.camellia.authentication.server.main.mfa.challenge.schema.AuthenticationServerMfaChallenge;
 import io.gardenerframework.camellia.authentication.server.main.mfa.challenge.schema.AuthenticationServerMfaChallengeContext;
 import io.gardenerframework.camellia.authentication.server.main.mfa.challenge.schema.AuthenticationServerMfaChallengeRequest;
@@ -48,7 +48,7 @@ public class MfaAuthenticationListener implements
     @NonNull
     private final Collection<AuthenticationServerMfaAuthenticatorAdvisor> mfaAuthenticationAdvisors;
     @NonNull
-    private final AuthenticationServerMfaAuthenticationChallengeResponseService authenticationServerMfaAuthenticationChallengeResponseService;
+    private final AuthenticationServerMfaChallengeResponseService authenticationServerMfaChallengeResponseService;
     @NonNull
     private ApplicationEventPublisher eventPublisher;
 
@@ -82,9 +82,9 @@ public class MfaAuthenticationListener implements
             if (StringUtils.hasText(authenticator)) {
                 //这部分找不到是服务端的问题，不单独开异常
                 //执行mfa认证
-                AuthenticationServerMfaChallenge mfaAuthenticationChallenge = authenticationServerMfaAuthenticationChallengeResponseService.sendChallenge(
+                AuthenticationServerMfaChallenge mfaAuthenticationChallenge = authenticationServerMfaChallengeResponseService.sendChallenge(
                         event.getClient(),
-                        authenticationServerMfaAuthenticationChallengeResponseService.getClass(),
+                        authenticationServerMfaChallengeResponseService.getClass(),
                         new AuthenticationServerMfaChallengeRequest(authenticator, event.getPrincipal(), event.getUser(), event.getContext())
                 );
                 throw new MfaRequiredException(mfaAuthenticationChallenge.getTarget());

@@ -30,7 +30,7 @@ import java.util.Objects;
 
 @AuthenticationServerEngineComponent
 @Slf4j
-public class AuthenticationServerMfaAuthenticationChallengeResponseService extends AbstractChallengeResponseService<
+public class AuthenticationServerMfaChallengeResponseService extends AbstractChallengeResponseService<
         AuthenticationServerMfaChallengeRequest,
         AuthenticationServerMfaChallenge,
         AuthenticationServerMfaChallengeContext
@@ -38,7 +38,7 @@ public class AuthenticationServerMfaAuthenticationChallengeResponseService exten
     private final CompositeAuthenticationServerMfaAuthenticatorRegistry registry;
     private final Collection<AuthenticationServerMfaAuthenticatorChallengeRequestFactory<? extends ChallengeRequest>> requestFactories;
 
-    public AuthenticationServerMfaAuthenticationChallengeResponseService(@NonNull GenericCachedChallengeStore challengeStore, @NonNull ChallengeCooldownManager challengeCooldownManager, @NonNull GenericCachedChallengeContextStore challengeContextStore, CompositeAuthenticationServerMfaAuthenticatorRegistry registry, Collection<AuthenticationServerMfaAuthenticatorChallengeRequestFactory<? extends ChallengeRequest>> requestFactories) {
+    public AuthenticationServerMfaChallengeResponseService(@NonNull GenericCachedChallengeStore challengeStore, @NonNull ChallengeCooldownManager challengeCooldownManager, @NonNull GenericCachedChallengeContextStore challengeContextStore, CompositeAuthenticationServerMfaAuthenticatorRegistry registry, Collection<AuthenticationServerMfaAuthenticatorChallengeRequestFactory<? extends ChallengeRequest>> requestFactories) {
         super(challengeStore.migrateType(), challengeCooldownManager, challengeContextStore.migrateType());
         this.registry = registry;
         this.requestFactories = requestFactories;
