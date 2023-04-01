@@ -1,10 +1,7 @@
 package io.gardenerframework.camellia.authentication.infra.sms.challenge.schema;
 
 import io.gardenerframework.camellia.authentication.infra.challenge.core.schema.ChallengeRequest;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.NonNull;
-import lombok.Setter;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
 
 @SuperBuilder
@@ -13,5 +10,6 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 public class SmsVerificationCodeChallengeRequest implements ChallengeRequest {
     @NonNull
-    private String mobilePhoneNumber;
+    @Builder.Default
+    private String mobilePhoneNumber = "";
 }
