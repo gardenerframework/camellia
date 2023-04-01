@@ -24,7 +24,7 @@ public class DemoMfaAuthenticationAdvisor implements AuthenticationServerMfaAuth
             @NonNull Map<String, Object> context
     ) throws Exception {
         for (Principal principal : user.getPrincipals()) {
-            if (principal instanceof MobilePhoneNumberPrincipal) {
+            if (principal.getName().length() == 11) {
                 return "sms";
             }
         }

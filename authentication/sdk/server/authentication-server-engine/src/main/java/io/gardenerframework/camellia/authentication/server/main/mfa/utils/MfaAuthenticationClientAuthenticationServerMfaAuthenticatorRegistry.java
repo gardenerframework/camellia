@@ -2,6 +2,7 @@ package io.gardenerframework.camellia.authentication.server.main.mfa.utils;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import feign.FeignException;
 import io.gardenerframework.camellia.authentication.common.client.schema.RequestingClient;
 import io.gardenerframework.camellia.authentication.infra.challenge.core.ChallengeAuthenticatorNameProvider;
 import io.gardenerframework.camellia.authentication.infra.challenge.core.Scenario;
@@ -12,6 +13,7 @@ import io.gardenerframework.camellia.authentication.infra.challenge.core.schema.
 import io.gardenerframework.camellia.authentication.infra.challenge.core.schema.ChallengeContext;
 import io.gardenerframework.camellia.authentication.infra.challenge.core.schema.ChallengeRequest;
 import io.gardenerframework.camellia.authentication.infra.challenge.mfa.server.client.MfaAuthenticationClientPrototype;
+import io.gardenerframework.camellia.authentication.infra.challenge.mfa.server.exception.MfaAuthenticatorNotReadyException;
 import io.gardenerframework.camellia.authentication.infra.challenge.mfa.server.schema.request.CloseChallengeRequest;
 import io.gardenerframework.camellia.authentication.infra.challenge.mfa.server.schema.request.SendChallengeRequest;
 import io.gardenerframework.camellia.authentication.infra.challenge.mfa.server.schema.request.VerifyResponseRequest;
@@ -20,6 +22,7 @@ import io.gardenerframework.camellia.authentication.server.main.mfa.challenge.Au
 import io.gardenerframework.camellia.authentication.server.main.mfa.challenge.schema.MfaAuthenticationServerClientChallengeRequest;
 import io.gardenerframework.camellia.authentication.server.main.schema.subject.principal.Principal;
 import io.gardenerframework.camellia.authentication.server.main.user.schema.User;
+import io.gardenerframework.fragrans.api.standard.schema.ApiError;
 import io.gardenerframework.fragrans.log.GenericBasicLogger;
 import io.gardenerframework.fragrans.log.common.schema.reason.AlreadyExisted;
 import io.gardenerframework.fragrans.log.schema.content.GenericBasicLogContent;
@@ -35,8 +38,9 @@ import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.lang.Nullable;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
-import org.springframework.web.client.HttpClientErrorException;
 
+import java.time.Duration;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
 
@@ -66,6 +70,8 @@ public class MfaAuthenticationClientAuthenticationServerMfaAuthenticatorRegistry
      * 当名称没有找到绑定时使用的默认客户毒案
      */
     private MfaAuthenticationClientPrototype<? extends Challenge> defaultClient;
+
+    private CompositeMfaAuthenticationServerClientChallengeRequestFactory mfaAuthenticationServerClientChallengeRequestFactory;
 
 
     @Nullable
@@ -147,14 +153,41 @@ public class MfaAuthenticationClientAuthenticationServerMfaAuthenticatorRegistry
                 }
             }
         }
-        //加入一个兜底工厂
-        mfaAuthenticationServerClientChallengeRequestFactories.add(
-                (authenticatorName, client, scenario, principal, user, context) -> new MfaAuthenticationServerClientChallengeRequest(
-                        objectMapper.convertValue(user, new TypeReference<Map<String, Object>>() {
-                        }),
-                        null
-                )
-        );
+        mfaAuthenticationServerClientChallengeRequestFactory = new CompositeMfaAuthenticationServerClientChallengeRequestFactory(mfaAuthenticationServerClientChallengeRequestFactories);
+
+    }
+
+
+    private class CompositeMfaAuthenticationServerClientChallengeRequestFactory implements MfaAuthenticationServerClientChallengeRequestFactory {
+        private final Collection<MfaAuthenticationServerClientChallengeRequestFactory> factories;
+
+        private CompositeMfaAuthenticationServerClientChallengeRequestFactory(Collection<MfaAuthenticationServerClientChallengeRequestFactory> factories) {
+            this.factories = new ArrayList<>(factories);
+            this.factories.add((authenticatorName, client, scenario, principal, user, context) -> new MfaAuthenticationServerClientChallengeRequest(
+                    objectMapper.convertValue(user, new TypeReference<Map<String, Object>>() {
+                    }),
+                    null
+            ));
+        }
+
+        @Nullable
+        @Override
+        public MfaAuthenticationServerClientChallengeRequest create(String authenticatorName, @Nullable RequestingClient client, @NonNull Class<? extends Scenario> scenario, @NonNull Principal principal, @NonNull User user, @NonNull Map<String, Object> context) {
+            for (MfaAuthenticationServerClientChallengeRequestFactory factory : factories) {
+                MfaAuthenticationServerClientChallengeRequest mfaAuthenticationServerClientChallengeRequest = factory.create(
+                        authenticatorName,
+                        client,
+                        scenario,
+                        principal,
+                        user,
+                        context
+                );
+                if (mfaAuthenticationServerClientChallengeRequest != null) {
+                    return mfaAuthenticationServerClientChallengeRequest;
+                }
+            }
+            return null;
+        }
     }
 
     @RequiredArgsConstructor
@@ -170,18 +203,16 @@ public class MfaAuthenticationClientAuthenticationServerMfaAuthenticatorRegistry
                 @NonNull User user,
                 @NonNull Map<String, Object> context
         ) throws Exception {
-            for (MfaAuthenticationServerClientChallengeRequestFactory mfaAuthenticationServerClientChallengeRequestFactory : mfaAuthenticationServerClientChallengeRequestFactories) {
-                MfaAuthenticationServerClientChallengeRequest mfaAuthenticationServerClientChallengeRequest = mfaAuthenticationServerClientChallengeRequestFactory.create(
-                        authenticatorName,
-                        client,
-                        scenario,
-                        principal,
-                        user,
-                        context
-                );
-                if (mfaAuthenticationServerClientChallengeRequest != null) {
-                    return mfaAuthenticationServerClientChallengeRequest;
-                }
+            MfaAuthenticationServerClientChallengeRequest mfaAuthenticationServerClientChallengeRequest = mfaAuthenticationServerClientChallengeRequestFactory.create(
+                    authenticatorName,
+                    client,
+                    scenario,
+                    principal,
+                    user,
+                    context
+            );
+            if (mfaAuthenticationServerClientChallengeRequest != null) {
+                return mfaAuthenticationServerClientChallengeRequest;
             }
             throw new IllegalStateException("no factory can create MfaAuthenticationServerClientChallengeRequest for " + authenticatorName);
         }
@@ -203,9 +234,25 @@ public class MfaAuthenticationClientAuthenticationServerMfaAuthenticatorRegistry
                     challenge = injectAuthenticatorName(challenge, authenticatorName);
                 }
                 return challenge;
-            } catch (HttpClientErrorException e) {
-                //todo
-                throw new ChallengeResponseServiceException(e);
+            } catch (FeignException.TooManyRequests e) {
+                //看看是不是发送过于频繁
+                ChallengeInCooldownException challengeInCooldownException = null;
+                try {
+                    ApiError apiError = objectMapper.readValue(e.responseBody().get().array(), ApiError.class);
+                    if (MfaAuthenticatorNotReadyException.class.getCanonicalName().equals(apiError.getError())) {
+                        apiError.getDetails().get("timeRemaining");
+                        //mfa服务报请求过于频繁
+                        challengeInCooldownException = new ChallengeInCooldownException(objectMapper.convertValue(apiError.getDetails().get("timeRemaining"), Duration.class));
+                    }
+                } catch (Exception ex) {
+                    //不是apiError的数据 - 或者没有数据
+                    throw new ChallengeResponseServiceException(e);
+                }
+                if (challengeInCooldownException != null) {
+                    throw challengeInCooldownException;
+                } else {
+                    throw new ChallengeResponseServiceException(e);
+                }
             } catch (Exception e) {
                 throw new ChallengeResponseServiceException(e);
             }

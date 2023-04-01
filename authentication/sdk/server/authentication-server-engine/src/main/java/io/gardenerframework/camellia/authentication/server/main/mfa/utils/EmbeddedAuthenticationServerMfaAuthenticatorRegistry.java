@@ -8,7 +8,6 @@ import io.gardenerframework.camellia.authentication.infra.challenge.core.schema.
 import io.gardenerframework.camellia.authentication.infra.challenge.core.schema.ChallengeRequest;
 import io.gardenerframework.camellia.authentication.server.common.annotation.AuthenticationServerEngineComponent;
 import io.gardenerframework.camellia.authentication.server.main.mfa.challenge.AuthenticationServerMfaAuthenticator;
-import io.gardenerframework.camellia.authentication.server.main.mfa.challenge.MfaAuthenticationChallengeResponseService;
 import io.gardenerframework.fragrans.log.GenericBasicLogger;
 import io.gardenerframework.fragrans.log.GenericOperationLogger;
 import io.gardenerframework.fragrans.log.common.schema.reason.AlreadyExisted;
@@ -111,7 +110,7 @@ public class EmbeddedAuthenticationServerMfaAuthenticatorRegistry implements Aut
                         basicLogger.error(
                                 log,
                                 GenericBasicLogContent.builder()
-                                        .what(MfaAuthenticationChallengeResponseService.class)
+                                        .what(AuthenticationServerMfaAuthenticator.class)
                                         .how(new AlreadyExisted())
                                         .detail(new Detail() {
                                             private final String serviceClass = service.getClass().getCanonicalName();
@@ -127,7 +126,7 @@ public class EmbeddedAuthenticationServerMfaAuthenticatorRegistry implements Aut
         operationLogger.info(
                 log,
                 GenericOperationLogContent.builder()
-                        .what(MfaAuthenticationChallengeResponseService.class)
+                        .what(AuthenticationServerMfaAuthenticator.class)
                         .operation(new Register())
                         .state(new Done())
                         .detail(new Detail() {

@@ -18,7 +18,7 @@ import java.util.Map;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class MfaAuthenticationChallengeRequest implements ChallengeRequest {
+public class AuthenticationServerMfaAuthenticationChallengeRequest implements ChallengeRequest {
     /**
      * 实际的认证器名称
      */

@@ -4,6 +4,6 @@ import io.gardenerframework.camellia.authentication.infra.challenge.core.schema.
 import io.gardenerframework.camellia.authentication.infra.challenge.mfa.server.client.MfaAuthenticationClientPrototype;
 import org.springframework.cloud.openfeign.FeignClient;
 
-@FeignClient(name = "mfa", decode404 = true)
+@FeignClient(name = "demo-mfa-authentication-server", decode404 = true)
 public interface GenericMfaAuthenticatorClient extends MfaAuthenticationClientPrototype<Challenge> {
 }

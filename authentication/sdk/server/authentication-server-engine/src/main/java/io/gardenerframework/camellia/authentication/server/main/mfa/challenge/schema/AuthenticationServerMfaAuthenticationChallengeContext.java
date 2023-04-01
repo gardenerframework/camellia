@@ -16,7 +16,7 @@ import org.springframework.lang.Nullable;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class MfaAuthenticationChallengeContext implements ChallengeContext {
+public class AuthenticationServerMfaAuthenticationChallengeContext implements ChallengeContext {
     private static final long serialVersionUID = SerializationVersionNumber.version;
     /**
      * 当时这个挑战用哪个校验器发出去的

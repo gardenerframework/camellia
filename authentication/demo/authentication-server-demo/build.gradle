@@ -5,6 +5,7 @@ dependencies {
     api "${group}:username-password-user-authentication-service"
     //短信认证
     api "${group}:sms-user-authentication-service"
+    api "${group}:sms-client-jdcloud"
     //sns认证
     api "${group}:jd-user-authentication-service"
     api "${group}:wechat-user-authentication-service"
@@ -17,4 +18,5 @@ dependencies {
     runtimeOnly "${fragrans.group}:api-options-persistence-readonly"
     //redis缓存访问软件
     runtimeOnly "${fragrans.group}:data-cache-spring-redis"
+    runtimeOnly "org.springframework.cloud:spring-cloud-starter-loadbalancer"
 }

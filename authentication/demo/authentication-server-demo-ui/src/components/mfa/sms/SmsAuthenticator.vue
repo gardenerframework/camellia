@@ -43,7 +43,7 @@ export default {
       formItems: {
         code: "",
       },
-      challengeId: this.$route.query.challengeId
+      challengeId: this.$route.query.id
     }
   },
   methods: {
@@ -51,7 +51,7 @@ export default {
       this.$refs.smaCodeMfaForm.validate(
           isValid => {
             if (isValid) {
-              this.$refs.mfaForm.authenticate(this.challengeId, this.formItems.code, "sms")
+              this.$refs.mfaForm.authenticate(this.challengeId, this.formItems.code)
             } else {
               return false
             }

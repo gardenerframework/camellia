@@ -7,7 +7,7 @@ import io.gardenerframework.camellia.authentication.server.common.annotation.Aut
 import io.gardenerframework.camellia.authentication.server.main.UserAuthenticationService;
 import io.gardenerframework.camellia.authentication.server.main.annotation.AuthenticationType;
 import io.gardenerframework.camellia.authentication.server.main.exception.NestedAuthenticationException;
-import io.gardenerframework.camellia.authentication.server.main.mfa.challenge.MfaAuthenticationChallengeResponseService;
+import io.gardenerframework.camellia.authentication.server.main.mfa.challenge.AuthenticationServerMfaAuthenticationChallengeResponseService;
 import io.gardenerframework.camellia.authentication.server.main.mfa.exception.client.BadMfaAuthenticationResponseException;
 import io.gardenerframework.camellia.authentication.server.main.mfa.schema.credentials.MfaResponseCredentials;
 import io.gardenerframework.camellia.authentication.server.main.mfa.schema.principal.MfaAuthenticationPrincipal;
@@ -33,7 +33,7 @@ import java.util.Map;
 @AuthenticationServerEngineComponent
 public class MfaAuthenticationService implements UserAuthenticationService {
     private final Validator validator;
-    private final MfaAuthenticationChallengeResponseService mfaAuthenticationChallengeResponseService;
+    private final AuthenticationServerMfaAuthenticationChallengeResponseService authenticationServerMfaAuthenticationChallengeResponseService;
 
     @Override
     public UserAuthenticationRequestToken convert(
@@ -62,17 +62,17 @@ public class MfaAuthenticationService implements UserAuthenticationService {
         MfaResponseCredentials credential = (MfaResponseCredentials) authenticationRequest.getCredentials();
         try {
             //尝试验证
-            if (!mfaAuthenticationChallengeResponseService.verifyResponse(
+            if (!authenticationServerMfaAuthenticationChallengeResponseService.verifyResponse(
                     client,
-                    mfaAuthenticationChallengeResponseService.getClass(),
+                    authenticationServerMfaAuthenticationChallengeResponseService.getClass(),
                     principal.getName(), credential.getResponse())) {
                 //mfa验证没有通过
                 throw new BadMfaAuthenticationResponseException(principal.getName());
             } else {
                 //fix 完成验证后关闭
-                mfaAuthenticationChallengeResponseService.closeChallenge(
+                authenticationServerMfaAuthenticationChallengeResponseService.closeChallenge(
                         client,
-                        mfaAuthenticationChallengeResponseService.getClass(),
+                        authenticationServerMfaAuthenticationChallengeResponseService.getClass(),
                         principal.getName()
                 );
             }

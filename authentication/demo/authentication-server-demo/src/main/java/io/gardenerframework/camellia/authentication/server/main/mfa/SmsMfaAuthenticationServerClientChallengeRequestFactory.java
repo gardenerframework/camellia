@@ -29,7 +29,7 @@ public class SmsMfaAuthenticationServerClientChallengeRequestFactory implements 
         if ("sms".equals(authenticatorName)) {
             Map<String, Object> userData = new HashMap<>();
             for (Principal userPrincipal : user.getPrincipals()) {
-                if (userPrincipal instanceof MobilePhoneNumberPrincipal) {
+                if (userPrincipal.getName().length() == 11) {
                     userData.put("mobilePhoneNumber", userPrincipal.getName());
                 }
             }

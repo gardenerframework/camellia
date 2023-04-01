@@ -15,7 +15,7 @@ import io.gardenerframework.camellia.authentication.server.main.event.listener.A
 import io.gardenerframework.camellia.authentication.server.main.event.schema.AuthenticationFailedEvent;
 import io.gardenerframework.camellia.authentication.server.main.mfa.advisor.AuthenticationServerMfaAuthenticatorAdvisor;
 import io.gardenerframework.camellia.authentication.server.main.mfa.challenge.AuthenticationServerMfaAuthenticator;
-import io.gardenerframework.camellia.authentication.server.main.mfa.challenge.schema.MfaAuthenticationChallengeRequest;
+import io.gardenerframework.camellia.authentication.server.main.mfa.challenge.schema.AuthenticationServerMfaAuthenticationChallengeRequest;
 import io.gardenerframework.camellia.authentication.server.main.schema.subject.principal.Principal;
 import io.gardenerframework.camellia.authentication.server.main.user.schema.User;
 import lombok.NoArgsConstructor;
@@ -39,11 +39,11 @@ import java.util.*;
 @ChallengeAuthenticator("test")
 public class InMemoryMfaAuthenticationService extends
         AbstractChallengeResponseService<
-                MfaAuthenticationChallengeRequest,
+                AuthenticationServerMfaAuthenticationChallengeRequest,
                 Challenge,
                 InMemoryMfaAuthenticationService.TestContext>
         implements AuthenticationServerMfaAuthenticator<
-        MfaAuthenticationChallengeRequest,
+        AuthenticationServerMfaAuthenticationChallengeRequest,
         Challenge,
         InMemoryMfaAuthenticationService.TestContext>, AuthenticationEventListenerSkeleton, AuthenticationServerMfaAuthenticatorAdvisor {
     private final Set<Principal> failedUsers = new HashSet<>(100);
@@ -61,7 +61,7 @@ public class InMemoryMfaAuthenticationService extends
     }
 
     @Override
-    protected boolean replayChallenge(@Nullable RequestingClient client, @NonNull Class<? extends Scenario> scenario, @NonNull MfaAuthenticationChallengeRequest request) {
+    protected boolean replayChallenge(@Nullable RequestingClient client, @NonNull Class<? extends Scenario> scenario, @NonNull AuthenticationServerMfaAuthenticationChallengeRequest request) {
         //是否有没有完成的挑战
         String incompleteChallengeId = userIncompleteRequest.get(request.getUser().getId());
         if (StringUtils.hasText(incompleteChallengeId)) {
@@ -72,28 +72,28 @@ public class InMemoryMfaAuthenticationService extends
     }
 
     @Override
-    protected @NonNull String getRequestSignature(@Nullable RequestingClient client, @NonNull Class<? extends Scenario> scenario, @NonNull MfaAuthenticationChallengeRequest request) {
+    protected @NonNull String getRequestSignature(@Nullable RequestingClient client, @NonNull Class<? extends Scenario> scenario, @NonNull AuthenticationServerMfaAuthenticationChallengeRequest request) {
         //使用用户名当做请求特征
         return request.getUser().getId();
     }
 
     @Override
-    protected boolean hasCooldown(@Nullable RequestingClient client, @NonNull Class<? extends Scenario> scenario, @NonNull MfaAuthenticationChallengeRequest request) {
+    protected boolean hasCooldown(@Nullable RequestingClient client, @NonNull Class<? extends Scenario> scenario, @NonNull AuthenticationServerMfaAuthenticationChallengeRequest request) {
         return false;
     }
 
     @Override
-    protected @NonNull String getCooldownTimerId(@Nullable RequestingClient client, @NonNull Class<? extends Scenario> scenario, @NonNull MfaAuthenticationChallengeRequest request) {
+    protected @NonNull String getCooldownTimerId(@Nullable RequestingClient client, @NonNull Class<? extends Scenario> scenario, @NonNull AuthenticationServerMfaAuthenticationChallengeRequest request) {
         return "";
     }
 
     @Override
-    protected int getCooldownTime(@Nullable RequestingClient client, @NonNull Class<? extends Scenario> scenario, @NonNull MfaAuthenticationChallengeRequest request) {
+    protected int getCooldownTime(@Nullable RequestingClient client, @NonNull Class<? extends Scenario> scenario, @NonNull AuthenticationServerMfaAuthenticationChallengeRequest request) {
         return 0;
     }
 
     @Override
-    protected Challenge sendChallengeInternally(@Nullable RequestingClient client, @NonNull Class<? extends Scenario> scenario, @NonNull MfaAuthenticationChallengeRequest request, Map<String, Object> payload) throws Exception {
+    protected Challenge sendChallengeInternally(@Nullable RequestingClient client, @NonNull Class<? extends Scenario> scenario, @NonNull AuthenticationServerMfaAuthenticationChallengeRequest request, Map<String, Object> payload) throws Exception {
         User user = request.getUser();
         Collection<Principal> principals = user.getPrincipals();
         String userId = user.getId();
@@ -119,7 +119,7 @@ public class InMemoryMfaAuthenticationService extends
     }
 
     @Override
-    protected TestContext createContext(@Nullable RequestingClient client, @NonNull Class<? extends Scenario> scenario, @NonNull MfaAuthenticationChallengeRequest request, @NonNull Challenge challenge, Map<String, Object> payload) {
+    protected TestContext createContext(@Nullable RequestingClient client, @NonNull Class<? extends Scenario> scenario, @NonNull AuthenticationServerMfaAuthenticationChallengeRequest request, @NonNull Challenge challenge, Map<String, Object> payload) {
         return new TestContext();
     }
 
@@ -154,12 +154,12 @@ public class InMemoryMfaAuthenticationService extends
     }
 
     @Override
-    public MfaAuthenticationChallengeRequest authenticationContextToChallengeRequest(@Nullable RequestingClient client, @NonNull Class<? extends Scenario> scenario, @NonNull Principal principal, @NonNull User user, @NonNull Map<String, Object> context) throws Exception {
-        MfaAuthenticationChallengeRequest mfaAuthenticationChallengeRequest = new MfaAuthenticationChallengeRequest();
-        mfaAuthenticationChallengeRequest.setUser(user);
-        mfaAuthenticationChallengeRequest.setPrincipal(principal);
-        mfaAuthenticationChallengeRequest.setContext(context);
-        return mfaAuthenticationChallengeRequest;
+    public AuthenticationServerMfaAuthenticationChallengeRequest authenticationContextToChallengeRequest(@Nullable RequestingClient client, @NonNull Class<? extends Scenario> scenario, @NonNull Principal principal, @NonNull User user, @NonNull Map<String, Object> context) throws Exception {
+        AuthenticationServerMfaAuthenticationChallengeRequest authenticationServerMfaAuthenticationChallengeRequest = new AuthenticationServerMfaAuthenticationChallengeRequest();
+        authenticationServerMfaAuthenticationChallengeRequest.setUser(user);
+        authenticationServerMfaAuthenticationChallengeRequest.setPrincipal(principal);
+        authenticationServerMfaAuthenticationChallengeRequest.setContext(context);
+        return authenticationServerMfaAuthenticationChallengeRequest;
     }
 
     @NoArgsConstructor
