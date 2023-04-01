@@ -1,7 +1,7 @@
 ext {
     fragrans = new Properties(
             //版本
-            version: '1.0.0-SNAPSHOT',
+            version: '1.0.0',
             group: 'io.gardenerframework.fragrans'
     ) as Properties
 }
