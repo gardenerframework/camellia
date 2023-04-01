@@ -4,11 +4,6 @@ io:
       authentication:
         server:
           main:
-            mfa:
-              schema:
-                request:
-                  constraints:
-                    AuthenticatorNameSupported: 为空或不支持
             schema:
               request:
                 constraints:

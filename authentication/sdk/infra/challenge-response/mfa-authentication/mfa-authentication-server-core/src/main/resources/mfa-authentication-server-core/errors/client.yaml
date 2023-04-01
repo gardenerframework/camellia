@@ -1,0 +1,10 @@
+io:
+  gardenerframework:
+    camellia:
+      authentication:
+        infra:
+          challenge:
+            mfa:
+              server:
+                exception:
+                  MfaAuthenticatorNotReadyException: 请求过于频繁

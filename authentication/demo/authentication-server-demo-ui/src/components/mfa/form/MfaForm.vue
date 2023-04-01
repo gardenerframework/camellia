@@ -16,15 +16,13 @@ export default {
   data() {
     return {
       challengeId: "",
-      response: "",
-      authenticator: ""
+      response: ""
     }
   },
   methods: {
-    authenticate: function (challengeId, response, authenticator) {
+    authenticate: function (challengeId, response) {
       this.challengeId = challengeId;
       this.response = response;
-      this.authenticator = authenticator;
       this.$loading(LoadingVeil)
       this.$nextTick(() => {
         this.$refs.mfaLoginForm.$el.submit();

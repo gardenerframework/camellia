@@ -1,0 +1,6 @@
+dependencies {
+    api "${group}:mfa-authentication-server-core"
+    api "${fragrans.group}:api-enhance-validation"
+    api "org.springframework.boot:spring-boot-starter-json"
+    testImplementation "${fragrans.group}:api-starter"
+}

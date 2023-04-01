@@ -1,6 +1,5 @@
 package io.gardenerframework.camellia.authentication.server.main.mfa.schema.request;
 
-import io.gardenerframework.camellia.authentication.server.main.mfa.schema.request.constraints.AuthenticatorNameSupported;
 import io.gardenerframework.camellia.authentication.server.main.schema.request.AuthenticationRequestParameter;
 import lombok.Getter;
 
@@ -21,17 +20,10 @@ public class MfaResponseParameter extends AuthenticationRequestParameter {
     @NotBlank
     @Getter
     private final String response;
-    /**
-     * 要求使用的验证器
-     */
-    @AuthenticatorNameSupported
-    @Getter
-    private final String authenticator;
 
     public MfaResponseParameter(HttpServletRequest request) {
         super(request);
         this.challengeId = request.getParameter("challengeId");
         this.response = request.getParameter("response");
-        this.authenticator = request.getParameter("authenticator");
     }
 }

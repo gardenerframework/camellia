@@ -20,7 +20,8 @@ public class ChallengeAuthenticatorNameInjector {
             throws Throwable {
         Object challenge = proceedingJoinPoint.proceed(proceedingJoinPoint.getArgs());
         Object service = proceedingJoinPoint.getTarget();
-        if (challenge != null) {
+        //对于还没有被代理的挑战或者本身还没有名字的挑战有效
+        if (challenge != null && !(challenge instanceof ChallengeAuthenticatorNameProvider)) {
             Enhancer enhancer = new Enhancer();
             enhancer.setSuperclass(challenge.getClass());
             //整合名称接口
@@ -49,7 +50,7 @@ public class ChallengeAuthenticatorNameInjector {
             );
             return enhancer.create();
         } else {
-            return null;
+            return challenge;
         }
     }
 }
