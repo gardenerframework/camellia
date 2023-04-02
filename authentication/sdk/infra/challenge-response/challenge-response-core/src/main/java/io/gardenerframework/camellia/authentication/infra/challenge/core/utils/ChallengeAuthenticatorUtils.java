@@ -1,4 +1,4 @@
-package io.gardenerframework.camellia.authentication.infra.challenge.engine.utils;
+package io.gardenerframework.camellia.authentication.infra.challenge.core.utils;
 
 import io.gardenerframework.camellia.authentication.infra.challenge.core.ChallengeAuthenticatorNameProvider;
 import io.gardenerframework.camellia.authentication.infra.challenge.core.annotation.ChallengeAuthenticator;
