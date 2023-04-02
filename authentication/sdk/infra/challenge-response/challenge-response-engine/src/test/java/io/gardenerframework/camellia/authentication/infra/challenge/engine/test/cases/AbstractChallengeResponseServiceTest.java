@@ -12,7 +12,6 @@ import io.gardenerframework.camellia.authentication.infra.challenge.core.schema.
 import io.gardenerframework.camellia.authentication.infra.challenge.core.schema.ChallengeRequest;
 import io.gardenerframework.camellia.authentication.infra.challenge.engine.AbstractChallengeResponseService;
 import io.gardenerframework.camellia.authentication.infra.challenge.engine.support.GenericCachedChallengeContextStore;
-import io.gardenerframework.camellia.authentication.infra.challenge.engine.support.GenericCachedChallengeStore;
 import io.gardenerframework.camellia.authentication.infra.challenge.engine.test.ChallengeResponseEngineTestApplication;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
@@ -37,9 +36,6 @@ import java.util.UUID;
 public class AbstractChallengeResponseServiceTest {
     @Autowired
     private TestChallengeResponseService testChallengeResponseService;
-
-    @Autowired
-    private GenericCachedChallengeStore challengeStore;
 
     @Test
     public void smokeTest() throws Exception {
@@ -109,14 +105,6 @@ public class AbstractChallengeResponseServiceTest {
                         challenge.getId()
                 )
         );
-        //挑战存储也已经消失
-        Assertions.assertNull(
-                challengeStore.loadChallenge(
-                        client,
-                        AbstractChallengeResponseServiceTestScenario.class,
-                        challenge.getId()
-                )
-        );
     }
 
     public static class AbstractChallengeResponseServiceTestScenario implements Scenario {
@@ -127,18 +115,8 @@ public class AbstractChallengeResponseServiceTest {
             Challenge,
             TestChallengeContext> implements ChallengeAuthenticatorNameProvider {
 
-        public TestChallengeResponseService(@NonNull GenericCachedChallengeStore challengeStore, @NonNull ChallengeCooldownManager challengeCooldownManager, @NonNull GenericCachedChallengeContextStore challengeContextStore) {
-            super(challengeStore, challengeCooldownManager, challengeContextStore.migrateType());
-        }
-
-        @Override
-        protected boolean replayChallenge(@Nullable RequestingClient client, @NonNull Class<? extends Scenario> scenario, @NonNull TestChallengeRequest request) {
-            return false;
-        }
-
-        @Override
-        protected @NonNull String getRequestSignature(@Nullable RequestingClient client, @NonNull Class<? extends Scenario> scenario, @NonNull TestChallengeRequest request) {
-            return "";
+        public TestChallengeResponseService(@NonNull ChallengeCooldownManager challengeCooldownManager, @NonNull GenericCachedChallengeContextStore challengeContextStore) {
+            super(challengeCooldownManager, challengeContextStore.migrateType());
         }
 
         @Override

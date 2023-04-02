@@ -4,7 +4,8 @@
             <input name="authenticationType" type="hidden" value="username"/>
             <el-form-item prop="username">
                 <el-input
-                        v-model="formItems.username" :placeholder="$t('components.authentication.forms.username.input.username.placeholder')"
+                        v-model="formItems.username"
+                        :placeholder="$t('components.authentication.forms.username.input.username.placeholder')"
                         name="username"
                         prefix-icon="el-icon-user">
                 </el-input>

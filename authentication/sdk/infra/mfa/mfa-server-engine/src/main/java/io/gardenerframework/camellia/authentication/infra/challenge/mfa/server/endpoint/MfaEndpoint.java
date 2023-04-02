@@ -7,6 +7,7 @@ import io.gardenerframework.camellia.authentication.infra.challenge.core.excepti
 import io.gardenerframework.camellia.authentication.infra.challenge.core.schema.Challenge;
 import io.gardenerframework.camellia.authentication.infra.challenge.core.schema.ChallengeContext;
 import io.gardenerframework.camellia.authentication.infra.challenge.core.schema.ChallengeRequest;
+import io.gardenerframework.camellia.authentication.infra.challenge.core.utils.ChallengeAuthenticatorUtils;
 import io.gardenerframework.camellia.authentication.infra.challenge.mfa.server.MfaAuthenticator;
 import io.gardenerframework.camellia.authentication.infra.challenge.mfa.server.MfaServerMiscellaneousScenario;
 import io.gardenerframework.camellia.authentication.infra.challenge.mfa.server.configuration.MfaServerEngineComponent;
@@ -93,10 +94,13 @@ public class MfaEndpoint implements MfaEndpointSkeleton<Challenge> {
             throw e instanceof BadRequestArgumentException ? e : new BadRequestArgumentException(e, details);
         }
         try {
-            return authenticatorInstance.sendChallenge(
-                    client,
-                    scenario,
-                    Objects.requireNonNull(challengeRequest));
+            return ChallengeAuthenticatorUtils.injectChallengeAuthenticatorName(authenticatorInstance.sendChallenge(
+                            client,
+                            scenario,
+                            Objects.requireNonNull(challengeRequest))
+                    //保持和请求的一致
+                    , authenticator
+            );
         } catch (ChallengeInCooldownException e) {
             //抛出mfa认证器没有准备好的异常
             throw new MfaAuthenticatorNotReadyException(e.getTimeRemaining());

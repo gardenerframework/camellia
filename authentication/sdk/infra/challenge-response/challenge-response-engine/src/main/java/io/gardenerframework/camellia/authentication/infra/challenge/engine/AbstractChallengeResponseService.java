@@ -1,7 +1,10 @@
 package io.gardenerframework.camellia.authentication.infra.challenge.engine;
 
 import io.gardenerframework.camellia.authentication.common.client.schema.RequestingClient;
-import io.gardenerframework.camellia.authentication.infra.challenge.core.*;
+import io.gardenerframework.camellia.authentication.infra.challenge.core.ChallengeContextStore;
+import io.gardenerframework.camellia.authentication.infra.challenge.core.ChallengeCooldownManager;
+import io.gardenerframework.camellia.authentication.infra.challenge.core.ChallengeResponseService;
+import io.gardenerframework.camellia.authentication.infra.challenge.core.Scenario;
 import io.gardenerframework.camellia.authentication.infra.challenge.core.annotation.SaveInChallengeContext;
 import io.gardenerframework.camellia.authentication.infra.challenge.core.exception.ChallengeInCooldownException;
 import io.gardenerframework.camellia.authentication.infra.challenge.core.exception.ChallengeResponseServiceException;
@@ -40,12 +43,6 @@ public abstract class AbstractChallengeResponseService<
         X extends ChallengeContext>
         implements ChallengeResponseService<R, C, X> {
     /**
-     * 发送的挑战存储
-     */
-    @NonNull
-    @Getter(AccessLevel.PROTECTED)
-    private final ChallengeStore<C> challengeStore;
-    /**
      * 冷却管理器
      */
     @NonNull
@@ -57,35 +54,6 @@ public abstract class AbstractChallengeResponseService<
     @NonNull
     @Getter(AccessLevel.PROTECTED)
     private final ChallengeContextStore<X> challengeContextStore;
-
-    /**
-     * 请求在应用和场景下是否应当重放
-     *
-     * @param client   请求客户端
-     * @param scenario 场景
-     * @param request  请求
-     * @return 是否需要重放
-     */
-    protected abstract boolean replayChallenge(
-            @Nullable RequestingClient client,
-            @NonNull Class<? extends Scenario> scenario,
-            @NonNull R request
-    );
-
-    /**
-     * 返回请求特征
-     *
-     * @param client   请求客户端
-     * @param scenario 场景
-     * @param request  请求
-     * @return 请求特征
-     */
-    @Nullable
-    protected abstract String getRequestSignature(
-            @Nullable RequestingClient client,
-            @NonNull Class<? extends Scenario> scenario,
-            @NonNull R request
-    );
 
     /**
      * 当前应用在当前场景下面对当前请求是否存在着cd
@@ -245,11 +213,6 @@ public abstract class AbstractChallengeResponseService<
             @NonNull Class<? extends Scenario> scenario,
             @NonNull R request
     ) throws ChallengeResponseServiceException, ChallengeInCooldownException {
-        C challenge = tryReplayChallenge(client, scenario, request);
-        if (challenge != null) {
-            //完成重放
-            return challenge;
-        }
         //检查cd
         //cd完成的绝对时间
         Date cooldownCompletionTime = null;
@@ -284,13 +247,11 @@ public abstract class AbstractChallengeResponseService<
         //创建挑战并完成发送
         //贯穿生成挑战以及生成上下文所需的载荷
         Map<String, Object> payload = new HashMap<>();
-        challenge = tryCreateThenSendChallenge(client, scenario, request, payload);
+        C challenge = tryCreateThenSendChallenge(client, scenario, request, payload);
         //自动设置cd完成时间(不需要启动cd则没有完成时间)
         challenge.setCooldownCompletionTime(cooldownCompletionTime);
         //尝试保存上下文
         trySaveContext(client, scenario, request, challenge, payload);
-        //保存挑战
-        trySaveChallenge(client, scenario, request, challenge);
         //返回挑战
         return challenge;
     }
@@ -363,50 +324,7 @@ public abstract class AbstractChallengeResponseService<
             @NonNull String challengeId
     ) throws ChallengeResponseServiceException {
         try {
-            challengeStore.removeChallenge(client, scenario, challengeId);
             challengeContextStore.removeContext(client, scenario, challengeId);
-        } catch (Exception e) {
-            throw new ChallengeResponseServiceException(e);
-        }
-    }
-
-    /**
-     * 尝试重放挑战
-     *
-     * @param client   请求客户端
-     * @param scenario 场景
-     * @param request  请求
-     * @return 被重放的挑战，或者null
-     * @throws ChallengeResponseServiceException 遇到问题
-     */
-    private C tryReplayChallenge(
-            @Nullable RequestingClient client,
-            @NonNull Class<? extends Scenario> scenario,
-            @NonNull R request
-    ) throws ChallengeResponseServiceException {
-        try {
-            String requestSignature = getRequestSignature(client, scenario, request);
-            if (!StringUtils.hasText(requestSignature)) {
-                //无法抽取请求特征，那还重放什么
-                return null;
-            }
-            if (replayChallenge(client, scenario, request)) {
-                //当前请求可以被未完成的挑战重放
-                String challengeId = challengeStore.getChallengeId(
-                        client,
-                        scenario,
-                        requestSignature
-                );
-                if (StringUtils.hasText(challengeId)) {
-                    //返回了请求特征，该特征对应着存储的挑战
-                    return challengeStore.loadChallenge(
-                            client,
-                            scenario,
-                            challengeId
-                    );
-                }
-            }
-            return null;
         } catch (Exception e) {
             throw new ChallengeResponseServiceException(e);
         }
@@ -465,53 +383,6 @@ public abstract class AbstractChallengeResponseService<
                             challenge.getExpiryTime().toInstant()
                     )
             );
-        } catch (Exception e) {
-            throw new ChallengeResponseServiceException(e);
-        }
-    }
-
-    /**
-     * 尝试去保存挑战
-     *
-     * @param client    请求客户端
-     * @param scenario  场景
-     * @param request   请求
-     * @param challenge 挑战
-     * @throws ChallengeResponseServiceException 保存问题
-     */
-    private void trySaveChallenge(
-            @Nullable RequestingClient client,
-            @NonNull Class<? extends Scenario> scenario,
-            @NonNull R request,
-            @NonNull C challenge
-    ) throws ChallengeResponseServiceException {
-        try {
-            String requestSignature = getRequestSignature(client, scenario, request);
-            if (StringUtils.hasText(requestSignature)) {
-                //只有请求特征能够定义才保存当前挑战以及挑战id
-                challengeStore.saveChallengeId(
-                        client,
-                        scenario,
-                        requestSignature,
-                        challenge.getId(),
-                        Duration.between(
-                                Instant.now(),
-                                challenge.getExpiryTime().toInstant()
-                        )
-                );
-                challengeStore.saveChallenge(
-                        client,
-                        scenario,
-                        challenge.getId(),
-                        challenge,
-                        //计算存储的有效期
-                        Duration.between(
-                                Instant.now(),
-                                challenge.getExpiryTime().toInstant()
-                        )
-                );
-            }
-
         } catch (Exception e) {
             throw new ChallengeResponseServiceException(e);
         }

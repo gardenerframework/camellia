@@ -4,10 +4,10 @@ import io.gardenerframework.camellia.authentication.common.client.schema.Request
 import io.gardenerframework.camellia.authentication.infra.challenge.core.Scenario;
 import io.gardenerframework.camellia.authentication.infra.sms.challenge.schema.SmsVerificationCodeChallengeRequest;
 import lombok.Getter;
-import lombok.NonNull;
 import lombok.experimental.SuperBuilder;
 import org.springframework.lang.Nullable;
 
+import javax.validation.constraints.NotNull;
 import java.util.Map;
 
 @SuperBuilder
@@ -15,10 +15,10 @@ import java.util.Map;
 public abstract class SmsVerificationCodeEvent {
     @Nullable
     private final RequestingClient client;
-    @NonNull
+    @NotNull
     private final Class<? extends Scenario> scenario;
-    @NonNull
+    @NotNull
     private final SmsVerificationCodeChallengeRequest request;
-    @NonNull
+    @NotNull
     private final Map<String, Object> payload;
 }
