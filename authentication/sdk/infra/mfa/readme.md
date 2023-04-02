@@ -5,18 +5,24 @@
 不过，这些整合后的代码有以下几个显著问题
 
 * 代码包只能被java语言使用
-* 当前组件使用了spring boot的新版本，部分老旧系统不得不强制升级
+* 当前组件使用了spring boot的某个版本，部分老旧系统不得不强制升级
 * 当验证逻辑被修改后，所有引用了jar的工程都要重新打包和发布
 
 等等
 
-因此当前组件就将挑战应答服务进行统一的http服务化呈现，并且由于这种服务主要用于多因子验证过程，因此模块定为mfa，使用者也能很好的理解当前模块的作用。
+因此当前组件就将挑战应答服务进行统一的http服务化呈现。由于这类挑战应答服务主要在于复验用户是否正是本人进行操作，因此模块名称就按照最常用的场景:
+多因子验证(mfa)进行命名。
+
+# 组件分割
+
+* [mfa-server-engine](mfa-server-engine)负责定义统一的rest服务接口
+* [mfa-client](mfa-client)负责连接这个rest服务
 
 # 核心接口
 
 ## MfaEndpointSkeleton
 
-MfaEndpointSkeleton用于定义mfa服务的接口，包含了列出所有认证器、发送挑战，验证挑战和关闭挑战。
+MfaEndpointSkeleton用于定义mfa服务的接口
 
 [mfa-server-engine](mfa-server-engine) & [mfa-client](mfa-client)的controller以及feign client都使用了这个类
 
@@ -70,6 +76,8 @@ public interface MfaEndpointSkeleton<C extends Challenge> {
 }
 ```
 
+它包含了验证的全流程: 列出所有支持的验证器名称 -> 挑一个发起挑战 -> 验证挑战 -> 关闭挑战
+
 ## MfaAuthenticator
 
 ```java
@@ -80,7 +88,10 @@ public interface MfaAuthenticator<
 }
 ```
 
-可见MfaAuthenticator是ChallengeResponseService的一个子类，它其实是一个标记接口，用于指定为mfa服务的挑战应答服务对象。没有实现这个标记接口的对象不会被MfaAuthenticatorRegistry管理
+MfaAuthenticator是ChallengeResponseService的一个子类，它是mfa服务使用的挑战应答服务。
+当调用方要求mfa服务发起挑战或进行应答时，实际上是MfaAuthenticator的实现类完成的。
+通过观察可见MfaAuthenticator是ChallengeResponseService的一个子类，
+没有实现这个标记接口的挑战应答服务对象不会被MfaAuthenticatorRegistry管理
 
 ## MfaAuthenticatorRegistry
 
@@ -109,7 +120,7 @@ public interface MfaAuthenticatorRegistry {
 MfaAuthenticator注册表，提供按照认证器的名称(@ChallengeAuthenticator注解
 或实现ChallengeAuthenticatorNameProvider接口)查找对应认证器的功能
 
-# 核心接口和参数
+# 请求地址和参数
 
 ## 获取可用的认证器类型
 
@@ -132,6 +143,8 @@ public class ListAuthenticatorsResponse {
     }
 }
 ```
+
+包含了所有注册认证器的清单
 
 ## 发送挑战
 
@@ -167,7 +180,9 @@ public class SendChallengeRequest {
 }
 ```
 
-challengeRequest将按照查找到的MfaAuthenticator给定的ChallengeRequest泛型参数进行反序列化和验证
+challengeRequest是发起挑战所需的参数，它基于路径参数给出的认证器名称MfaAuthenticator的实现类，并根据实现类的泛型参数给定的ChallengeRequest的具体类型进行反序列化和验证。
+
+简单的来说，发送端使用objectMapper将要发生的ChallengeRequest对象转为json，填到这个属性中
 
 ## 验证挑战
 
@@ -240,6 +255,8 @@ public class CloseChallengeRequest {
 }
 ```
 
+"challengeId"是要关闭的挑战id
+
 # 用户，场景，客户端
 
 在挑战应答服务中，每个方法都有的参数是客户端(RequestingClient)和场景(Scenario)
@@ -286,9 +303,7 @@ id是123，那么如果mfa只看到了订单模块的客户端id，则从手机a
 
 显而易见，客户端id的组成部分和访问的业务客户端无关，变成了内部模块的id。这样当想要按照不同业务客户端区分缓存的key的需求出现时，现有的数据结构就无法进行满足
 
-场景同样是区分挑战的一个关键因素，在CachedChallengeStoreTemplate等类中作为缓存key的一部分存在。场景一般是内部模块告诉给mfa服务的，比如订单模块会告诉mfa服务当前是下单场景。
-
-在原始的设计上，场景是类型安全的，意味着场景必须是一个java类型。但是作为http服务，调用者可能并不是java程序，而是go，python等语言编写的程序，没有理由要求这些程序的开发必须传输一个java类型，因此才用字符串作为参数。
+场景同样是区分挑战的一个关键因素，比如不同的场景有不同的短信消息模板。需要注意的是，场景是类型安全的，意味着场景必须是一个java的类。但是作为http服务，调用者可能并不是java程序，而是go，python等语言编写的程序，没有理由要求这些程序的开发必须传输一个java类型，因此才用字符串作为参数。
 
 # 挑战请求、场景以及客户端数据的反序列化
 
