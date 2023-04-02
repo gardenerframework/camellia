@@ -71,7 +71,11 @@ AbstractSmsVerificationCodeChallengeResponseService调用短信验证码客户�
 # 事件
 
 SmsVerificationCodeAboutToSendEvent、SmsVerificationCodeSentEvent、SmsVerificationCodeSendingFailedEvent分别是短信客户端调用前，调用失败、调用成功的3个事件。
-如果短信的限流政策等和渠道无关，也可以在这里实现
+
+监听着3个事件能够
+
+* 一部分实现短信的整体和按应用限流以及按用户限流
+* 检查短信渠道的稳定性，如果过于不稳定可以切换渠道(需要加载多客户端并通过Delegate模型实现)
 
 # 内置客户端
 
