@@ -9,6 +9,7 @@ import io.gardenerframework.camellia.authentication.infra.challenge.core.excepti
 import io.gardenerframework.camellia.authentication.infra.challenge.core.exception.ChallengeResponseServiceException;
 import io.gardenerframework.camellia.authentication.infra.challenge.core.schema.Challenge;
 import io.gardenerframework.camellia.authentication.infra.challenge.engine.test.ChallengeResponseEngineTestApplication;
+import io.gardenerframework.camellia.authentication.infra.challenge.engine.utils.ChallengeAuthenticatorUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -34,11 +35,11 @@ public class ChallengeAuthenticatorNameInjectorTest {
         RequestingClient client = OAuth2RequestingClient.builder().clientId(appId).grantType(UUID.randomUUID().toString()).scopes(Collections.EMPTY_SET).build();
         String requestId = UUID.randomUUID().toString();
         AbstractChallengeResponseServiceTest.TestChallengeRequest request = AbstractChallengeResponseServiceTest.TestChallengeRequest.builder().requestId(requestId).saveInContext(UUID.randomUUID().toString()).build();
-        Challenge challenge = challengeResponseService.sendChallenge(
+        Challenge challenge = ChallengeAuthenticatorUtils.injectChallengeAuthenticatorName(challengeResponseService.sendChallenge(
                 client,
                 AbstractChallengeResponseServiceTest.AbstractChallengeResponseServiceTestScenario.class,
                 request
-        );
+        ), challengeResponseService.getChallengeAuthenticatorName());
         Assertions.assertInstanceOf(ChallengeAuthenticatorNameProvider.class, challenge);
         Assertions.assertNotNull(challenge.getId());
         Assertions.assertNotNull(challenge.getExpiryTime());
