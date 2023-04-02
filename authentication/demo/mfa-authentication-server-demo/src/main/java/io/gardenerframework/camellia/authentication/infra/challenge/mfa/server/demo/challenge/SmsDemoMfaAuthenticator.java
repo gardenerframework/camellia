@@ -5,7 +5,6 @@ import io.gardenerframework.camellia.authentication.infra.challenge.core.Challen
 import io.gardenerframework.camellia.authentication.infra.challenge.core.Scenario;
 import io.gardenerframework.camellia.authentication.infra.challenge.core.schema.Challenge;
 import io.gardenerframework.camellia.authentication.infra.challenge.engine.support.GenericCachedChallengeContextStore;
-import io.gardenerframework.camellia.authentication.infra.challenge.engine.support.GenericCachedChallengeStore;
 import io.gardenerframework.camellia.authentication.infra.challenge.mfa.server.MfaAuthenticator;
 import io.gardenerframework.camellia.authentication.infra.sms.challenge.AbstractSmsVerificationCodeChallengeResponseService;
 import io.gardenerframework.camellia.authentication.infra.sms.challenge.client.SmsVerificationCodeClient;
@@ -29,8 +28,8 @@ import java.util.UUID;
 public class SmsDemoMfaAuthenticator extends AbstractSmsVerificationCodeChallengeResponseService<SmsVerificationCodeChallengeRequest, Challenge, SmsVerificationCodeChallengeContext> implements
         MfaAuthenticator<SmsVerificationCodeChallengeRequest, Challenge, SmsVerificationCodeChallengeContext> {
 
-    protected SmsDemoMfaAuthenticator(@NonNull GenericCachedChallengeStore challengeStore, @NonNull ChallengeCooldownManager challengeCooldownManager, @NonNull GenericCachedChallengeContextStore challengeContextStore, @NonNull SmsVerificationCodeClient smsVerificationCodeClient) {
-        super(challengeStore, challengeCooldownManager, challengeContextStore.migrateType(), smsVerificationCodeClient);
+    protected SmsDemoMfaAuthenticator(@NonNull ChallengeCooldownManager challengeCooldownManager, @NonNull GenericCachedChallengeContextStore challengeContextStore, @NonNull SmsVerificationCodeClient smsVerificationCodeClient) {
+        super(challengeCooldownManager, challengeContextStore.migrateType(), smsVerificationCodeClient);
     }
 
 

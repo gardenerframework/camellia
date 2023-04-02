@@ -10,7 +10,6 @@ import io.gardenerframework.camellia.authentication.infra.challenge.core.schema.
 import io.gardenerframework.camellia.authentication.infra.challenge.core.schema.ChallengeContext;
 import io.gardenerframework.camellia.authentication.infra.challenge.engine.AbstractChallengeResponseService;
 import io.gardenerframework.camellia.authentication.infra.challenge.engine.support.GenericCachedChallengeContextStore;
-import io.gardenerframework.camellia.authentication.infra.challenge.engine.support.GenericCachedChallengeStore;
 import io.gardenerframework.camellia.authentication.server.main.event.listener.AuthenticationEventListenerSkeleton;
 import io.gardenerframework.camellia.authentication.server.main.event.schema.AuthenticationFailedEvent;
 import io.gardenerframework.camellia.authentication.server.main.mfa.advisor.AuthenticationServerMfaAuthenticatorAdvisor;
@@ -55,28 +54,10 @@ public class InMemoryMfaAuthenticationService extends
     private final Map<String, String> userIncompleteRequest = new HashMap<>(100);
 
     public InMemoryMfaAuthenticationService(
-            @NonNull GenericCachedChallengeStore challengeStore,
             @NonNull ChallengeCooldownManager challengeCooldownManager,
             @NonNull GenericCachedChallengeContextStore challengeContextStore
     ) {
-        super(challengeStore.migrateType(), challengeCooldownManager, challengeContextStore.migrateType());
-    }
-
-    @Override
-    protected boolean replayChallenge(@Nullable RequestingClient client, @NonNull Class<? extends Scenario> scenario, @NonNull AuthenticationServerMfaChallengeRequest request) {
-        //是否有没有完成的挑战
-        String incompleteChallengeId = userIncompleteRequest.get(request.getUser().getId());
-        if (StringUtils.hasText(incompleteChallengeId)) {
-            return sentRequests.get(incompleteChallengeId) != null;
-        }
-        //没有就不需要重放
-        return false;
-    }
-
-    @Override
-    protected @NonNull String getRequestSignature(@Nullable RequestingClient client, @NonNull Class<? extends Scenario> scenario, @NonNull AuthenticationServerMfaChallengeRequest request) {
-        //使用用户名当做请求特征
-        return request.getUser().getId();
+        super(challengeCooldownManager, challengeContextStore.migrateType());
     }
 
     @Override
