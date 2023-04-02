@@ -3,7 +3,6 @@ package io.gardenerframework.camellia.authentication.infra.sms.challenge;
 import io.gardenerframework.camellia.authentication.common.client.schema.RequestingClient;
 import io.gardenerframework.camellia.authentication.infra.challenge.core.ChallengeContextStore;
 import io.gardenerframework.camellia.authentication.infra.challenge.core.ChallengeCooldownManager;
-import io.gardenerframework.camellia.authentication.infra.challenge.core.ChallengeStore;
 import io.gardenerframework.camellia.authentication.infra.challenge.core.Scenario;
 import io.gardenerframework.camellia.authentication.infra.challenge.core.annotation.ChallengeAuthenticator;
 import io.gardenerframework.camellia.authentication.infra.challenge.core.schema.Challenge;
@@ -39,22 +38,9 @@ public abstract class AbstractSmsVerificationCodeChallengeResponseService<R exte
 
     private ApplicationEventPublisher eventPublisher;
 
-    protected AbstractSmsVerificationCodeChallengeResponseService(@NonNull ChallengeStore<C> challengeStore, @NonNull ChallengeCooldownManager challengeCooldownManager, @NonNull ChallengeContextStore<X> challengeContextStore, @NonNull SmsVerificationCodeClient smsVerificationCodeClient) {
-        super(challengeStore, challengeCooldownManager, challengeContextStore);
+    protected AbstractSmsVerificationCodeChallengeResponseService(@NonNull ChallengeCooldownManager challengeCooldownManager, @NonNull ChallengeContextStore<X> challengeContextStore, @NonNull SmsVerificationCodeClient smsVerificationCodeClient) {
+        super(challengeCooldownManager, challengeContextStore);
         this.smsVerificationCodeClient = smsVerificationCodeClient;
-    }
-
-
-    @Override
-    protected boolean replayChallenge(@Nullable RequestingClient client, @NonNull Class<? extends Scenario> scenario, @NonNull R request) {
-        //不重发挑战，cd到了就发新的
-        return false;
-    }
-
-    @Override
-    protected @NonNull String getRequestSignature(@Nullable RequestingClient client, @NonNull Class<? extends Scenario> scenario, @NonNull R request) {
-        //请求特征是手机号，用手机号保存已经发送的挑战
-        return request.getMobilePhoneNumber();
     }
 
     @Override
