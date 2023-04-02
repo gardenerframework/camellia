@@ -70,7 +70,6 @@ Camellia Unified Multi-factor Authentication Server Engine(CUMFASE)
 
 _提示_: 手机扫码这种偶尔会出现的功能有时候也会被当做多因子验证的形式使用，比如要求下单前使用手机app扫一下二维码。目前的设计上，二维码和多因子还没有进行合并，也许在未来真实有需求发生时会合并
 
-
 # 下一步阅读
 
 在开展开发工作，建议先进入[common](sdk%2Fcommon)了解一些基本概念
