@@ -1,6 +1,8 @@
 package io.gardenerframework.camellia.authentication.infra.challenge.mfa.server.schema.response;
 
-import lombok.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -11,9 +13,15 @@ import java.util.Collection;
  */
 @Getter
 @Setter
-@AllArgsConstructor
 @NoArgsConstructor
 public class ListAuthenticatorsResponse {
-    @NonNull
     private Collection<String> authenticators = new ArrayList<>();
+
+    public ListAuthenticatorsResponse(Collection<String> authenticators) {
+        setAuthenticators(authenticators);
+    }
+
+    public void setAuthenticators(Collection<String> authenticators) {
+        this.authenticators = authenticators == null ? new ArrayList<>() : authenticators;
+    }
 }

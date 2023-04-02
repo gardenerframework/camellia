@@ -1,11 +1,244 @@
 # 简介
 
-mfa多因子验证是挑战应答使用的一个最常用的场景，其它场景包含了注册和登录所需的动态密码发送和校验。当前模块将mfa进行http服务化，让无论是登录模块还是订单模块等都可以通过远程接口的方式进行调用。
-因此，它是一个纯服务化的接口，不会有任何界面
+挑战与应答服务定义了mfa的基础，它可以使得开发人员编写代码将各种各样的动态密码校验算法整合起来，比如[sms](..%2Fsms)
+目录就定义了短信验证码的挑战应答实现。
+不过，这些整合后的代码有以下几个显著问题
 
-# 前提条件
+* 代码包只能被java语言使用
+* 当前组件使用了spring boot的新版本，部分老旧系统不得不强制升级
+* 当验证逻辑被修改后，所有引用了jar的工程都要重新打包和发布
 
-当提及多因子验证时，首先需要清晰地认知到此刻系统已经识别了来访者的身份并确定了他是一名合法的用户。此时系统已经知晓了用户的信息和数据。
+等等
+
+因此当前组件就将挑战应答服务进行统一的http服务化呈现，并且由于这种服务主要用于多因子验证过程，因此模块定为mfa，使用者也能很好的理解当前模块的作用。
+
+# 核心接口
+
+## MfaEndpointSkeleton
+
+MfaEndpointSkeleton用于定义mfa服务的接口，包含了列出所有认证器、发送挑战，验证挑战和关闭挑战。
+
+[mfa-server-engine](mfa-server-engine) & [mfa-client](mfa-client)的controller以及feign client都使用了这个类
+
+```java
+public interface MfaEndpointSkeleton<C extends Challenge> {
+    /**
+     * 列出所有支持的验证器名称
+     *
+     * @return 获取验证器名称
+     * @throws Exception 发生的问题
+     */
+    ListAuthenticatorsResponse listAuthenticators() throws Exception;
+
+    /**
+     * 发送挑战
+     *
+     * @param authenticator 认证器
+     * @param request       发送请求
+     * @return 挑战
+     * @throws Exception 发生的问题
+     */
+    C sendChallenge(
+            @Valid @MfaAuthenticatorSupported String authenticator,
+            @Valid SendChallengeRequest request
+    ) throws Exception;
+
+    /**
+     * 结果验证请求
+     *
+     * @param authenticator 认证器
+     * @param request       结果验证请求
+     * @return 是否验证成功
+     * @throws Exception 发生的问题
+     */
+    ResponseVerificationResponse verifyResponse(
+            @Valid @MfaAuthenticatorSupported String authenticator,
+            @Valid VerifyResponseRequest request
+    ) throws Exception;
+
+    /**
+     * 关闭挑战
+     *
+     * @param authenticator 认证器
+     * @param request       请求参数
+     * @throws Exception 发生的问题
+     */
+    void closeChallenge(
+            @Valid @MfaAuthenticatorSupported String authenticator,
+            @Valid CloseChallengeRequest request
+    ) throws Exception;
+}
+```
+
+## MfaAuthenticator
+
+```java
+public interface MfaAuthenticator<
+        R extends ChallengeRequest,
+        C extends Challenge,
+        X extends ChallengeContext> extends ChallengeResponseService<R, C, X> {
+}
+```
+
+可见MfaAuthenticator是ChallengeResponseService的一个子类，它其实是一个标记接口，用于指定为mfa服务的挑战应答服务对象。没有实现这个标记接口的对象不会被MfaAuthenticatorRegistry管理
+
+## MfaAuthenticatorRegistry
+
+```java
+public interface MfaAuthenticatorRegistry {
+    /**
+     * 获取验证器的所有名称
+     *
+     * @return 验证器名称
+     */
+    Collection<String> getAuthenticatorNames();
+
+    /**
+     * 获取指定的认证器
+     *
+     * @param name 认证器名称
+     * @return 认证器实例
+     */
+    @Nullable
+    <R extends ChallengeRequest, C extends Challenge, X extends ChallengeContext,
+            T extends MfaAuthenticator<R, C, X>>
+    T getAuthenticator(@NonNull String name);
+}
+```
+
+MfaAuthenticator注册表，提供按照认证器的名称(@ChallengeAuthenticator注解
+或实现ChallengeAuthenticatorNameProvider接口)查找对应认证器的功能
+
+# 核心接口和参数
+
+## 获取可用的认证器类型
+
+GET "/mfa"接口地址用来返回所有可用的认证器，响应体的格式是
+
+```java
+
+@Getter
+@Setter
+@NoArgsConstructor
+public class ListAuthenticatorsResponse {
+    private Collection<String> authenticators = new ArrayList<>();
+
+    public ListAuthenticatorsResponse(Collection<String> authenticators) {
+        setAuthenticators(authenticators);
+    }
+
+    public void setAuthenticators(Collection<String> authenticators) {
+        this.authenticators = authenticators == null ? new ArrayList<>() : authenticators;
+    }
+}
+```
+
+## 发送挑战
+
+POST "/mfa/{authenticator}:send"接口用来发起一个挑战，参数是
+
+```java
+
+@NoArgsConstructor
+@Getter
+@Setter
+@AllArgsConstructor
+public class SendChallengeRequest {
+    /**
+     * 远程请求的认证器所需的挑战请求
+     * <p>
+     * 这个json会被{@link MfaAuthenticator}的泛型解析
+     */
+    @NotNull
+    private Map<String, Object> challengeRequest;
+    /**
+     * 实际请求的客户端
+     * <p>
+     * 最终这个认证器要能识别这个客户端
+     */
+    @Nullable
+    @RequestingClientSupported
+    private Map<String, Object> requestingClient;
+    /**
+     * 执行mfa验证的场景，比如登录，比如下订单
+     */
+    @Nullable
+    private String scenario;
+}
+```
+
+challengeRequest将按照查找到的MfaAuthenticator给定的ChallengeRequest泛型参数进行反序列化和验证
+
+## 验证挑战
+
+POST "/mfa/{authenticator}:verify"接口用来验证挑战，参数是
+
+```java
+
+@NoArgsConstructor
+@Getter
+@Setter
+@AllArgsConstructor
+public class VerifyResponseRequest {
+    /**
+     * 实际请求的客户端
+     * <p>
+     * 最终这个认证器要能识别这个客户端
+     */
+    @Nullable
+    @RequestingClientSupported
+    private Map<String, Object> requestingClient;
+    /**
+     * 执行mfa验证的场景，比如登录，比如下订单
+     */
+    @NotBlank
+    private String scenario;
+    /**
+     * 挑战id
+     */
+    @NotBlank
+    private String challengeId;
+    /**
+     * 应答
+     */
+    @NotBlank
+    private String response;
+}
+```
+
+"challengeId"和"response"分别代表挑战id和响应内容
+
+## 关闭挑战
+
+POST "/mfa/{authenticator}:close"接口用来验证挑战，参数是
+
+```java
+
+@NoArgsConstructor
+@Getter
+@Setter
+@AllArgsConstructor
+public class CloseChallengeRequest {
+    /**
+     * 实际请求的客户端
+     * <p>
+     * 最终这个认证器要能识别这个客户端
+     */
+    @Nullable
+    @RequestingClientSupported
+    private Map<String, Object> requestingClient;
+    /**
+     * 执行mfa验证的场景，比如登录，比如下订单
+     */
+    @NotBlank
+    private String scenario;
+    /**
+     * 挑战id
+     */
+    @NotBlank
+    private String challengeId;
+}
+```
 
 # 用户，场景，客户端
 
@@ -57,148 +290,36 @@ id是123，那么如果mfa只看到了订单模块的客户端id，则从手机a
 
 在原始的设计上，场景是类型安全的，意味着场景必须是一个java类型。但是作为http服务，调用者可能并不是java程序，而是go，python等语言编写的程序，没有理由要求这些程序的开发必须传输一个java类型，因此才用字符串作为参数。
 
-最终，发起挑战的请求数据格式是
+# 挑战请求、场景以及客户端数据的反序列化
+
+在MfaAuthenticationEndpoint类中，要求输入一组"Converter<Map<String, Object>, ? extends RequestingClient>"
+的bean作为RequestingClient的反序列化转换器。 如果某个转换器认为当前输入的客户端的数据能够被自己转换，那么它就返回经过转换的RequestingClient实例，否则返回null。
 
 ```java
-public class SendChallengeRequest {
-    /**
-     * 要执行mfa的用户信息，按照实现方的理解来转类型
-     * <p>
-     * 最终这个认证器要能识别这个用户信息
-     */
-    @NonNull
-    @NotNull
-    private Map<String, Object> user;
-    /**
-     * 实际请求的客户端
-     * <p>
-     * 最终这个认证器要能识别这个客户端
-     */
+public class OAuth2RequestingClientDeserializer implements Converter<Map<String, Object>, OAuth2RequestingClient> {
+    private final ObjectMapper objectMapper;
+    private final HandlerMethodArgumentBeanValidator beanValidator;
+
     @Nullable
-    @RequestingClientSupported
-    private Map<String, Object> requestingClient;
-    /**
-     * 执行mfa验证的场景，比如登录，比如下订单
-     */
-    @Nullable
-    private String scenario;
+    @Override
+    public OAuth2RequestingClient convert(@NonNull Map<String, Object> source) {
+        OAuth2RequestingClient oAuth2RequestingClient;
+        try {
+            oAuth2RequestingClient = objectMapper.convertValue(source, OAuth2RequestingClient.class);
+            beanValidator.validate(oAuth2RequestingClient);
+        } catch (Exception e) {
+            //转换能出错必然不是这个类型或者验证失败
+            return null;
+        }
+        return oAuth2RequestingClient;
+    }
 }
 ```
 
-# 获取可用的认证器类型
+上面是oauth2请求客户端的一个实现参考，它通过objectMapper进行类型转换，然后再调用beanValidator执行验证。beanValidator在javax
+constraints验证不通过时抛出BadRequestArgumentsException
 
-GET "/mfa"接口地址用来返回所有可用的认证器，响应体的格式是
-
-```java
-public class ListAuthenticatorsResponse {
-    @NonNull
-    private Collection<String> authenticators = new ArrayList<>();
-}
-```
-
-# 发送挑战
-
-POST "/mfa/{authenticator}:send"接口用来发起一个挑战，参数是
-
-```java
-public class SendChallengeRequest {
-    /**
-     * 要执行mfa的用户信息，按照实现方的理解来转类型
-     * <p>
-     * 最终这个认证器要能识别这个用户信息
-     */
-    @NonNull
-    @NotNull
-    private Map<String, Object> user;
-    /**
-     * 实际请求的客户端
-     * <p>
-     * 最终这个认证器要能识别这个客户端
-     */
-    @Nullable
-    @RequestingClientSupported
-    private Map<String, Object> requestingClient;
-    /**
-     * 执行mfa验证的场景，比如登录，比如下订单
-     */
-    @Nullable
-    private String scenario;
-}
-```
-
-user和requestingClient都需要调用方按照mfa服务能理解的json格式进行序列化
-
-# 客户端和场景的反序列化策略
-
-在MfaAuthenticationEndpoint类中，要求输入一组Converter<Map<String, Object>, ? extends RequestingClient>
-的bean作为RequestingClient的反序列化转换器。 如果某个转换器认为当前输入的客户端的数据能够被自己转换，那么它就返回经过转换的RequestingClient实例，否则返回null
-
-场景类的反序列化方法是检查scenario能否被反序列化为一个Class且Class是否是Scenario类型的子类，不是的话固定使用MfaAuthenticationServerScenario进行兜底
-
-# 验证挑战
-
-POST "/mfa/{authenticator}:verify"接口用来验证挑战，参数是
-
-```java
-public class VerifyResponseRequest {
-    /**
-     * 实际请求的客户端
-     * <p>
-     * 最终这个认证器要能识别这个客户端
-     */
-    @Nullable
-    @RequestingClientSupported
-    private Map<String, Object> requestingClient;
-    /**
-     * 执行mfa验证的场景，比如登录，比如下订单
-     */
-    @NotBlank
-    @NonNull
-    private String scenario;
-    /**
-     * 挑战id
-     */
-    @NotBlank
-    private String challengeId;
-    /**
-     * 应答
-     */
-    @NotBlank
-    private String response;
-}
-```
-
-"challengeId"和"response"分别代表挑战id和响应内容
-
-# 关闭挑战
-
-POST "/mfa/{authenticator}:close"接口用来验证挑战，参数是
-
-```java
-public class CloseChallengeRequest {
-    /**
-     * 实际请求的客户端
-     * <p>
-     * 最终这个认证器要能识别这个客户端
-     */
-    @Nullable
-    @RequestingClientSupported
-    private Map<String, Object> requestingClient;
-    /**
-     * 执行mfa验证的场景，比如登录，比如下订单
-     */
-    @NotBlank
-    @NonNull
-    private String scenario;
-    /**
-     * 挑战id
-     */
-    @NotBlank
-    private String challengeId;
-}
-```
-
-"challengeId"是要关闭的挑战id
+场景类的反序列化方法是检查scenario能否被反序列化为一个Class且Class是否是Scenario类型的子类，不是的话固定使用MfaServerMiscellaneousScenario进行兜底
 
 # 微服务客户端
 
