@@ -323,46 +323,38 @@ constraints验证不通过时抛出BadRequestArgumentsException
 
 # 微服务客户端
 
-[mfa-authentication-server-client](mfa-authentication-server-client)定义了基于spring cloud openfeign的客户端
+[mfa-client](mfa-client)定义了基于spring cloud openfeign的客户端
 
 ```java
-public interface MfaAuthenticationClientPrototype<C extends Challenge> extends MfaAuthenticationEndpointSkeleton<C> {
+public interface MfaClient<C extends Challenge> extends MfaEndpointSkeleton<C> {
     @Override
     @GetMapping("/mfa")
     ListAuthenticatorsResponse listAuthenticators() throws Exception;
 
     @PostMapping("/mfa/{authenticator}:send")
     @Override
-    C sendChallenge(
-            @PathVariable("authenticator") @Valid String authenticator,
-            @Valid @RequestBody SendChallengeRequest request
-    ) throws Exception;
+    C sendChallenge(@PathVariable("authenticator") @Valid String authenticator, @Valid @RequestBody SendChallengeRequest request) throws Exception;
 
     @PostMapping("/mfa/{authenticator}:verify")
     @Override
-    ResponseVerificationResponse verifyResponse(
-            @PathVariable("authenticator") @Valid String authenticator,
-            @Valid @RequestBody VerifyResponseRequest request
-    ) throws Exception;
+    ResponseVerificationResponse verifyResponse(@PathVariable("authenticator") @Valid String authenticator, @Valid @RequestBody VerifyResponseRequest request) throws Exception;
 
     @PostMapping("/mfa/{authenticator}:close")
     @Override
-    void closeChallenge(
-            @PathVariable("authenticator") @Valid String authenticator,
-            @Valid @RequestBody CloseChallengeRequest request
-    ) throws Exception;
+    void closeChallenge(@PathVariable("authenticator") @Valid String authenticator, @Valid @RequestBody CloseChallengeRequest request) throws Exception;
 }
 ```
 
-MfaAuthenticationClientPrototype是feign client的接口原型。具体使用时，按照调用返回的挑战类型，继承客户端原型后使用，例如
+MfaClient是feign client的接口原型。具体使用时，按照调用返回的挑战类型，继承客户端原型后使用，例如
 
 ```java
 
 @FeignClient(name = "mfa-authentication", decode404 = true)
+@ChallengeAuthenticator("sample")
 public interface SampleChallengeClient extends
-        MfaAuthenticationClientPrototype<SampleChallenge> {
+        MfaClient<SampleChallenge> {
 
 }
 ```
 
-这样也便于开发人员在使用时按照实际的mfa认证服务在微服务管理系统中的注册名进行调用
+这样也便于开发人员在使用时按照实际的mfa认证服务在微服务管理系统中的注册名进行调用，@ChallengeAuthenticator注解还可以有助于帮助分析当前客户端负责哪种类型的挑战
