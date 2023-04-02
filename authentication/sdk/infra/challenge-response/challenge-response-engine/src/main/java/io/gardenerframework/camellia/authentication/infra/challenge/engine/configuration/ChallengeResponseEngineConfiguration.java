@@ -2,13 +2,10 @@ package io.gardenerframework.camellia.authentication.infra.challenge.engine.conf
 
 import io.gardenerframework.camellia.authentication.infra.challenge.core.ChallengeContextStore;
 import io.gardenerframework.camellia.authentication.infra.challenge.core.ChallengeCooldownManager;
-import io.gardenerframework.camellia.authentication.infra.challenge.core.ChallengeStore;
-import io.gardenerframework.camellia.authentication.infra.challenge.core.schema.Challenge;
 import io.gardenerframework.camellia.authentication.infra.challenge.core.schema.ChallengeContext;
 import io.gardenerframework.camellia.authentication.infra.challenge.engine.support.CachedChallengeCooldownManager;
 import io.gardenerframework.camellia.authentication.infra.challenge.engine.support.ChallengeAuthenticatorNameInjector;
 import io.gardenerframework.camellia.authentication.infra.challenge.engine.support.GenericCachedChallengeContextStore;
-import io.gardenerframework.camellia.authentication.infra.challenge.engine.support.GenericCachedChallengeStore;
 import io.gardenerframework.fragrans.data.cache.client.CacheClient;
 import io.gardenerframework.fragrans.data.cache.manager.BasicCacheManager;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
@@ -31,16 +28,6 @@ public class ChallengeResponseEngineConfiguration {
     @ConditionalOnClass(BasicCacheManager.class)
     @ConditionalOnBean(CacheClient.class)
     public static class ChallengeResponseStoreAutoConfiguration {
-        @Bean
-        @ConditionalOnMissingBean(ChallengeStore.class)
-        public GenericCachedChallengeStore challengeStore(CacheClient cacheClient) {
-            return new GenericCachedChallengeStore(
-                    new BasicCacheManager<Challenge>(cacheClient) {
-                    },
-                    new BasicCacheManager<String>(cacheClient) {
-                    }
-            );
-        }
 
         @Bean
         @ConditionalOnMissingBean(ChallengeContextStore.class)

@@ -1,6 +1,5 @@
 package io.gardenerframework.camellia.authentication.infra.challenge.core.schema;
 
-import io.gardenerframework.camellia.authentication.common.data.serialization.SerializationVersionNumber;
 import io.gardenerframework.fragrans.data.trait.generic.GenericTraits;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -10,7 +9,6 @@ import org.springframework.lang.Nullable;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
-import java.io.Serializable;
 import java.util.Date;
 
 /**
@@ -24,9 +22,7 @@ import java.util.Date;
 @Setter
 @NoArgsConstructor
 public class Challenge implements
-        GenericTraits.IdentifierTraits.Id<String>,
-        Serializable {
-    private static final long serialVersionUID = SerializationVersionNumber.version;
+        GenericTraits.IdentifierTraits.Id<String> {
     /**
      * 挑战id
      */
