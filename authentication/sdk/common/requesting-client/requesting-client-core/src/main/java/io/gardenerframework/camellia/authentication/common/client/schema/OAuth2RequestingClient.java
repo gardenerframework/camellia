@@ -1,9 +1,13 @@
 package io.gardenerframework.camellia.authentication.common.client.schema;
 
 import io.gardenerframework.camellia.authentication.common.data.serialization.SerializationVersionNumber;
-import lombok.*;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
+import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.util.Collection;
@@ -21,15 +25,13 @@ public class OAuth2RequestingClient extends RequestingClient {
     /**
      * 访问的授权类型
      */
-    @NonNull
     @NotBlank
     @Builder.Default
     private String grantType = "";
     /**
      * 对用户信息的访问范围
      */
-    @NonNull
     @NotNull
     @Builder.Default
-    private Collection<@NonNull String> scopes = new HashSet<>();
+    private Collection<@Valid @NotBlank String> scopes = new HashSet<>();
 }

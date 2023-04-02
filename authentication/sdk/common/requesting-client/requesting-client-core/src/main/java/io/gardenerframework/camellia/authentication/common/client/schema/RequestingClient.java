@@ -1,7 +1,10 @@
 package io.gardenerframework.camellia.authentication.common.client.schema;
 
 import io.gardenerframework.camellia.authentication.common.data.serialization.SerializationVersionNumber;
-import lombok.*;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
 import javax.validation.constraints.NotBlank;
@@ -19,7 +22,6 @@ public abstract class RequestingClient implements Serializable {
     /**
      * client id
      */
-    @NonNull
     @NotBlank
     @Builder.Default
     private String clientId = "";
