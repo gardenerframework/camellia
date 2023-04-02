@@ -41,7 +41,7 @@ public class User extends Subject implements
     private static final long serialVersionUID = Version.current;
     /**
      * 任何形式的展示名称
-     *
+     * <p>
      * 昵称，姓名随便
      */
     @Nullable

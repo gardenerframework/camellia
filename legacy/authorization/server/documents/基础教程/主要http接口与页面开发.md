@@ -228,7 +228,8 @@ public class ClientAppearance implements
   实现自己的[UserAppearance.java](..%2F..%2Fsdk%2Fauthorization-server-engine%2Fsrc%2Fmain%2Fjava%2Fcom%2Fjdcloud%2Fgardener%2Fcamellia%2Fauthorization%2Fuser%2Fschema%2Fresponse%2FUserAppearance.java)
   以及[ClientAppearance.java](..%2F..%2Fsdk%2Fauthorization-server-engine%2Fsrc%2Fmain%2Fjava%2Fcom%2Fjdcloud%2Fgardener%2Fcamellia%2Fauthorization%2Fclient%2Fschema%2Fresponse%2FClientAppearance.java)
   ，不妨称之为"MyUserAppearance"和"MyClientAppearance"
-* 第二步: 声明`Converter<User, MyUserAppearance>`以及`Converter<RegisteredClient, MyClientAppearance>`转换器并声明为bean，接口就会将读取出来的用户数据以及客户端数据交给这个转换器进行转换
+* 第二步: 声明`Converter<User, MyUserAppearance>`以及`Converter<RegisteredClient, MyClientAppearance>`
+  转换器并声明为bean，接口就会将读取出来的用户数据以及客户端数据交给这个转换器进行转换
 
 # 总结
 

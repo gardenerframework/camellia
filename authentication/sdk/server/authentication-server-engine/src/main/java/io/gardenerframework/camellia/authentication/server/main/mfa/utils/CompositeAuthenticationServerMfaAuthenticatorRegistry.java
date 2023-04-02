@@ -25,8 +25,8 @@ import java.util.Collection;
 @Slf4j
 @AuthenticationServerEngineComponent
 public class CompositeAuthenticationServerMfaAuthenticatorRegistry {
-    private GenericBasicLogger basicLogger;
     private final Collection<AuthenticationServerMfaAuthenticatorRegistry> registries;
+    private GenericBasicLogger basicLogger;
 
     @Nullable
     public <R extends ChallengeRequest, C extends Challenge, X extends ChallengeContext> AuthenticationServerMfaAuthenticator<R, C, X> getAuthenticator(@NonNull String name) {

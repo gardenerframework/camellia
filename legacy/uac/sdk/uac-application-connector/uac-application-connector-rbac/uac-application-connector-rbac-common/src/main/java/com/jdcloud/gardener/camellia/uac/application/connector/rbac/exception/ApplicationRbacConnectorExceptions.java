@@ -25,6 +25,7 @@ public interface ApplicationRbacConnectorExceptions {
             super(message, cause, enableSuppression, writableStackTrace);
         }
     }
+
     class ServerSideException extends ApplicationRbacConnectorExceptionBase {
         public ServerSideException() {
         }

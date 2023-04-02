@@ -14,7 +14,8 @@ dependencies {
 
 ## MfaAuthenticationDecisionMaker
 
-`MfaAuthenticationDecisionMaker`是mfa的决策者，它基于http的请求，登录用户的识别符号和当前已经认证成功(指用户名密码或其它验证方式已经成功的)的用户来决策是否应当启用mfa
+`MfaAuthenticationDecisionMaker`是mfa的决策者，它基于http的请求，登录用户的识别符号和当前已经认证成功(
+指用户名密码或其它验证方式已经成功的)的用户来决策是否应当启用mfa
 
 ```java
 /**
@@ -92,7 +93,8 @@ public interface MfaAuthenticationAuthenticator {
 }
 ```
 
-这个是mfa输入完相关的应答之后的认证器，它首先接受由决策人给出的上下文、当时请求登录的用户、当时认证成功的用户来判断当前的mfa认证请求是否能够支持，随后接受用户输入的应答(`token`)来返回mfa验证是否通过
+这个是mfa输入完相关的应答之后的认证器，它首先接受由决策人给出的上下文、当时请求登录的用户、当时认证成功的用户来判断当前的mfa认证请求是否能够支持，随后接受用户输入的应答(`token`)
+来返回mfa验证是否通过
 
 # 常见的决策产生
 
@@ -100,7 +102,8 @@ public interface MfaAuthenticationAuthenticator {
 
 ## 由HttpServletRequest获取前端提交的参数
 
-决策者接口能够获得当前登录申请提交的`HttpServletRequest`参数，并可以获得对应的cookie，头信息和提交的参数。 因此在登录接口'/login'
+决策者接口能够获得当前登录申请提交的`HttpServletRequest`参数，并可以获得对应的cookie，头信息和提交的参数。
+因此在登录接口'/login'
 的表单提交中，实际上除去登录所需的诸如用户名，密码等参数外，前端可以提交额外的参数，这些参数交由mfa认证器进行处理，比如通过如下获得的经纬度
 
 ```js

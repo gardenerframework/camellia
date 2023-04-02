@@ -130,7 +130,8 @@ public class SmsAuthenticationService {
 }
 ```
 
-分别是发送、验证和获取发送剩余时间。当发送验证码时，服务类会自己判断是否还在发送cd中，如果是，则抛出`SmsAuthenticationInCooldownException`来中断发送。 开发人员可以捕捉该异常并获得cd的剩余时间。
+分别是发送、验证和获取发送剩余时间。当发送验证码时，服务类会自己判断是否还在发送cd中，如果是，则抛出`SmsAuthenticationInCooldownException`
+来中断发送。 开发人员可以捕捉该异常并获得cd的剩余时间。
 
 ## SmsAuthenticationCodeStore
 

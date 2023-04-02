@@ -102,7 +102,8 @@ public interface ApplicationRbacConnectorService extends ApplicationRbacConnecto
 
 # 支持的接口
 
-`ApplicationRbacConnectorEndpointBase`定义了支持的http api的框架，在此假设其实现类使用的统一前缀是"/management/application"
+`ApplicationRbacConnectorEndpointBase`定义了支持的http api的框架，在此假设其实现类使用的统一前缀是"
+/management/application"
 
 ## 查询角色
 
@@ -134,7 +135,8 @@ GET /management/application/{applicationId}/joint:account+role
 POST /management/application/{applicationId}/joint:account+role
 ```
 
-绑定的行为含义是<font color=orange>使用当前要求的角色清单覆盖应用内指定账户(支持批量)的角色清单</font>，并且<font color=orange>
+绑定的行为含义是<font color=orange>使用当前要求的角色清单覆盖应用内指定账户(支持批量)的角色清单</font>
+，并且<font color=orange>
 如果给定账户没有在应用自己的数据库中，则应当首先完成账户的创建工作(若有必要)</font>
 
 ## 取消账户应用访问权
@@ -143,7 +145,8 @@ POST /management/application/{applicationId}/joint:account+role
 DELETE /management/application/{applicationId}/account
 ```
 
-取消的含义是<font color=orange>解除给定账户(支持批量)在应用中的所有角色</font>，并且<font color=orange>删除账户(若有必要)</font>
+取消的含义是<font color=orange>解除给定账户(支持批量)在应用中的所有角色</font>，并且<font color=orange>删除账户(
+若有必要)</font>
 。当账户取消角色授权后，相应的账户访问该应用应当被导向无授权的相关页面
 
 # 用例
@@ -164,7 +167,8 @@ DELETE /management/application/{applicationId}/account
 * "uac-application-connector-rbac-engine"
 * "uac-logic-service-application"
 
-则"uac-application-connector-rbac-engine"自动启用服务拦截器，配合`ApplicationServiceTemplate.readApplication`来检查应用id的合法性，否则默认实现是不校验(
+则"uac-application-connector-rbac-engine"自动启用服务拦截器，配合`ApplicationServiceTemplate.readApplication`
+来检查应用id的合法性，否则默认实现是不校验(
 或者按需实现`ApplicationIdChecker`)
 
 此外，引入了"uac-logic-service-account"时，取消绑定，执行绑定时将检查账户是否存在。当某个账户不存在时则报错处理

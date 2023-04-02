@@ -40,11 +40,11 @@ public class AuthenticationServerMfaChallengeResponseService extends AbstractCha
         AuthenticationServerMfaChallenge,
         AuthenticationServerMfaChallengeContext
         > implements Scenario {
+    private final CompositeAuthenticationServerMfaAuthenticatorChallengeRequestFactory compositeRequestFactory = new CompositeAuthenticationServerMfaAuthenticatorChallengeRequestFactory();
     @Setter(value = AccessLevel.PRIVATE, onMethod = @__({@Autowired}))
     private CompositeAuthenticationServerMfaAuthenticatorRegistry registry;
     @Setter(value = AccessLevel.PRIVATE, onMethod = @__({@Autowired}))
     private Collection<AuthenticationServerMfaAuthenticatorChallengeRequestFactory<? extends ChallengeRequest>> requestFactories;
-    private final CompositeAuthenticationServerMfaAuthenticatorChallengeRequestFactory compositeRequestFactory = new CompositeAuthenticationServerMfaAuthenticatorChallengeRequestFactory();
 
     public AuthenticationServerMfaChallengeResponseService(@NonNull GenericCachedChallengeStore challengeStore, @NonNull ChallengeCooldownManager challengeCooldownManager, @NonNull GenericCachedChallengeContextStore challengeContextStore) {
         super(challengeStore.migrateType(), challengeCooldownManager, challengeContextStore.migrateType());

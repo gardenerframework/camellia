@@ -126,6 +126,7 @@ public class MfaClientAuthenticationServerMfaAuthenticatorRegistry implements
     private class AuthenticationServerMfaAuthenticatorAdapter implements AuthenticationServerMfaAuthenticator<ChallengeRequest, Challenge, ChallengeContext> {
         private final MfaClient<? extends Challenge> mfaAuthenticationClient;
         private final String authenticatorName;
+
         @Override
         public Challenge sendChallenge(@Nullable RequestingClient client, @NonNull Class<? extends Scenario> scenario, @NonNull ChallengeRequest request) throws ChallengeResponseServiceException, ChallengeInCooldownException {
             try {

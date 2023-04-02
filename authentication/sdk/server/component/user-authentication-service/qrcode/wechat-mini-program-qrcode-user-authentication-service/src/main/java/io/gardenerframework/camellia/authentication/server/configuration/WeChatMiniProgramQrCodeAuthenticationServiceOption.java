@@ -21,15 +21,15 @@ import javax.validation.constraints.Positive;
 @NoArgsConstructor
 public class WeChatMiniProgramQrCodeAuthenticationServiceOption {
     /**
-     * 落地页地址
-     */
-    @Nullable
-    private String pageUrl;
-    /**
      * 存活时间
      */
     @Positive
     long ttl = 120L;
+    /**
+     * 落地页地址
+     */
+    @Nullable
+    private String pageUrl;
     @NotBlank
     private String appId;
     @NotBlank

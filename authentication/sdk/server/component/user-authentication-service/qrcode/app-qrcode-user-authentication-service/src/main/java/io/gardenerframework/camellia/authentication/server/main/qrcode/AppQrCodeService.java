@@ -18,6 +18,11 @@ public abstract class AppQrCodeService<C extends CreateQrCodeRequest, O extends 
     @NonNull
     private final O option;
 
+    protected AppQrCodeService(@NonNull CacheClient client, @NonNull O option) {
+        super(client);
+        this.option = option;
+    }
+
     /**
      * 基于编码和落地页获取url
      *
@@ -26,11 +31,6 @@ public abstract class AppQrCodeService<C extends CreateQrCodeRequest, O extends 
      * @throws Exception 遇到问题
      */
     protected abstract String buildPageFinalUrl(@NonNull String code) throws Exception;
-
-    protected AppQrCodeService(@NonNull CacheClient client, @NonNull O option) {
-        super(client);
-        this.option = option;
-    }
 
     @Override
     protected String createImage(@NonNull C request, @NonNull String code) throws Exception {

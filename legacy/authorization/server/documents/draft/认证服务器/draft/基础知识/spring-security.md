@@ -12,7 +12,8 @@ spring security默认是开启csrf保护的，csrf是一种针对糟糕接口的
 
 在大量的使用spring security的代码中，跨站请求都被无脑的关闭，然而需要注意的是，crsf保护是必要的，不要随意关闭
 
-spring security 默认使用`LazyCsrfTokenRepository`存储token并验证，这个类其实是个代理，它代理的是`HttpSessionCsrfTokenRepository`，所以实际上csrf
+spring security 默认使用`LazyCsrfTokenRepository`
+存储token并验证，这个类其实是个代理，它代理的是`HttpSessionCsrfTokenRepository`，所以实际上csrf
 token默认存session里
 
 # Spring Security OAuth2 Authorization Server
@@ -35,14 +36,16 @@ token默认存session里
 
 有没有当前登录用户对于`OAuth2AuthorizationCodeRequestAuthenticationProvider`是不一样的
 
-* 有登录用户检查是否需要导向授权确认页，需要就跳转，不需要则直接返回授权码(并由`OAuth2AuthorizationEndpointFilter.sendAuthorizationResponse`
+* 有登录用户检查是否需要导向授权确认页，需要就跳转，不需要则直接返回授权码(
+  并由`OAuth2AuthorizationEndpointFilter.sendAuthorizationResponse`
   去回调目标页面)
 * 没有登录用户重新发起认证授权申请，有继续执行过滤器链，并希望后面的过滤器检查当前用户没有登录而跳向登录页
 
 在确认是否需要用户确认授权时，`OAuth2AuthorizationCodeRequestAuthenticationProvider`的逻辑是
 
 * 检查当前访问的client是否要求客户必须批准(由客户端`RegisteredClient`以及`ClientSetting`)来设置
-* 在必须批准的前提下，检查当前授权申请是否包含了除了openid之外的scope(在scope请求参数重用空格分开多个请求范围)，详细的逻辑代码参考如下
+* 在必须批准的前提下，检查当前授权申请是否包含了除了openid之外的scope(在scope请求参数重用空格分开多个请求范围)
+  ，详细的逻辑代码参考如下
 
 ```java
 class OAuth2AuthorizationCodeRequestAuthenticationProvider {
@@ -75,14 +78,17 @@ class OAuth2AuthorizationCodeRequestAuthenticationProvider {
 在确认需要批准后，`OAuth2AuthorizationCodeRequestAuthenticationProvider`返回的认证结果会设置`consentRequired`为`true`
 ，于是下一步就会将浏览器跳向授权批准的页面，要求用户查看应用程序所需的权限范围并决定是否授权
 
-用户批准后，向`/oauth2/authorize`使用`POST`方法回传批准的client id以及授权范围，认证服务器验证通过后跳向应用程序的redirect uri
+用户批准后，向`/oauth2/authorize`使用`POST`方法回传批准的client id以及授权范围，认证服务器验证通过后跳向应用程序的redirect
+uri
 
-在默认实现下有1个非常核心的问题需要引起注意，那就是<font color=red>整个认证服务器都不是高可用的</font>，这意味着授权码、授权批准请求以及授权本身的生成和保存是在当前服务器的内存中的(这部分需要改造)
+在默认实现下有1个非常核心的问题需要引起注意，那就是<font color=red>整个认证服务器都不是高可用的</font>
+，这意味着授权码、授权批准请求以及授权本身的生成和保存是在当前服务器的内存中的(这部分需要改造)
 
 ![provider默认存内存里](../media/provider默认存内存里.png)
 
 如上图所示，`OAuth2AuthorizationCodeRequestAuthenticationProvider`
-默认使用基于内存的实现来保存授权申请和批准结果，并同时提供了基于数据库的实现`JdbcOAuth2AuthorizationService`和`JdbcOAuth2AuthorizationConsentService`
+默认使用基于内存的实现来保存授权申请和批准结果，并同时提供了基于数据库的实现`JdbcOAuth2AuthorizationService`
+和`JdbcOAuth2AuthorizationConsentService`
 ，在登录流量不大的时候可以直接使用
 
 在配置上，本项目也是默认使用了基于内存的实现，并基于实际项目需要，可以通过生成bean的方式换成基于redis或数据库的实现
@@ -114,23 +120,28 @@ class OAuth2AuthorizationCodeRequestAuthenticationProvider {
 
 * 返回令牌
 
-和之前(spring的第一个版本)的oauth2认证服务器不同的是，现在的版本强制使用jwt进行token的发放，这部分是写在`OAuth2AuthorizationCodeAuthenticationProvider`
+和之前(spring的第一个版本)
+的oauth2认证服务器不同的是，现在的版本强制使用jwt进行token的发放，这部分是写在`OAuth2AuthorizationCodeAuthenticationProvider`
 的实现中，所以程序启动前需要生成jwt的加密密钥
 
 于是，需要保证<font color=red>jwt的加解密密钥是稳定的，不是每次服务启动时随机生成的</font>，因此或者有kms管理这对密钥，要不就是给授权服务器颁发证书
 
 ### OAuth2TokenIntrospectionEndpointFilter
 
-这个端点负责`/oauth2/introspect`，它主要就是拿着请求方提交的token检查token是否有效，请求方需要提交自己的client id和secret以及要检查的token(可以是第三方其它人的token)，
-它也是由`OAuth2TokenIntrospectionAuthenticationProvider`完成整个检查过程，检查过程并不是解密传入的token，而是拿着token去`authorizationService`
+这个端点负责`/oauth2/introspect`，它主要就是拿着请求方提交的token检查token是否有效，请求方需要提交自己的client
+id和secret以及要检查的token(可以是第三方其它人的token)，
+它也是由`OAuth2TokenIntrospectionAuthenticationProvider`
+完成整个检查过程，检查过程并不是解密传入的token，而是拿着token去`authorizationService`
 里找有没有对应的授权信息，将信息返回给请求者
 
 有人拿这个当作获取用户信息的接口，在此本文想要强调，这明显是<font color=red>错误</font>的
 
 ### OidcUserInfoEndpointFilter
 
-书接上文，这才是获取用户信息的正统端点，它负责响应`/userinfo`。按照oidc的标准而言，client拿着access token来这个接口按照申请和批准的scope读取用户信息。
-不过在目前认证服务器的实现中，过滤器位于`FilterSecurityInterceptor`后面，且bearer类型的token在认证服务器中没有提供相应的处理器处理，造成整个端点默认总是返回401(因为被认为没有授权访问)。
+书接上文，这才是获取用户信息的正统端点，它负责响应`/userinfo`。按照oidc的标准而言，client拿着access
+token来这个接口按照申请和批准的scope读取用户信息。
+不过在目前认证服务器的实现中，过滤器位于`FilterSecurityInterceptor`
+后面，且bearer类型的token在认证服务器中没有提供相应的处理器处理，造成整个端点默认总是返回401(因为被认为没有授权访问)。
 因此首先需要解决提交的`Authorization Bearer`不被读取和认证的问题
 
 查阅spring security的源代码不难发现，在`FilterSecurityInterceptor`的安全过滤链前，没有一个filter负责解析bearer
@@ -179,7 +190,8 @@ public interface OAuth2AuthorizationConsentService {
 }
 ```
 
-这个接口主要是用来保存和查询用户对客户端的授权批准的，默认实现是存内存里(上面已经看到了，是InMemory的实现)，并且还提供了一个jdbc的实现，在本项目中，额外做了一个redis的实现。
+这个接口主要是用来保存和查询用户对客户端的授权批准的，默认实现是存内存里(上面已经看到了，是InMemory的实现)
+，并且还提供了一个jdbc的实现，在本项目中，额外做了一个redis的实现。
 
 这个接口的主要逻辑也很清晰
 
@@ -368,7 +380,8 @@ public interface OAuth2Token {
 
 ![授权码类型的token](../media/授权码类型的token.png)
 
-在要求存储时，提交给`OAuth2AuthorizationService`的是一个叫做`OAuth2AuthorizationCode`类型的OAuth2Token，值就是授权码，并且有什么颁发的，什么时候过期
+在要求存储时，提交给`OAuth2AuthorizationService`的是一个叫做`OAuth2AuthorizationCode`
+类型的OAuth2Token，值就是授权码，并且有什么颁发的，什么时候过期
 
 从上图可见授权码的和有效期是5分钟，为啥是5分钟呢，因为下图
 
@@ -384,7 +397,7 @@ public interface OAuth2Token {
 
 其中`OAuth2AuthorizationCode`中的metadata也标记为了授权码已经失效
 
-##                           
+##                            
 
 # 注意事项
 

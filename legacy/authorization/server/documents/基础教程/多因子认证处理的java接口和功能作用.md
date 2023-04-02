@@ -14,7 +14,8 @@ public interface MfaAuthenticationChallengeResponseService extends ChallengeResp
 }
 ```
 
-这个接口扩展了标准的`ChallengeResponseService`(挑战-应答服务接口)，当sendChallenge返回一个非`null`的`Challenge`对象时，引擎就认为应当执行mfa多因子验证
+这个接口扩展了标准的`ChallengeResponseService`(挑战-应答服务接口)，当sendChallenge返回一个非`null`的`Challenge`
+对象时，引擎就认为应当执行mfa多因子验证
 
 ## MfaAuthenticationChallengeRequest
 
@@ -89,8 +90,10 @@ public class Challenge {
 上面是挑战对象的定义，包含了"题目"的id、使用验证形式，答题的有效时间和额外的参数
 
 从业务理解上，`authenticator`
-就相当于告诉应用端，应当启用什么多因子验证流程，这个流程的编码是开发人员自己定义的，流程的使用体验也是基于现场的需求定义。比如现场要求使用短信验证码进行多因子验证，那么开发团队决定给这个验证流程一个编码，称为"sms"
-，于是当需要启动短信验证时，返回的挑战对象的authenticator就需要为`"sms"`，应用端看到"sms"类型的多因子验证后，按照产品定义的需求展示短信验证码的输入页面并将用户输入的值提交给认证服务器进行校验
+就相当于告诉应用端，应当启用什么多因子验证流程，这个流程的编码是开发人员自己定义的，流程的使用体验也是基于现场的需求定义。比如现场要求使用短信验证码进行多因子验证，那么开发团队决定给这个验证流程一个编码，称为"
+sms"
+，于是当需要启动短信验证时，返回的挑战对象的authenticator就需要为`"sms"`，应用端看到"sms"
+类型的多因子验证后，按照产品定义的需求展示短信验证码的输入页面并将用户输入的值提交给认证服务器进行校验
 
 ## ChallengeResponseService
 
@@ -166,7 +169,8 @@ public interface ChallengeResponseService<R extends ChallengeRequest, C extends 
 }
 ```
 
-在定义上，包含了发送挑战(sendChallenge)，验证挑战(validateResponse)和关闭挑战释放资源(closeChallenge)的方法，同时也就相当于定义了挑战和应答的主要逻辑
+在定义上，包含了发送挑战(sendChallenge)，验证挑战(validateResponse)和关闭挑战释放资源(closeChallenge)
+的方法，同时也就相当于定义了挑战和应答的主要逻辑
 
 ## 短信验证码的示例
 
@@ -212,7 +216,8 @@ public class SmsCodeMfaAuthenticationChallengeResponseService implements MfaAuth
 
 # 多因子验证机制
 
-`MfaAuthenticationService`要求`MfaAuthenticationChallengeResponseService`通过"validateResponse"方法来基于题目的id和应答来给出挑战是否通过的信号。
+`MfaAuthenticationService`要求`MfaAuthenticationChallengeResponseService`通过"validateResponse"
+方法来基于题目的id和应答来给出挑战是否通过的信号。
 挑战通过后，认证引擎会从保存的上下文中取出完成认证的用户信息并自动设置用户的登录状态
 
 # "万物皆可挑战"

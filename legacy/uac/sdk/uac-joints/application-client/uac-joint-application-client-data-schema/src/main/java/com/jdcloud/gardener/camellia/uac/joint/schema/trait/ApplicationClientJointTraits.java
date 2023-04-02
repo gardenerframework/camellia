@@ -11,6 +11,7 @@ public interface ApplicationClientJointTraits {
     class Application<A> {
         private A application;
     }
+
     @Trait
     class Client<C> {
         private C client;
