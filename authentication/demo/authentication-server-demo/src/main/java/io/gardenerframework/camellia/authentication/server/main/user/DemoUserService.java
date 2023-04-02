@@ -14,6 +14,7 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.stereotype.Component;
 
+import java.util.Collections;
 import java.util.Map;
 import java.util.Objects;
 
@@ -46,7 +47,7 @@ public class DemoUserService implements UserService {
                 .avatar("https://fuss10.elemecdn.com/e/5d/4a731a90594a4af544c0c25941171jpeg.jpeg")
                 .enabled(!principal.getName().equals("disabled"))
                 .locked(principal.getName().equals("locked"))
-                .principal(principal)
+                .principals(Collections.singletonList(principal))
                 .build();
     }
 

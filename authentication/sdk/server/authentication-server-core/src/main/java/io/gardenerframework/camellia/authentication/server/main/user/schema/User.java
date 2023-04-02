@@ -4,10 +4,7 @@ import io.gardenerframework.camellia.authentication.common.data.serialization.Se
 import io.gardenerframework.camellia.authentication.server.main.schema.subject.Subject;
 import io.gardenerframework.fragrans.data.trait.account.AccountTraits;
 import io.gardenerframework.fragrans.data.trait.generic.GenericTraits;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.NonNull;
-import lombok.Setter;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
 import org.springframework.lang.Nullable;
 
@@ -40,7 +37,8 @@ public class User extends Subject implements
      * 昵称，姓名随便
      */
     @NonNull
-    private String name;
+    @Builder.Default
+    private String name = "";
     /**
      * 任何形式的显示图标
      */

@@ -16,15 +16,15 @@ import javax.servlet.http.HttpServletRequest;
  */
 @Component
 public class TestAppQrCodeService extends AppQrCodeService<TestCreateQrCodeRequest, TestAppQrCodeAuthenticationServiceOption> {
+    protected TestAppQrCodeService(@NonNull CacheClient client, @NonNull TestAppQrCodeAuthenticationServiceOption option) {
+        super(client, option);
+    }
+
     @Override
     protected String buildPageFinalUrl(@NonNull String code) throws Exception {
         UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(getOption().getPageUrl());
         builder.queryParam("code", code);
         return builder.build().toString();
-    }
-
-    protected TestAppQrCodeService(@NonNull CacheClient client, @NonNull TestAppQrCodeAuthenticationServiceOption option) {
-        super(client, option);
     }
 
     @Override

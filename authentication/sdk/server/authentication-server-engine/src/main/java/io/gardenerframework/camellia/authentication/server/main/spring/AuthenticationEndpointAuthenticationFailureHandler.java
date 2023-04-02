@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.gardenerframework.camellia.authentication.server.common.annotation.AuthenticationServerEngineComponent;
 import io.gardenerframework.camellia.authentication.server.common.configuration.AuthenticationServerPathOption;
 import io.gardenerframework.camellia.authentication.server.main.exception.*;
-import io.gardenerframework.camellia.authentication.server.main.mfa.exception.client.MfaAuthenticationRequiredException;
+import io.gardenerframework.camellia.authentication.server.main.mfa.exception.client.MfaRequiredException;
 import io.gardenerframework.camellia.authentication.server.main.schema.LoginAuthenticationRequestToken;
 import io.gardenerframework.fragrans.api.standard.error.ApiErrorFactory;
 import io.gardenerframework.fragrans.api.standard.error.DefaultApiErrorConstants;
@@ -70,7 +70,7 @@ public class AuthenticationEndpointAuthenticationFailureHandler implements Authe
         OAUTH2_ERROR_CODE_STATUS.put(OAuth2ErrorCodes.UNAUTHORIZED_CLIENT, HttpStatus.UNAUTHORIZED);
         OAUTH2_ERROR_CODE_STATUS.put(OAuth2ErrorCodes.ACCESS_DENIED, HttpStatus.UNAUTHORIZED);
         OAUTH2_ERROR_CODE_STATUS.put(OAuth2ErrorCodes.INVALID_TOKEN, HttpStatus.UNAUTHORIZED);
-        OAUTH2_ERROR_CODE_STATUS.put(OAuth2ErrorCodes.MFA_AUTHENTICATION_REQUIRED, HttpStatus.UNAUTHORIZED);
+        OAUTH2_ERROR_CODE_STATUS.put(OAuth2ErrorCodes.MFA_REQUIRED, HttpStatus.UNAUTHORIZED);
         OAUTH2_ERROR_CODE_STATUS.put(OAuth2ErrorCodes.INVALID_SCOPE, HttpStatus.BAD_REQUEST);
         OAUTH2_ERROR_CODE_STATUS.put(OAuth2ErrorCodes.INVALID_REQUEST, HttpStatus.BAD_REQUEST);
         OAUTH2_ERROR_CODE_STATUS.put(OAuth2ErrorCodes.INVALID_GRANT, HttpStatus.BAD_REQUEST);
@@ -237,7 +237,7 @@ public class AuthenticationEndpointAuthenticationFailureHandler implements Authe
      * @throws IOException      io问题
      * @throws ServletException Servlet问题
      */
-    private void forwardToMfaWebPage(HttpServletRequest request, HttpServletResponse response, MfaAuthenticationRequiredException exception) throws IOException, ServletException {
+    private void forwardToMfaWebPage(HttpServletRequest request, HttpServletResponse response, MfaRequiredException exception) throws IOException, ServletException {
         if (!response.isCommitted()) {
             UriComponentsBuilder uriComponentsBuilder = UriComponentsBuilder.fromUriString(authenticationServerPathOption.getWebMfaChallengePage());
             Map<String, Object> details = exception.getDetails();
@@ -260,9 +260,9 @@ public class AuthenticationEndpointAuthenticationFailureHandler implements Authe
      */
     private void handleWebAuthenticationFailure(HttpServletRequest request, HttpServletResponse response, AuthenticationException exception, ApiError apiError) throws IOException, ServletException {
         if (!response.isCommitted()) {
-            if (exception instanceof MfaAuthenticationRequiredException) {
+            if (exception instanceof MfaRequiredException) {
                 //跳mfa认证页面
-                forwardToMfaWebPage(request, response, (MfaAuthenticationRequiredException) exception);
+                forwardToMfaWebPage(request, response, (MfaRequiredException) exception);
             } else {
                 UriComponentsBuilder uriComponentsBuilder = UriComponentsBuilder.fromUriString(authenticationServerPathOption.getWebAuthenticationErrorPage());
                 uriComponentsBuilder.queryParam("status", apiError.getStatus());

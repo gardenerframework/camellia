@@ -20,5 +20,6 @@ public class PasswordCredentials extends Credentials implements SecurityTraits.S
      * 密码
      */
     @NonNull
-    private String password;
+    @Builder.Default
+    private String password = "";
 }

@@ -57,7 +57,8 @@ public interface Authentication extends Principal, Serializable {
 ## AuthenticationConverter
 
 AuthenticationConverter是Spring Security的核心接口，它的意思是将服务器收到的http请求，转为用户的登录请求`Authentication`。
-由于是登录请求，因此`isAuthenticated = false`，而要认证的用户主体，也就位于`Principal`属性中，`Credentials`是用户提交的登录凭据，至于被授予的权限，应当是个空的集合(认证没有完成哪来的权限)。
+由于是登录请求，因此`isAuthenticated = false`，而要认证的用户主体，也就位于`Principal`属性中，`Credentials`
+是用户提交的登录凭据，至于被授予的权限，应当是个空的集合(认证没有完成哪来的权限)。
 其接口定义如下所示
 
 ```java
@@ -93,7 +94,8 @@ public interface AuthenticationProvider {
 
 ## AuthenticationManager
 
-从`AuthenticationProvider`的行为上可见，它一般只专门负责一种或几种类型的认证请求，比如用户名密码的请求，比如短信验证码的请求，也就是一个一个的独立的个体。那么这些个体显然需要一个'经理'
+从`AuthenticationProvider`
+的行为上可见，它一般只专门负责一种或几种类型的认证请求，比如用户名密码的请求，比如短信验证码的请求，也就是一个一个的独立的个体。那么这些个体显然需要一个'经理'
 来整体管理他们，为安全过滤器提供服务。这个'经理'就叫做`AuthenticationManager`，主要使用的实现叫做`ProviderManager`
 
 ## ProviderManager
@@ -214,8 +216,10 @@ OAuth2AuthorizationEndpointFilter看到用户没有被认证，那就向过滤�
 * <font color=yellow>黄色方框</font>的部分是生成授权申请
 * <font color=yellow>蓝色方框</font>的部分是
     * 查找当前登录的用户是否对当前访问的第三方应用(RP)已经有过授权批准
-    * 检查授权批准是否对这次授权有效(或者第三方应用本身就不需要用户授权可直接获取授权码；或者用户当时批准访问的范围与本次授权一致)
-    * 如果需要进行批准，则生成`OAuth2Authorization`来保存当前认证的客户端，用户以及授权请求(主要是保存需要读取的用户信息范围)，并使用`state`作为当前信息的id进行存储
+    * 检查授权批准是否对这次授权有效(
+      或者第三方应用本身就不需要用户授权可直接获取授权码；或者用户当时批准访问的范围与本次授权一致)
+    * 如果需要进行批准，则生成`OAuth2Authorization`来保存当前认证的客户端，用户以及授权请求(
+      主要是保存需要读取的用户信息范围)，并使用`state`作为当前信息的id进行存储
     * 注意`OAuth2Authorization`是贯穿授权码和访问令牌等多个认证流程的黄金对象，后续会多次用到
 * <font color=yellow>绿色方框</font>的部分是本次授权依然要用户去批准，因此返回授权码认证请求
 
@@ -256,7 +260,8 @@ OAuth2AuthorizationEndpointFilter看到用户没有被认证，那就向过滤�
 
 如上图所示，左边是LCG算法生成的一个随机图片，可以看到图标还是很有规律的，右边那个是CSPRNG生成的，如电视的雪花屏一样的玩意
 
-因此，如果要生成一个较为安全的，一次性生效的随机的东西(比如手机验证码、安全访问令牌什么的)，显然还是要用`SecureRandom`或`SecureRandomBytesKeyGenerator`
+因此，如果要生成一个较为安全的，一次性生效的随机的东西(比如手机验证码、安全访问令牌什么的)，显然还是要用`SecureRandom`
+或`SecureRandomBytesKeyGenerator`
 
 `UUID`类在生成随机ID的时候用的也是`SecureRandom`，可放心'食用'
 
@@ -326,17 +331,20 @@ OAuth2ClientCredentialsAuthenticationProvider -[thickness=3]d-> OAuth2Authorizat
 
 上图也给出了工作原理的基本示意，展开来说
 
-* 不同grant_type类型的认证由不同的`AuthenticationConverter`执行，给出不同类型的`Authentation`对象，图中带有红、黄、绿颜色的部分可见，授权码、客户端凭据、刷新令牌对应着不同的转换器
+* 不同grant_type类型的认证由不同的`AuthenticationConverter`执行，给出不同类型的`Authentation`
+  对象，图中带有红、黄、绿颜色的部分可见，授权码、客户端凭据、刷新令牌对应着不同的转换器
 * 转换器给出的`Authentication`经过`ProviderManager`，会由正确的`AuthenticationProvider`处理。在图中，对应的处理器和转换器之间的颜色相同
 * 这些处理器都需要调用`OAuth2AuthorizationService`来读取和存储认证的上下文信息，图中的虚线表示使用不同类型的key来查询之前保存的上下文，比如
     * 使用授权码来检查授权码是否已经完成批准
     * 使用refresh token来检查之前的access token是否还有效
-* 这个步骤通过后，各个处理器会生成新的access token并要求上下文服务进行存储，也就是图中的粗实线，同时会被access token作为结果，通过`ProviderManager`
+* 这个步骤通过后，各个处理器会生成新的access token并要求上下文服务进行存储，也就是图中的粗实线，同时会被access
+  token作为结果，通过`ProviderManager`
   返回给`OAuth2AuthorizationEndpointFilter`，然后输出给RP
 
 ## 使用访问令牌获得用户信息
 
-获得访问令牌(access token)后，RP向"/userinfo"接口传入令牌获取用户信息，这个接口的处理器是`OidcUserInfoEndpointFilter`，它同样遵守spring security的基本原理，使用
+获得访问令牌(access token)后，RP向"/userinfo"接口传入令牌获取用户信息，这个接口的处理器是`OidcUserInfoEndpointFilter`
+，它同样遵守spring security的基本原理，使用
 
 * `OidcUserInfoAuthenticationProvider`完成访问令牌的认证，并读取保存在`OAuth2Authorization`中的登录用户信息
 * 调用`Function<OidcUserInfoAuthenticationContext, OidcUserInfo>`来完成用户信息对外输出的转换
@@ -371,4 +379,5 @@ id令牌 --> OAuth2Authorization
 
 # 总结
 
-本文介绍了spring security的基本原理以及oauth2在spring security实现中的要点，其中一个核心对象就是`OAuth2Authorization`，它是贯穿了认证过程的上下文对象
+本文介绍了spring security的基本原理以及oauth2在spring security实现中的要点，其中一个核心对象就是`OAuth2Authorization`
+，它是贯穿了认证过程的上下文对象

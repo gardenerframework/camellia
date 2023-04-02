@@ -63,7 +63,7 @@ public class WeChatUserAuthenticationService extends OAuth2BasedUserAuthenticati
         return WeChatAccessToken.builder()
                 .accessToken((String) response.get("access_token"))
                 .refreshToken((String) response.get("refresh_token"))
-                .expireIn(Long.valueOf((Integer)response.get("expires_in")))
+                .expireIn(Long.valueOf((Integer) response.get("expires_in")))
                 .scope((String) response.get("scope"))
                 .openId((String) response.get("openid"))
                 .unionId((String) response.get("unionid"))

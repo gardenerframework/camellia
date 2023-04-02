@@ -19,7 +19,7 @@ public class UserAppearance implements
     private String id;
     /**
      * 任何形式的展示名称
-     *
+     * <p>
      * 昵称，姓名随便
      */
     @Nullable

@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.UUID;
 
@@ -43,7 +44,7 @@ public class UsernamePasswordAuthenticationServiceTest {
             service.authenticate(convert, null, User.builder()
                     .id(UUID.randomUUID().toString())
                     .credential(convert.getCredentials())
-                    .principal(convert.getPrincipal())
+                    .principals(Collections.singletonList(convert.getPrincipal()))
                     .name(UUID.randomUUID().toString())
                     .build(), new HashMap<>());
         }

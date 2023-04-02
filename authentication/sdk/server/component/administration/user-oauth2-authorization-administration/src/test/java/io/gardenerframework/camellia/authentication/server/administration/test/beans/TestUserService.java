@@ -9,6 +9,7 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
+import java.util.Collections;
 import java.util.Map;
 
 /**
@@ -30,7 +31,7 @@ public class TestUserService implements UserService {
     public User load(Principal principal, Map<String, Object> context) throws AuthenticationException {
         return User.builder()
                 .id(principal.getName())
-                .principal(principal)
+                .principals(Collections.singletonList(principal))
                 .name(principal.getName())
                 .enabled(true)
                 .locked(false)

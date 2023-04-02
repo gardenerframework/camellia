@@ -10,7 +10,7 @@ dependencies {
     api "${fragrans.group}:api-options-engine"
     api "${fragrans.group}:data-cache-core"
     api "${fragrans.group}:data-traits-application"
-    compileOnly "${group}:mfa-authentication-server-client"
+    compileOnly "${group}:mfa-client"
     api "${group}:authentication-server-core"
     api "${group}:challenge-response-engine"
     api "org.bouncycastle:bcprov-jdk15on"
@@ -20,7 +20,7 @@ dependencies {
     testImplementation "com.jayway.jsonpath:json-path:2.4.0"
     //如果有人401报错拿不到消息体，用这个
     testImplementation 'org.apache.httpcomponents:httpclient:4.5.13'
-    testImplementation "${group}:mfa-authentication-server-client"
-    testImplementation "${group}:mfa-authentication-server-engine"
+    testImplementation "${group}:mfa-client"
+    testImplementation "${group}:mfa-server-engine"
     testImplementation "org.springframework.cloud:spring-cloud-starter-loadbalancer"
 }

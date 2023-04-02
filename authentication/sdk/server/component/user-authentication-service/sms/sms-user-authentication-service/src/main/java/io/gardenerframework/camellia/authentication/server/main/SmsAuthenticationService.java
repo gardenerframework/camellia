@@ -6,8 +6,8 @@ import io.gardenerframework.camellia.authentication.server.configuration.SmsAuth
 import io.gardenerframework.camellia.authentication.server.main.annotation.AuthenticationType;
 import io.gardenerframework.camellia.authentication.server.main.exception.client.BadSmsVerificationCodeException;
 import io.gardenerframework.camellia.authentication.server.main.schema.UserAuthenticationRequestToken;
-import io.gardenerframework.camellia.authentication.server.main.schema.subject.credentials.SmsVerificationCodeCredentials;
 import io.gardenerframework.camellia.authentication.server.main.schema.request.SmsAuthenticationParameter;
+import io.gardenerframework.camellia.authentication.server.main.schema.subject.credentials.SmsVerificationCodeCredentials;
 import io.gardenerframework.camellia.authentication.server.main.schema.subject.principal.MobilePhoneNumberPrincipal;
 import io.gardenerframework.camellia.authentication.server.main.sms.challenge.SmsAuthenticationChallengeResponseService;
 import io.gardenerframework.camellia.authentication.server.main.sms.challenge.SmsAuthenticationScenario;

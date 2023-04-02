@@ -17,7 +17,7 @@ public class OAuth2RequestingClientBuilderTest {
     public void smokeTest() {
         OAuth2RequestingClient.builder()
                 .clientId(UUID.randomUUID().toString())
-                .scope(UUID.randomUUID().toString())
+                .scopes(Collections.singletonList(UUID.randomUUID().toString()))
                 .grantType(UUID.randomUUID().toString())
                 .build();
         OAuth2RequestingClient.builder()

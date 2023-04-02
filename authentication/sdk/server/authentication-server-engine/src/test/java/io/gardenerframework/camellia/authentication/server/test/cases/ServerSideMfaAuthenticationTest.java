@@ -2,11 +2,10 @@ package io.gardenerframework.camellia.authentication.server.test.cases;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.jdcloud.gardener.camellia.authorization.test.cases.TokenAuthenticationEntryPointTest;
 import io.gardenerframework.camellia.authentication.server.main.exception.OAuth2ErrorCodes;
-import io.gardenerframework.camellia.authentication.server.main.mfa.exception.client.MfaAuthenticationRequiredException;
+import io.gardenerframework.camellia.authentication.server.main.mfa.exception.client.MfaRequiredException;
 import io.gardenerframework.camellia.authentication.server.main.mfa.utils.EmbeddedAuthenticationServerMfaAuthenticatorRegistry;
-import io.gardenerframework.camellia.authentication.server.main.mfa.utils.MfaAuthenticationClientAuthenticationServerMfaAuthenticatorRegistry;
+import io.gardenerframework.camellia.authentication.server.main.mfa.utils.MfaClientAuthenticationServerMfaAuthenticatorRegistry;
 import io.gardenerframework.camellia.authentication.server.test.AuthenticationServerEngineTestApplication;
 import io.gardenerframework.camellia.authentication.server.test.mfa.ServerSideMfaAuthenticator;
 import io.gardenerframework.camellia.authentication.server.test.utils.TokenAuthenticationClient;
@@ -38,7 +37,7 @@ public class ServerSideMfaAuthenticationTest {
     private EmbeddedAuthenticationServerMfaAuthenticatorRegistry embeddedAuthenticationServerMfaAuthenticatorRegistry;
 
     @Autowired
-    private MfaAuthenticationClientAuthenticationServerMfaAuthenticatorRegistry mfaAuthenticationClientAuthenticationServerMfaAuthenticatorRegistry;
+    private MfaClientAuthenticationServerMfaAuthenticatorRegistry mfaClientAuthenticationServerMfaAuthenticatorRegistry;
 
     @Autowired
     private TokenAuthenticationClient tokenAuthenticationClient;
@@ -56,7 +55,7 @@ public class ServerSideMfaAuthenticationTest {
         );
         //mfa client注册表中有
         Assertions.assertNotNull(
-                mfaAuthenticationClientAuthenticationServerMfaAuthenticatorRegistry
+                mfaClientAuthenticationServerMfaAuthenticatorRegistry
                         .getAuthenticator("server-side")
         );
     }
@@ -77,10 +76,10 @@ public class ServerSideMfaAuthenticationTest {
         TokenAuthenticationEntryPointTest.OAuth2Error oAuth2Error = TokenAuthenticationEntryPointTest.OAuth2Error.create(exception);
         Assertions.assertEquals(HttpStatus.UNAUTHORIZED, exception.getStatusCode());
         Assertions.assertEquals(
-                messageSource.getMessage(MfaAuthenticationRequiredException.class, Locale.getDefault()),
+                messageSource.getMessage(MfaRequiredException.class, Locale.getDefault()),
                 oAuth2Error.getErrorDescription()
         );
-        Assertions.assertEquals(OAuth2ErrorCodes.MFA_AUTHENTICATION_REQUIRED, oAuth2Error.getError());
+        Assertions.assertEquals(OAuth2ErrorCodes.MFA_REQUIRED, oAuth2Error.getError());
         Assertions.assertNotNull(oAuth2Error.getDetails().get("extField"));
         Assertions.assertEquals("server-side", oAuth2Error.getDetails().get("challengeAuthenticatorName"));
         Map<String, Object> request = new HashMap<>();

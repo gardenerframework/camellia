@@ -9,13 +9,13 @@ import io.gardenerframework.camellia.authentication.server.main.event.schema.Use
 import io.gardenerframework.camellia.authentication.server.main.event.support.AuthenticationEventBuilder;
 import io.gardenerframework.camellia.authentication.server.main.exception.NestedAuthenticationException;
 import io.gardenerframework.camellia.authentication.server.main.mfa.advisor.AuthenticationServerMfaAuthenticatorAdvisor;
-import io.gardenerframework.camellia.authentication.server.main.mfa.challenge.AuthenticationServerMfaAuthenticationChallengeResponseService;
-import io.gardenerframework.camellia.authentication.server.main.mfa.challenge.schema.AuthenticationServerMfaAuthenticationChallenge;
-import io.gardenerframework.camellia.authentication.server.main.mfa.challenge.schema.AuthenticationServerMfaAuthenticationChallengeContext;
-import io.gardenerframework.camellia.authentication.server.main.mfa.challenge.schema.AuthenticationServerMfaAuthenticationChallengeRequest;
-import io.gardenerframework.camellia.authentication.server.main.mfa.exception.client.MfaAuthenticationInCooldownException;
-import io.gardenerframework.camellia.authentication.server.main.mfa.exception.client.MfaAuthenticationRequiredException;
-import io.gardenerframework.camellia.authentication.server.main.mfa.schema.principal.MfaAuthenticationPrincipal;
+import io.gardenerframework.camellia.authentication.server.main.mfa.challenge.AuthenticationServerMfaChallengeResponseService;
+import io.gardenerframework.camellia.authentication.server.main.mfa.challenge.schema.AuthenticationServerMfaChallenge;
+import io.gardenerframework.camellia.authentication.server.main.mfa.challenge.schema.AuthenticationServerMfaChallengeContext;
+import io.gardenerframework.camellia.authentication.server.main.mfa.challenge.schema.AuthenticationServerMfaChallengeRequest;
+import io.gardenerframework.camellia.authentication.server.main.mfa.exception.client.MfaAuthenticatorNotReadyException;
+import io.gardenerframework.camellia.authentication.server.main.mfa.exception.client.MfaRequiredException;
+import io.gardenerframework.camellia.authentication.server.main.mfa.schema.principal.MfaPrincipal;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -48,7 +48,7 @@ public class MfaAuthenticationListener implements
     @NonNull
     private final Collection<AuthenticationServerMfaAuthenticatorAdvisor> mfaAuthenticationAdvisors;
     @NonNull
-    private final AuthenticationServerMfaAuthenticationChallengeResponseService authenticationServerMfaAuthenticationChallengeResponseService;
+    private final AuthenticationServerMfaChallengeResponseService authenticationServerMfaChallengeResponseService;
     @NonNull
     private ApplicationEventPublisher eventPublisher;
 
@@ -82,17 +82,17 @@ public class MfaAuthenticationListener implements
             if (StringUtils.hasText(authenticator)) {
                 //这部分找不到是服务端的问题，不单独开异常
                 //执行mfa认证
-                AuthenticationServerMfaAuthenticationChallenge mfaAuthenticationChallenge = authenticationServerMfaAuthenticationChallengeResponseService.sendChallenge(
+                AuthenticationServerMfaChallenge mfaAuthenticationChallenge = authenticationServerMfaChallengeResponseService.sendChallenge(
                         event.getClient(),
-                        authenticationServerMfaAuthenticationChallengeResponseService.getClass(),
-                        new AuthenticationServerMfaAuthenticationChallengeRequest(authenticator, event.getPrincipal(), event.getUser(), event.getContext())
+                        authenticationServerMfaChallengeResponseService.getClass(),
+                        new AuthenticationServerMfaChallengeRequest(authenticator, event.getPrincipal(), event.getUser(), event.getContext())
                 );
-                throw new MfaAuthenticationRequiredException(mfaAuthenticationChallenge.getTarget());
+                throw new MfaRequiredException(mfaAuthenticationChallenge.getTarget());
             }
-        } catch (MfaAuthenticationRequiredException exception) {
+        } catch (MfaRequiredException exception) {
             throw exception;
         } catch (ChallengeInCooldownException exception) {
-            throw new MfaAuthenticationInCooldownException(exception.getTimeRemaining());
+            throw new MfaAuthenticatorNotReadyException(exception.getTimeRemaining());
         } catch (Exception exception) {
             throw new NestedAuthenticationException(exception);
         }
@@ -102,18 +102,18 @@ public class MfaAuthenticationListener implements
     @EventListener
     @CareForAuthenticationServerEnginePreservedPrincipal
     public void onAuthenticationSuccess(AuthenticationSuccessEvent event) {
-        if (event.getPrincipal() instanceof MfaAuthenticationPrincipal) {
+        if (event.getPrincipal() instanceof MfaPrincipal) {
             //fix 需要从上下文取出挑战上下文(因为此时已经被关闭)
-            AuthenticationServerMfaAuthenticationChallengeContext authenticationServerMfaAuthenticationChallengeContext = Objects.requireNonNull(
-                    (AuthenticationServerMfaAuthenticationChallengeContext) event.getContext()
-                            .get(AuthenticationServerMfaAuthenticationChallengeContext.class.getName()),
-                    "no MfaAuthenticationChallengeContext load from context. review MfaAuthenticationUserService.load!"
+            AuthenticationServerMfaChallengeContext authenticationServerMfaChallengeContext = Objects.requireNonNull(
+                    (AuthenticationServerMfaChallengeContext) event.getContext()
+                            .get(AuthenticationServerMfaChallengeContext.class.getName()),
+                    "no AuthenticationServerMfaChallengeContext load from context. review MfaAuthenticationUserService.load!"
             );
             AuthenticationSuccessEvent replay = buildAuthenticationEvent(
                     AuthenticationSuccessEvent.builder(),
                     event.getRequest(),
                     event.getAuthenticationType(),
-                    authenticationServerMfaAuthenticationChallengeContext.getPrincipal(),
+                    authenticationServerMfaChallengeContext.getPrincipal(),
                     //客户端没有严格的id必须一样的逻辑，实际实现
                     //这里没有使用上下文的客户端，而是当前完成认证的，使得事件更贴近实际
                     event.getClient(),

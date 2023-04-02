@@ -1,9 +1,14 @@
 package io.gardenerframework.camellia.authentication.server.administration.test;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.gardenerframework.camellia.authentication.common.client.schema.RequestingClient;
+import io.gardenerframework.camellia.authentication.infra.challenge.core.schema.ChallengeRequest;
 import io.gardenerframework.camellia.authentication.server.client.schema.response.ClientAppearance;
+import io.gardenerframework.camellia.authentication.server.main.mfa.challenge.AuthenticationServerMfaAuthenticatorChallengeRequestFactory;
+import io.gardenerframework.camellia.authentication.server.main.schema.subject.principal.Principal;
 import io.gardenerframework.camellia.authentication.server.main.user.schema.User;
 import io.gardenerframework.camellia.authentication.server.user.schema.response.UserAppearance;
+import lombok.NonNull;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
@@ -19,6 +24,7 @@ import org.springframework.security.oauth2.server.authorization.settings.ClientS
 import org.springframework.security.oauth2.server.authorization.settings.TokenSettings;
 
 import java.time.Duration;
+import java.util.Map;
 import java.util.UUID;
 
 /**
@@ -91,5 +97,16 @@ public class UserAuthorizedOAuth2AuthorizationAdministrationServiceTestApplicati
                 .tokenSettings(tokenSettings)
                 .build();
         return new InMemoryRegisteredClientRepository(registeredClient, noClientCredentialsClient);
+    }
+
+    @Bean
+    public AuthenticationServerMfaAuthenticatorChallengeRequestFactory<ChallengeRequest> authenticationServerMfaAuthenticatorChallengeRequestFactory() {
+        return new AuthenticationServerMfaAuthenticatorChallengeRequestFactory<ChallengeRequest>() {
+            @Nullable
+            @Override
+            public ChallengeRequest create(String authenticatorName, @Nullable RequestingClient client, @NonNull Class scenario, @NonNull Principal principal, @NonNull User user, @NonNull Map context) {
+                return null;
+            }
+        };
     }
 }

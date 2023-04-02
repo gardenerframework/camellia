@@ -23,6 +23,12 @@ import org.springframework.context.annotation.Import;
         ApplicationRbacConnectorEndpointConfiguration.ApplicationServiceAwareApplicationIdCheckerFactory.class
 })
 public class ApplicationRbacConnectorEndpointConfiguration {
+    @Bean
+    @ConditionalOnMissingBean(ApplicationIdChecker.class)
+    public ApplicationIdChecker defaultNoopChecker() {
+        return applicationId -> true;
+    }
+
     //这个注解要写在类上才不报错，不知道为什么
     @ConditionalOnClass(ApplicationServiceTemplate.class)
     @SuppressWarnings("rawtypes")
@@ -34,12 +40,5 @@ public class ApplicationRbacConnectorEndpointConfiguration {
             //通过服务检查应用id是否存在
             return applicationId -> template.readApplication(applicationId) != null;
         }
-    }
-
-
-    @Bean
-    @ConditionalOnMissingBean(ApplicationIdChecker.class)
-    public ApplicationIdChecker defaultNoopChecker() {
-        return applicationId -> true;
     }
 }

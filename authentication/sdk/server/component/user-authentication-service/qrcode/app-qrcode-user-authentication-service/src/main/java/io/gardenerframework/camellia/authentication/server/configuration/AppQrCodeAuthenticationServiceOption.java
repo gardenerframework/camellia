@@ -20,6 +20,11 @@ import javax.validation.constraints.PositiveOrZero;
 @NoArgsConstructor
 public abstract class AppQrCodeAuthenticationServiceOption {
     /**
+     * 存活时间
+     */
+    @Positive
+    long ttl = 120L;
+    /**
      * 二维码的边距
      */
     @Positive
@@ -31,11 +36,6 @@ public abstract class AppQrCodeAuthenticationServiceOption {
      */
     @NotBlank
     private String pageUrl;
-    /**
-     * 存活时间
-     */
-    @Positive
-    long ttl = 120L;
     /**
      * logo的资源位置
      */

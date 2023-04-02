@@ -29,15 +29,6 @@ public class AuthenticationServerAdministrationRestControllerGroupConfigurerTest
     @Autowired
     private AuthenticationServerPathOption option;
 
-    @AuthenticationServerAdministrationRestController
-    @RequestMapping("/AuthenticationServerAdministrationRestControllerGroupConfigurerTest")
-    public static class AuthenticationServerAdministrationRestControllerGroupConfigurerTestController {
-        @GetMapping
-        public void test() {
-
-        }
-    }
-
     @Test
     public void smokeTest() {
         tokenAuthenticationClient.setPort(port);
@@ -48,5 +39,14 @@ public class AuthenticationServerAdministrationRestControllerGroupConfigurerTest
                 void.class,
                 port
         );
+    }
+
+    @AuthenticationServerAdministrationRestController
+    @RequestMapping("/AuthenticationServerAdministrationRestControllerGroupConfigurerTest")
+    public static class AuthenticationServerAdministrationRestControllerGroupConfigurerTestController {
+        @GetMapping
+        public void test() {
+
+        }
     }
 }

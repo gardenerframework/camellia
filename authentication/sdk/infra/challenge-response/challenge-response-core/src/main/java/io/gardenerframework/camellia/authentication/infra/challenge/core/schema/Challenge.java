@@ -2,10 +2,7 @@ package io.gardenerframework.camellia.authentication.infra.challenge.core.schema
 
 import io.gardenerframework.camellia.authentication.common.data.serialization.SerializationVersionNumber;
 import io.gardenerframework.fragrans.data.trait.generic.GenericTraits;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.NonNull;
-import lombok.Setter;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
 import org.springframework.lang.Nullable;
 
@@ -30,7 +27,8 @@ public class Challenge implements
      * 挑战id
      */
     @NonNull
-    private String id;
+    @Builder.Default
+    private String id = "";
     /**
      * 挑战的cd时间剩余
      */
@@ -38,7 +36,10 @@ public class Challenge implements
     private Date cooldownCompletionTime;
     /**
      * 挑战的过期时间，超过这个时间即认为挑战无效
+     * <p>
+     * 默认就是立刻过期
      */
     @NonNull
-    private Date expiryTime;
+    @Builder.Default
+    private Date expiryTime = new Date();
 }

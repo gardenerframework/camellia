@@ -20,7 +20,7 @@ public class DemoWeChatUserAuthenticationServiceOptionConfigurer {
     public DemoWeChatUserAuthenticationServiceOptionConfigurer(WeChatMiniProgramQrCodeAuthenticationServiceOption option) throws IOException {
         WechatSecret secret = new Yaml().loadAs(
                 new ClassPathResource(
-                                "component/" +
+                        "component/" +
                                 "user-authentication-service/" +
                                 "wechat/" +
                                 "secret.yaml")

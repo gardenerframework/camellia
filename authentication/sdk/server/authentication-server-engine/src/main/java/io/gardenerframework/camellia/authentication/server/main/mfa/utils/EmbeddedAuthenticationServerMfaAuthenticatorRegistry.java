@@ -136,11 +136,6 @@ public class EmbeddedAuthenticationServerMfaAuthenticatorRegistry implements Aut
         );
     }
 
-    @Override
-    public Collection<String> getAuthenticatorNames() {
-        return registry.keySet();
-    }
-
     @Nullable
     @Override
     @SuppressWarnings("unchecked")

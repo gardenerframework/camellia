@@ -10,7 +10,6 @@ import io.gardenerframework.camellia.authentication.server.main.schema.request.O
 import io.gardenerframework.camellia.authentication.server.main.schema.subject.principal.Principal;
 import io.gardenerframework.camellia.authentication.server.main.user.schema.User;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
@@ -130,7 +129,6 @@ public abstract class OAuth2BasedUserAuthenticationService extends AbstractUserA
     @Getter
     @Setter
     @SuperBuilder
-    @NoArgsConstructor
     public static class AccessToken {
         @NonNull
         private String accessToken;

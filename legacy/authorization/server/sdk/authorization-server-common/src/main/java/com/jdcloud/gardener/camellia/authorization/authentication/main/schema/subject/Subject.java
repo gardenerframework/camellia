@@ -36,7 +36,7 @@ import java.util.Date;
 public abstract class Subject implements CredentialsContainer, Serializable,
         GenericTraits.IdentifierTraits.Id<String>,
         GenericTraits.StatusTraits.LockFlag,
-        GenericTraits.StatusTraits.EnableFlag{
+        GenericTraits.StatusTraits.EnableFlag {
     private static final long serialVersionUID = Version.current;
     /**
      * id
