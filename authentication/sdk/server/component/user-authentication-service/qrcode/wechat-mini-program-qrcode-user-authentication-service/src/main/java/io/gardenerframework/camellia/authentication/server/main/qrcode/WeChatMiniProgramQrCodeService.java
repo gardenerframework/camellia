@@ -63,7 +63,7 @@ public abstract class WeChatMiniProgramQrCodeService<
         //如果成功是直接获取到图片
         ResponseEntity<byte[]> response = restTemplate.postForEntity(
                 "https://api.weixin.qq.com/wxa/getwxacodeunlimit?access_token={token}",
-                new GetUnlimitedQRCodeRequest(
+                new GetUnlimitedQrCodeRequest(
                         option.getPageUrl(),
                         code,
                         request.getSize()
@@ -115,7 +115,7 @@ public abstract class WeChatMiniProgramQrCodeService<
 
     @AllArgsConstructor
     @Getter
-    private static class GetUnlimitedQRCodeRequest {
+    private static class GetUnlimitedQrCodeRequest {
         @Nullable
         private final String page;
         @NonNull
