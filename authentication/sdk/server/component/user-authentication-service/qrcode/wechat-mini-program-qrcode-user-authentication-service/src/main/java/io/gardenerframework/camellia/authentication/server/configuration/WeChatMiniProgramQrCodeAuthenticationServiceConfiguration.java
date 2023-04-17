@@ -1,20 +1,26 @@
 package io.gardenerframework.camellia.authentication.server.configuration;
 
-import io.gardenerframework.camellia.authentication.server.WeChatMiniProgramQrCodeAuthenticationServicePackage;
-import org.springframework.context.annotation.ComponentScan;
+import io.gardenerframework.camellia.authentication.server.main.WeChatMiniProgramQrCodeAuthenticationService;
+import io.gardenerframework.camellia.authentication.server.main.endpoint.WeChatMiniProgramQrCodeEndpoint;
+import io.gardenerframework.camellia.authentication.server.main.qrcode.WeChatMiniProgramQrCodeService;
+import lombok.AllArgsConstructor;
+import lombok.NonNull;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.FilterType;
 
 /**
  * @author zhanghan30
- * @date 2023/3/16 18:59
+ * @date 2023/4/17 15:40
  */
 @Configuration
-@ComponentScan(
-        basePackageClasses = WeChatMiniProgramQrCodeAuthenticationServicePackage.class,
-        includeFilters = {
-                @ComponentScan.Filter(type = FilterType.ANNOTATION, value = WeChatMiniProgramQrCodeServiceComponent.class)
-        }
-)
+@AllArgsConstructor
+@SuppressWarnings("rawtypes")
 public class WeChatMiniProgramQrCodeAuthenticationServiceConfiguration {
+    @NonNull
+    private final WeChatMiniProgramQrCodeAuthenticationServiceOption weChatMiniProgramQrCodeAuthenticationServiceOption;
+    @NonNull
+    private final WeChatMiniProgramQrCodeEndpoint weChatMiniProgramQrCodeEndpoint;
+    @NonNull
+    private final WeChatMiniProgramQrCodeService weChatMiniProgramQrCodeService;
+    @NonNull
+    private final WeChatMiniProgramQrCodeAuthenticationService weChatMiniProgramQrCodeAuthenticationService;
 }

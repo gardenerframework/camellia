@@ -17,9 +17,8 @@ import javax.validation.constraints.Positive;
 @ApiOption(readonly = false)
 @Getter
 @Setter
-@WeChatMiniProgramQrCodeServiceComponent
 @NoArgsConstructor
-public class WeChatMiniProgramQrCodeAuthenticationServiceOption {
+public abstract class WeChatMiniProgramQrCodeAuthenticationServiceOption {
     /**
      * 存活时间
      */
