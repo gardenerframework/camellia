@@ -45,7 +45,7 @@ public abstract class WeChatMiniProgramQrCodeService<
     }
 
     @Override
-    protected String generateCode(@Nullable CreateWeChatMiniProgramQrCodeRequest request) {
+    protected String generateCode(@Nullable R request) {
         //微信要求32个字符以内，所以就简单一些
         return UUID.randomUUID().toString().substring(0, 32);
     }
@@ -56,7 +56,7 @@ public abstract class WeChatMiniProgramQrCodeService<
     }
 
     @Override
-    protected String createImage(@NonNull CreateWeChatMiniProgramQrCodeRequest request, @NonNull String code) throws Exception {
+    protected String createImage(@NonNull R request, @NonNull String code) throws Exception {
         if (accessToken == null || accessToken.isExpired()) {
             obtainAccessToken();
         }

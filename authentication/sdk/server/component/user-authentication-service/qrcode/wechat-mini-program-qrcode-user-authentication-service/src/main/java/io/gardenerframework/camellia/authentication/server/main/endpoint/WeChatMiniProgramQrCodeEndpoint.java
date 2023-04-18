@@ -10,9 +10,7 @@ import javax.servlet.http.HttpServletRequest;
  * @author zhanghan30
  * @date 2023/3/16 19:02
  */
-public abstract class WeChatMiniProgramQrCodeEndpoint
-        <R extends CreateWeChatMiniProgramQrCodeRequest,
-                S extends WeChatMiniProgramQrCodeService<R, ? extends WeChatMiniProgramQrCodeAuthenticationServiceOption>>
+public abstract class WeChatMiniProgramQrCodeEndpoint<R extends CreateWeChatMiniProgramQrCodeRequest, S extends WeChatMiniProgramQrCodeService<R, ? extends WeChatMiniProgramQrCodeAuthenticationServiceOption>>
         extends QrCodeEndpoint<R, S> {
     public WeChatMiniProgramQrCodeEndpoint(S service) {
         super(service);
