@@ -8,9 +8,9 @@ import io.gardenerframework.camellia.authentication.infra.challenge.core.Scenari
 import io.gardenerframework.camellia.authentication.infra.challenge.core.exception.ChallengeResponseServiceException;
 import io.gardenerframework.camellia.authentication.infra.challenge.core.schema.Challenge;
 import io.gardenerframework.camellia.authentication.infra.challenge.core.schema.ChallengeRequest;
+import io.gardenerframework.camellia.authentication.infra.challenge.core.utils.ChallengeAuthenticatorUtils;
 import io.gardenerframework.camellia.authentication.infra.challenge.engine.AbstractChallengeResponseService;
 import io.gardenerframework.camellia.authentication.infra.challenge.engine.support.GenericCachedChallengeContextStore;
-import io.gardenerframework.camellia.authentication.infra.challenge.engine.support.GenericCachedChallengeStore;
 import io.gardenerframework.camellia.authentication.server.common.annotation.AuthenticationServerEngineComponent;
 import io.gardenerframework.camellia.authentication.server.main.mfa.challenge.schema.AuthenticationServerMfaChallenge;
 import io.gardenerframework.camellia.authentication.server.main.mfa.challenge.schema.AuthenticationServerMfaChallengeContext;
@@ -46,21 +46,8 @@ public class AuthenticationServerMfaChallengeResponseService extends AbstractCha
     @Setter(value = AccessLevel.PRIVATE, onMethod = @__({@Autowired}))
     private Collection<AuthenticationServerMfaAuthenticatorChallengeRequestFactory<? extends ChallengeRequest>> requestFactories;
 
-    public AuthenticationServerMfaChallengeResponseService(@NonNull GenericCachedChallengeStore challengeStore, @NonNull ChallengeCooldownManager challengeCooldownManager, @NonNull GenericCachedChallengeContextStore challengeContextStore) {
-        super(challengeStore.migrateType(), challengeCooldownManager, challengeContextStore.migrateType());
-    }
-
-    @Override
-    protected boolean replayChallenge(@Nullable RequestingClient client, @NonNull Class<? extends Scenario> scenario, @NonNull AuthenticationServerMfaChallengeRequest request) {
-        //不重放 - 因为都是代理，实际的服务重放了就是重放了，没有就是没重放
-        return false;
-    }
-
-    @Override
-    @Nullable
-    protected String getRequestSignature(@Nullable RequestingClient client, @NonNull Class<? extends Scenario> scenario, @NonNull AuthenticationServerMfaChallengeRequest request) {
-        //不重放自然不需要这个
-        return null;
+    public AuthenticationServerMfaChallengeResponseService(@NonNull ChallengeCooldownManager challengeCooldownManager, @NonNull GenericCachedChallengeContextStore challengeContextStore) {
+        super(challengeCooldownManager, challengeContextStore.migrateType());
     }
 
     @Override
@@ -93,11 +80,12 @@ public class AuthenticationServerMfaChallengeResponseService extends AbstractCha
                 request.getUser(),
                 request.getContext()
         ));
-        Challenge challengeFromAuthenticator = authenticator.sendChallenge(
+        //authenticator发送挑战并注入advisor要求的名称
+        Challenge challengeFromAuthenticator = ChallengeAuthenticatorUtils.injectChallengeAuthenticatorName(authenticator.sendChallenge(
                 client,
                 AuthenticationServerMfaScenario.class,
                 challengeRequest
-        );
+        ), request.getAuthenticatorName());
         return AuthenticationServerMfaChallenge.builder()
                 .id(challengeFromAuthenticator.getId())
                 .target(challengeFromAuthenticator)

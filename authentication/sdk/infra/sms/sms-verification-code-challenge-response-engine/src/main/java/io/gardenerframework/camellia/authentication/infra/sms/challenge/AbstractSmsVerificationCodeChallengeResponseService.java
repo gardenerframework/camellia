@@ -3,7 +3,6 @@ package io.gardenerframework.camellia.authentication.infra.sms.challenge;
 import io.gardenerframework.camellia.authentication.common.client.schema.RequestingClient;
 import io.gardenerframework.camellia.authentication.infra.challenge.core.ChallengeContextStore;
 import io.gardenerframework.camellia.authentication.infra.challenge.core.ChallengeCooldownManager;
-import io.gardenerframework.camellia.authentication.infra.challenge.core.ChallengeStore;
 import io.gardenerframework.camellia.authentication.infra.challenge.core.Scenario;
 import io.gardenerframework.camellia.authentication.infra.challenge.core.annotation.ChallengeAuthenticator;
 import io.gardenerframework.camellia.authentication.infra.challenge.core.schema.Challenge;
@@ -14,9 +13,14 @@ import io.gardenerframework.camellia.authentication.infra.sms.challenge.event.sc
 import io.gardenerframework.camellia.authentication.infra.sms.challenge.event.schema.SmsVerificationCodeSentEvent;
 import io.gardenerframework.camellia.authentication.infra.sms.challenge.schema.SmsVerificationCodeChallengeContext;
 import io.gardenerframework.camellia.authentication.infra.sms.challenge.schema.SmsVerificationCodeChallengeRequest;
+import io.gardenerframework.fragrans.log.GenericLoggerStaticAccessor;
+import io.gardenerframework.fragrans.log.common.schema.verb.Change;
+import io.gardenerframework.fragrans.log.schema.content.GenericBasicLogContent;
+import io.gardenerframework.fragrans.log.schema.details.Detail;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NonNull;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ApplicationEventPublisherAware;
 import org.springframework.lang.Nullable;
@@ -25,6 +29,7 @@ import java.security.SecureRandom;
 import java.util.Map;
 
 @ChallengeAuthenticator("sms")
+@Slf4j
 public abstract class AbstractSmsVerificationCodeChallengeResponseService<R extends SmsVerificationCodeChallengeRequest, C extends Challenge, X extends SmsVerificationCodeChallengeContext>
         extends AbstractChallengeResponseService<R, C, X> implements ApplicationEventPublisherAware {
     @NonNull
@@ -33,22 +38,9 @@ public abstract class AbstractSmsVerificationCodeChallengeResponseService<R exte
 
     private ApplicationEventPublisher eventPublisher;
 
-    protected AbstractSmsVerificationCodeChallengeResponseService(@NonNull ChallengeStore<C> challengeStore, @NonNull ChallengeCooldownManager challengeCooldownManager, @NonNull ChallengeContextStore<X> challengeContextStore, @NonNull SmsVerificationCodeClient smsVerificationCodeClient) {
-        super(challengeStore, challengeCooldownManager, challengeContextStore);
+    protected AbstractSmsVerificationCodeChallengeResponseService(@NonNull ChallengeCooldownManager challengeCooldownManager, @NonNull ChallengeContextStore<X> challengeContextStore, @NonNull SmsVerificationCodeClient smsVerificationCodeClient) {
+        super(challengeCooldownManager, challengeContextStore);
         this.smsVerificationCodeClient = smsVerificationCodeClient;
-    }
-
-
-    @Override
-    protected boolean replayChallenge(@Nullable RequestingClient client, @NonNull Class<? extends Scenario> scenario, @NonNull R request) {
-        //不重发挑战，cd到了就发新的
-        return false;
-    }
-
-    @Override
-    protected @NonNull String getRequestSignature(@Nullable RequestingClient client, @NonNull Class<? extends Scenario> scenario, @NonNull R request) {
-        //请求特征是手机号，用手机号保存已经发送的挑战
-        return request.getMobilePhoneNumber();
     }
 
     @Override
@@ -137,7 +129,24 @@ public abstract class AbstractSmsVerificationCodeChallengeResponseService<R exte
                         .build()
         );
         //生成挑战
-        return createSmsVerificationChallenge(client, scenario, request, payload);
+        C challenge = createSmsVerificationChallenge(client, scenario, request, payload);
+        if (request.isMobilePhoneNumberAsChallengeId()) {
+            String challengeId = challenge.getId();
+            //记录一下因为这个改了
+            GenericLoggerStaticAccessor.basicLogger().debug(
+                    log,
+                    GenericBasicLogContent.builder()
+                            .what(challenge.getClass())
+                            .how(new Change())
+                            .detail(new Detail() {
+                                private final String fromChallengeId = challengeId;
+                                private final String toChallengeId = request.getMobilePhoneNumber();
+                            }).build(),
+                    null
+            );
+            challenge.setId(request.getMobilePhoneNumber());
+        }
+        return challenge;
     }
 
     /**

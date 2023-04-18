@@ -5,6 +5,7 @@ import io.gardenerframework.camellia.authentication.server.main.qrcode.QrCodeSer
 import io.gardenerframework.camellia.authentication.server.main.qrcode.WeChatMiniProgramQrCodeService;
 import io.gardenerframework.camellia.authentication.server.main.schema.request.CreateWeChatMiniProgramQrCodeRequest;
 import io.gardenerframework.camellia.authentication.server.test.WeChatMiniProgramQrCodeAuthenticationServiceTestApplication;
+import io.gardenerframework.camellia.authentication.server.test.bean.TestCreateWeChatMiniProgramQrCodeRequest;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,7 +25,7 @@ public class WeChatMiniProgramQrCodeAuthenticationServiceTest {
 
     @Test
     public void smokeTest() throws Exception {
-        CreateWeChatMiniProgramQrCodeRequest request = new CreateWeChatMiniProgramQrCodeRequest();
+        CreateWeChatMiniProgramQrCodeRequest request = new TestCreateWeChatMiniProgramQrCodeRequest();
         request.setSize(280);
         request.setColor(0);
         //不存在的页面会报错

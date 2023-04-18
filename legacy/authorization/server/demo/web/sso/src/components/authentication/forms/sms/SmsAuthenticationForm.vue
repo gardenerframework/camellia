@@ -20,7 +20,8 @@
         </el-row>
         <el-row>
             <el-form-item prop="code">
-                <el-input v-model="formItems.code" :placeholder="$t('components.authentication.forms.sms.input.code.placeholder')"
+                <el-input v-model="formItems.code"
+                          :placeholder="$t('components.authentication.forms.sms.input.code.placeholder')"
                           name="code"></el-input>
             </el-form-item>
         </el-row>

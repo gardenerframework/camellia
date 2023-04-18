@@ -3,9 +3,7 @@ package io.gardenerframework.camellia.authentication.server.main.qrcode;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.gardenerframework.camellia.authentication.server.configuration.WeChatMiniProgramQrCodeAuthenticationServiceOption;
-import io.gardenerframework.camellia.authentication.server.configuration.WeChatMiniProgramQrCodeServiceComponent;
 import io.gardenerframework.camellia.authentication.server.main.schema.request.CreateWeChatMiniProgramQrCodeRequest;
-import io.gardenerframework.camellia.authentication.server.main.schema.subject.principal.Principal;
 import io.gardenerframework.fragrans.data.cache.client.CacheClient;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -18,7 +16,6 @@ import org.springframework.http.converter.json.MappingJackson2HttpMessageConvert
 import org.springframework.lang.Nullable;
 import org.springframework.web.client.RestTemplate;
 
-import javax.servlet.http.HttpServletRequest;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
@@ -27,22 +24,28 @@ import java.util.*;
  * @author zhanghan30
  * @date 2023/3/16 18:34
  */
-@WeChatMiniProgramQrCodeServiceComponent
-public class WeChatMiniProgramQrCodeService extends QrCodeService<CreateWeChatMiniProgramQrCodeRequest>
+public abstract class WeChatMiniProgramQrCodeService<
+        R extends CreateWeChatMiniProgramQrCodeRequest,
+        O extends WeChatMiniProgramQrCodeAuthenticationServiceOption
+        >
+        extends QrCodeService<R>
         implements InitializingBean {
     private final RestTemplate restTemplate = new RestTemplate();
     @NonNull
-    private final WeChatMiniProgramQrCodeAuthenticationServiceOption option;
+    private final O option;
     @Nullable
     private AccessToken accessToken = null;
 
-    public WeChatMiniProgramQrCodeService(@NonNull CacheClient client, @NonNull WeChatMiniProgramQrCodeAuthenticationServiceOption option) {
+    public WeChatMiniProgramQrCodeService(
+            @NonNull CacheClient client,
+            @NonNull O option
+    ) {
         super(client);
         this.option = option;
     }
 
     @Override
-    protected String generateCode(@Nullable CreateWeChatMiniProgramQrCodeRequest request) {
+    protected String generateCode(@Nullable R request) {
         //微信要求32个字符以内，所以就简单一些
         return UUID.randomUUID().toString().substring(0, 32);
     }
@@ -53,14 +56,14 @@ public class WeChatMiniProgramQrCodeService extends QrCodeService<CreateWeChatMi
     }
 
     @Override
-    protected String createImage(@NonNull CreateWeChatMiniProgramQrCodeRequest request, @NonNull String code) throws Exception {
+    protected String createImage(@NonNull R request, @NonNull String code) throws Exception {
         if (accessToken == null || accessToken.isExpired()) {
             obtainAccessToken();
         }
         //如果成功是直接获取到图片
         ResponseEntity<byte[]> response = restTemplate.postForEntity(
                 "https://api.weixin.qq.com/wxa/getwxacodeunlimit?access_token={token}",
-                new GetUnlimitedQRCodeRequest(
+                new GetUnlimitedQrCodeRequest(
                         option.getPageUrl(),
                         code,
                         request.getSize()
@@ -79,18 +82,15 @@ public class WeChatMiniProgramQrCodeService extends QrCodeService<CreateWeChatMi
     }
 
     @Override
-    protected Principal getPrincipalFromRequest(@NonNull HttpServletRequest request) throws Exception {
-        return null;
-    }
-
-    @Override
     public void afterPropertiesSet() throws Exception {
         super.afterPropertiesSet();
         //fix 微信坑逼 text/plain
         MappingJackson2HttpMessageConverter converter = new MappingJackson2HttpMessageConverter();
         converter.setSupportedMediaTypes(Collections.singletonList(MediaType.TEXT_PLAIN));
         restTemplate.getMessageConverters().add(converter);
-        obtainAccessToken();
+        //fixed 在启动的时候可能还没有获得app id
+        //因此无法启动
+        //obtainAccessToken();
     }
 
     private void obtainAccessToken() {
@@ -115,7 +115,7 @@ public class WeChatMiniProgramQrCodeService extends QrCodeService<CreateWeChatMi
 
     @AllArgsConstructor
     @Getter
-    private static class GetUnlimitedQRCodeRequest {
+    private static class GetUnlimitedQrCodeRequest {
         @Nullable
         private final String page;
         @NonNull

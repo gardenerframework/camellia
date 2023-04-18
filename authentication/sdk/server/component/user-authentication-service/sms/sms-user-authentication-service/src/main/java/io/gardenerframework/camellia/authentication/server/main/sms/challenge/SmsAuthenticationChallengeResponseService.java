@@ -5,7 +5,6 @@ import io.gardenerframework.camellia.authentication.infra.challenge.core.Challen
 import io.gardenerframework.camellia.authentication.infra.challenge.core.Scenario;
 import io.gardenerframework.camellia.authentication.infra.challenge.core.schema.Challenge;
 import io.gardenerframework.camellia.authentication.infra.challenge.engine.support.GenericCachedChallengeContextStore;
-import io.gardenerframework.camellia.authentication.infra.challenge.engine.support.GenericCachedChallengeStore;
 import io.gardenerframework.camellia.authentication.infra.sms.challenge.AbstractSmsVerificationCodeChallengeResponseService;
 import io.gardenerframework.camellia.authentication.infra.sms.challenge.client.SmsVerificationCodeClient;
 import io.gardenerframework.camellia.authentication.infra.sms.challenge.schema.SmsVerificationCodeChallengeContext;
@@ -29,13 +28,12 @@ public class SmsAuthenticationChallengeResponseService extends AbstractSmsVerifi
     private final SmsAuthenticationOption option;
 
     protected SmsAuthenticationChallengeResponseService(
-            @NonNull GenericCachedChallengeStore challengeStore,
             @NonNull ChallengeCooldownManager challengeCooldownManager,
             @NonNull GenericCachedChallengeContextStore challengeContextStore,
             @NonNull SmsVerificationCodeClient smsVerificationCodeClient,
             @NonNull SmsAuthenticationOption option
     ) {
-        super(challengeStore, challengeCooldownManager, challengeContextStore.migrateType(), smsVerificationCodeClient);
+        super(challengeCooldownManager, challengeContextStore.migrateType(), smsVerificationCodeClient);
         this.option = option;
     }
 

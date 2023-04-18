@@ -1,12 +1,14 @@
 package io.gardenerframework.camellia.authentication.infra.challenge.core.schema;
 
-import io.gardenerframework.camellia.authentication.common.data.serialization.SerializationVersionNumber;
 import io.gardenerframework.fragrans.data.trait.generic.GenericTraits;
-import lombok.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 import org.springframework.lang.Nullable;
 
-import java.io.Serializable;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import java.util.Date;
 
 /**
@@ -20,15 +22,12 @@ import java.util.Date;
 @Setter
 @NoArgsConstructor
 public class Challenge implements
-        GenericTraits.IdentifierTraits.Id<String>,
-        Serializable {
-    private static final long serialVersionUID = SerializationVersionNumber.version;
+        GenericTraits.IdentifierTraits.Id<String> {
     /**
      * 挑战id
      */
-    @NonNull
-    @Builder.Default
-    private String id = "";
+    @NotBlank
+    private String id;
     /**
      * 挑战的cd时间剩余
      */
@@ -39,7 +38,6 @@ public class Challenge implements
      * <p>
      * 默认就是立刻过期
      */
-    @NonNull
-    @Builder.Default
-    private Date expiryTime = new Date();
+    @NotNull
+    private Date expiryTime;
 }

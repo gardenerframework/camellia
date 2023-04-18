@@ -3,8 +3,9 @@
         <brand class="brand-location"></brand>
         <div class="password-recovery-form">
             <el-tabs v-model="formItems.type">
-                <el-tab-pane :label="$t('components.authentication.forms.username.passwordRecovery.type.mobilePhoneNumber')"
-                             name="mobilePhoneNumber">
+                <el-tab-pane
+                        :label="$t('components.authentication.forms.username.passwordRecovery.type.mobilePhoneNumber')"
+                        name="mobilePhoneNumber">
                 </el-tab-pane>
                 <el-tab-pane :label="$t('components.authentication.forms.username.passwordRecovery.type.email')"
                              name="email">
