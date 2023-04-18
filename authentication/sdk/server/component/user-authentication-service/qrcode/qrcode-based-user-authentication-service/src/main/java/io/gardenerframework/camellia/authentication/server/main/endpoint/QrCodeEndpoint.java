@@ -22,9 +22,7 @@ import javax.validation.constraints.NotBlank;
  */
 @RequiredArgsConstructor
 @AuthenticationServerRestController
-public abstract class QrCodeEndpoint
-        <C extends CreateQrCodeRequest,
-                S extends QrCodeService<C>> {
+public abstract class QrCodeEndpoint<C extends CreateQrCodeRequest, S extends QrCodeService<C>> {
     private final S service;
 
     /**

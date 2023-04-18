@@ -1,0 +1,6 @@
+dependencies {
+    api "${group}:qrcode-based-user-authentication-service"
+    api "com.alipay.sdk:alipay-sdk-java:4.35.79.ALL"
+    testImplementation "${fragrans.group}:data-cache-spring-redis"
+    testImplementation "${fragrans.group}:api-starter"
+}
