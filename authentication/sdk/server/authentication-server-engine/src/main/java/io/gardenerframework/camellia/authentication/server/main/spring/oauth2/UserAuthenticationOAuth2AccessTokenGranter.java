@@ -4,7 +4,7 @@ import io.gardenerframework.camellia.authentication.server.common.annotation.Aut
 import io.gardenerframework.camellia.authentication.server.main.schema.OAuth2ClientUserAuthenticationToken;
 import io.gardenerframework.camellia.authentication.server.main.schema.UserAuthenticatedAuthentication;
 import io.gardenerframework.camellia.authentication.server.main.utils.JwtUtils;
-import io.gardenerframework.fragrans.log.GenericLoggerStaticAccessor;
+import io.gardenerframework.fragrans.log.GenericLoggers;
 import io.gardenerframework.fragrans.log.common.schema.reason.NotFound;
 import io.gardenerframework.fragrans.log.schema.content.GenericBasicLogContent;
 import io.gardenerframework.fragrans.log.schema.details.Detail;
@@ -66,7 +66,7 @@ public class UserAuthenticationOAuth2AccessTokenGranter {
             return clientPrincipal;
         }
         //其实这个不太会发生
-        GenericLoggerStaticAccessor.basicLogger().info(
+        GenericLoggers.basicLogger().info(
                 log,
                 GenericBasicLogContent.builder()
                         .what(OAuth2ClientAuthenticationToken.class)

@@ -1,7 +1,7 @@
 //制品库声明
 ext {
-    //声明只用京东的仓库
-    def repository = "https://s01.oss.sonatype.org"
-    snapshotsArtifactory = "${repository}/content/repositories/snapshots" as String
-    releasesArtifactory = "${repository}/service/local/staging/deploy/maven2/" as String
+    //快照用阿里云
+    snapshotsArtifactory = "https://packages.aliyun.com/maven/repository/2349328-snapshot-HNNW6R" as String
+    //发布是maven central
+    releasesArtifactory = "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/" as String
 }

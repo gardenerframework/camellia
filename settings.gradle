@@ -10,7 +10,8 @@ import org.gradle.api.initialization.resolve.RepositoriesMode
  */
 dependencyResolutionManagement {
     apply from: 'build-scripts/gradle/repositories/declare-dependency-repository-urls.gradle'
-    apply from: 'build-scripts/gradle/credentials/dependency-artifactory-credentials.gradle'
+    apply from: 'build-scripts/gradle/credentials/maven-central-artifactory-credentials.gradle'
+    apply from: 'build-scripts/gradle/credentials/aliyun-artifactory-credentials.gradle'
     //禁止子项目声明自己的仓库
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
@@ -22,10 +23,6 @@ dependencyResolutionManagement {
                 //仅搜索非快照版本
                 releasesOnly()
             }
-//            credentials {
-//                username "${dependencyMavenRepositoryCredentials.user}"
-//                password "${dependencyMavenRepositoryCredentials.key}"
-//            }
         }
         mavenCentral()
         maven {
@@ -37,8 +34,8 @@ dependencyResolutionManagement {
                 releasesOnly()
             }
             credentials {
-                username "${dependencyMavenRepositoryCredentials.user}"
-                password "${dependencyMavenRepositoryCredentials.key}"
+                username "${mavenCentralRepositoryCredentials.user}"
+                password "${mavenCentralRepositoryCredentials.key}"
             }
         }
         maven {
@@ -49,10 +46,10 @@ dependencyResolutionManagement {
                 //仅搜索快照版本
                 snapshotsOnly()
             }
-//            credentials {
-//                username "${dependencyMavenRepositoryCredentials.user}"
-//                password "${dependencyMavenRepositoryCredentials.key}"
-//            }
+            credentials {
+                username "${aliyunRepositoryCredentails.user}"
+                password "${aliyunRepositoryCredentails.key}"
+            }
         }
     }
 }

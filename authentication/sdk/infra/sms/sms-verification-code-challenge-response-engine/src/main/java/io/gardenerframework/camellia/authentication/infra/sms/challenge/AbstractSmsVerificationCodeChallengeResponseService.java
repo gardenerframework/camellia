@@ -13,7 +13,7 @@ import io.gardenerframework.camellia.authentication.infra.sms.challenge.event.sc
 import io.gardenerframework.camellia.authentication.infra.sms.challenge.event.schema.SmsVerificationCodeSentEvent;
 import io.gardenerframework.camellia.authentication.infra.sms.challenge.schema.SmsVerificationCodeChallengeContext;
 import io.gardenerframework.camellia.authentication.infra.sms.challenge.schema.SmsVerificationCodeChallengeRequest;
-import io.gardenerframework.fragrans.log.GenericLoggerStaticAccessor;
+import io.gardenerframework.fragrans.log.GenericLoggers;
 import io.gardenerframework.fragrans.log.common.schema.verb.Change;
 import io.gardenerframework.fragrans.log.schema.content.GenericBasicLogContent;
 import io.gardenerframework.fragrans.log.schema.details.Detail;
@@ -133,7 +133,7 @@ public abstract class AbstractSmsVerificationCodeChallengeResponseService<R exte
         if (request.isMobilePhoneNumberAsChallengeId()) {
             String challengeId = challenge.getId();
             //记录一下因为这个改了
-            GenericLoggerStaticAccessor.basicLogger().debug(
+            GenericLoggers.basicLogger().debug(
                     log,
                     GenericBasicLogContent.builder()
                             .what(challenge.getClass())

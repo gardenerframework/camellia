@@ -11,6 +11,7 @@ import com.jdcloud.sdk.service.sms.model.BatchSendResult;
 import io.gardenerframework.camellia.authentication.common.client.schema.RequestingClient;
 import io.gardenerframework.camellia.authentication.infra.challenge.core.Scenario;
 import io.gardenerframework.camellia.authentication.infra.sms.challenge.configuration.JdCloudSmsClientSecurityOption;
+import io.gardenerframework.fragrans.log.GenericLoggers;
 import io.gardenerframework.fragrans.log.GenericOperationLogger;
 import io.gardenerframework.fragrans.log.common.schema.state.Failed;
 import io.gardenerframework.fragrans.log.common.schema.verb.Send;
@@ -36,7 +37,7 @@ public class JdCloudSmsClient implements SmsVerificationCodeClient, Initializing
     @NonNull
     private final SmsVerificationCodeTemplateProvider smsVerificationCodeTemplateProvider;
     @NonNull
-    private final GenericOperationLogger operationLogger;
+    private final GenericOperationLogger operationLogger = GenericLoggers.operationLogger();
     /**
      * sms客户端
      */

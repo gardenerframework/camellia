@@ -5,8 +5,7 @@ import io.gardenerframework.camellia.authentication.infra.challenge.core.schema.
 import io.gardenerframework.camellia.authentication.infra.challenge.core.schema.ChallengeRequest;
 import io.gardenerframework.camellia.authentication.server.common.annotation.AuthenticationServerEngineComponent;
 import io.gardenerframework.camellia.authentication.server.main.mfa.challenge.AuthenticationServerMfaAuthenticator;
-import io.gardenerframework.fragrans.log.GenericBasicLogger;
-import io.gardenerframework.fragrans.log.GenericLoggerStaticAccessor;
+import io.gardenerframework.fragrans.log.GenericLoggers;
 import io.gardenerframework.fragrans.log.common.schema.reason.NotFound;
 import io.gardenerframework.fragrans.log.schema.content.GenericBasicLogContent;
 import io.gardenerframework.fragrans.log.schema.details.Detail;
@@ -26,7 +25,6 @@ import java.util.Collection;
 @AuthenticationServerEngineComponent
 public class CompositeAuthenticationServerMfaAuthenticatorRegistry {
     private final Collection<AuthenticationServerMfaAuthenticatorRegistry> registries;
-    private GenericBasicLogger basicLogger;
 
     @Nullable
     public <R extends ChallengeRequest, C extends Challenge, X extends ChallengeContext> AuthenticationServerMfaAuthenticator<R, C, X> getAuthenticator(@NonNull String name) {
@@ -36,7 +34,7 @@ public class CompositeAuthenticationServerMfaAuthenticatorRegistry {
                 return authenticator;
             }
         }
-        GenericLoggerStaticAccessor.basicLogger().warn(
+        GenericLoggers.basicLogger().warn(
                 log,
                 GenericBasicLogContent.builder()
                         .what(AuthenticationServerMfaAuthenticator.class)

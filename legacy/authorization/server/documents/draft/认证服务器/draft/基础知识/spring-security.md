@@ -397,7 +397,7 @@ public interface OAuth2Token {
 
 其中`OAuth2AuthorizationCode`中的metadata也标记为了授权码已经失效
 
-##                             
+##                              
 
 # 注意事项
 

@@ -8,6 +8,7 @@ import io.gardenerframework.camellia.authentication.infra.challenge.core.schema.
 import io.gardenerframework.camellia.authentication.infra.challenge.mfa.server.MfaAuthenticator;
 import io.gardenerframework.camellia.authentication.infra.challenge.mfa.server.configuration.MfaServerEngineComponent;
 import io.gardenerframework.fragrans.log.GenericBasicLogger;
+import io.gardenerframework.fragrans.log.GenericLoggers;
 import io.gardenerframework.fragrans.log.common.schema.reason.AlreadyExisted;
 import io.gardenerframework.fragrans.log.common.schema.reason.NotFound;
 import io.gardenerframework.fragrans.log.schema.content.GenericBasicLogContent;
@@ -34,7 +35,7 @@ import java.util.Map;
 @MfaServerEngineComponent
 public class DefaultMfaAuthenticatorRegistry implements MfaAuthenticatorRegistry, InitializingBean {
     private final Collection<MfaAuthenticator<? extends ChallengeRequest, ? extends Challenge, ? extends ChallengeContext>> authenticators;
-    private final GenericBasicLogger basicLogger;
+    private final GenericBasicLogger basicLogger = GenericLoggers.basicLogger();
 
     private final Map<String, MfaAuthenticator<? extends ChallengeRequest, ? extends Challenge, ? extends ChallengeContext>> registry = new HashMap<>();
 

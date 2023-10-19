@@ -21,6 +21,7 @@ import io.gardenerframework.camellia.authentication.server.common.annotation.Aut
 import io.gardenerframework.camellia.authentication.server.main.mfa.challenge.AuthenticationServerMfaAuthenticator;
 import io.gardenerframework.fragrans.api.standard.schema.ApiError;
 import io.gardenerframework.fragrans.log.GenericBasicLogger;
+import io.gardenerframework.fragrans.log.GenericLoggers;
 import io.gardenerframework.fragrans.log.common.schema.reason.AlreadyExisted;
 import io.gardenerframework.fragrans.log.schema.content.GenericBasicLogContent;
 import io.gardenerframework.fragrans.log.schema.details.Detail;
@@ -51,7 +52,7 @@ import java.util.Map;
 @ConditionalOnClass(MfaClient.class)
 public class MfaClientAuthenticationServerMfaAuthenticatorRegistry implements
         AuthenticationServerMfaAuthenticatorRegistry, InitializingBean {
-    private final GenericBasicLogger basicLogger;
+    private final GenericBasicLogger basicLogger = GenericLoggers.basicLogger();
     private final ObjectMapper objectMapper;
     /**
      * 注册的所有客户端

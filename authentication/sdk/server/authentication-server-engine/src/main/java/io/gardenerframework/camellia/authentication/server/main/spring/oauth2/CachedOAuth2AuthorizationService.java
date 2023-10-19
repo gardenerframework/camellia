@@ -14,7 +14,7 @@ import io.gardenerframework.fragrans.data.cache.lock.context.ServletRequestLockC
 import io.gardenerframework.fragrans.data.cache.serialize.JdkSerializer;
 import io.gardenerframework.fragrans.data.cache.serialize.LongSerializer;
 import io.gardenerframework.fragrans.data.cache.serialize.StringSerializer;
-import io.gardenerframework.fragrans.log.GenericLoggerStaticAccessor;
+import io.gardenerframework.fragrans.log.GenericLoggers;
 import io.gardenerframework.fragrans.log.common.schema.state.Done;
 import io.gardenerframework.fragrans.log.common.schema.verb.Delete;
 import io.gardenerframework.fragrans.log.common.schema.verb.Read;
@@ -199,7 +199,7 @@ public class CachedOAuth2AuthorizationService implements OAuth2AuthorizationServ
 
     @Override
     public void save(OAuth2Authorization authorization) {
-        GenericLoggerStaticAccessor.operationLogger().debug(
+        GenericLoggers.operationLogger().debug(
                 log,
                 GenericOperationLogContent.builder()
                         .what(OAuth2Authorization.class)
@@ -253,7 +253,7 @@ public class CachedOAuth2AuthorizationService implements OAuth2AuthorizationServ
                     //新授权的ttl(应当是以上索引的要求的ttl中的最长的值)
                     new LongSerializer().serialize(calculateMaxTtl(needToCreate))
             );
-            GenericLoggerStaticAccessor.operationLogger().debug(
+            GenericLoggers.operationLogger().debug(
                     log,
                     GenericOperationLogContent.builder()
                             .what(OAuth2Authorization.class)
@@ -276,7 +276,7 @@ public class CachedOAuth2AuthorizationService implements OAuth2AuthorizationServ
 
     @Override
     public void remove(OAuth2Authorization authorization) {
-        GenericLoggerStaticAccessor.operationLogger().debug(
+        GenericLoggers.operationLogger().debug(
                 log,
                 GenericOperationLogContent.builder()
                         .what(OAuth2Authorization.class)
@@ -299,7 +299,7 @@ public class CachedOAuth2AuthorizationService implements OAuth2AuthorizationServ
                 scriptKeySerializer.serialize(composeTokenKey(needToDelete.get(OidcParameterNames.ID_TOKEN).getValue(), OidcParameterNames.ID_TOKEN)),
                 scriptKeySerializer.serialize(composeTokenKey(needToDelete.get(OAuth2TokenType.REFRESH_TOKEN.getValue()).getValue(), OAuth2TokenType.REFRESH_TOKEN.getValue()))
         );
-        GenericLoggerStaticAccessor.operationLogger().debug(
+        GenericLoggers.operationLogger().debug(
                 log,
                 GenericOperationLogContent.builder()
                         .what(OAuth2Authorization.class)
@@ -319,7 +319,7 @@ public class CachedOAuth2AuthorizationService implements OAuth2AuthorizationServ
     @Override
     public OAuth2Authorization findByToken(String token, OAuth2TokenType tokenType) {
         Set<String> lookupTokenTypes = new HashSet<>(4);
-        GenericLoggerStaticAccessor.operationLogger().debug(
+        GenericLoggers.operationLogger().debug(
                 log,
                 GenericOperationLogContent.builder()
                         .what(OAuth2Authorization.class)

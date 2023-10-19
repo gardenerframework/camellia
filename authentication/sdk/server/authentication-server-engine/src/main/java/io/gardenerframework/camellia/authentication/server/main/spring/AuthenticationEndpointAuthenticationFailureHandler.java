@@ -10,7 +10,7 @@ import io.gardenerframework.fragrans.api.standard.error.ApiErrorFactory;
 import io.gardenerframework.fragrans.api.standard.error.DefaultApiErrorConstants;
 import io.gardenerframework.fragrans.api.standard.error.support.event.InitializingApiErrorPropertiesEvent;
 import io.gardenerframework.fragrans.api.standard.schema.ApiError;
-import io.gardenerframework.fragrans.log.GenericLoggerStaticAccessor;
+import io.gardenerframework.fragrans.log.GenericLoggers;
 import io.gardenerframework.fragrans.log.common.schema.state.Failed;
 import io.gardenerframework.fragrans.log.common.schema.verb.Process;
 import io.gardenerframework.fragrans.log.schema.content.GenericBasicLogContent;
@@ -115,7 +115,7 @@ public class AuthenticationEndpointAuthenticationFailureHandler implements Authe
     @Override
     public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response, AuthenticationException exception) throws IOException, ServletException {
         //最先打日志，看起来有时候会出现日志不打印的问题
-        GenericLoggerStaticAccessor.operationLogger().debug(
+        GenericLoggers.operationLogger().debug(
                 log,
                 GenericOperationLogContent.builder()
                         .what(LoginAuthenticationRequestToken.class)
@@ -188,7 +188,7 @@ public class AuthenticationEndpointAuthenticationFailureHandler implements Authe
                     );
                 } else {
                     //add
-                    GenericLoggerStaticAccessor.basicLogger().debug(
+                    GenericLoggers.basicLogger().debug(
                             log,
                             GenericBasicLogContent.builder()
                                     .what(SpringHardCodedErrors.class)

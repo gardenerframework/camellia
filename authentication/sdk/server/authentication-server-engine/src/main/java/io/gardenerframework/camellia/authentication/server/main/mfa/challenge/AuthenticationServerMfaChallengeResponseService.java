@@ -18,7 +18,7 @@ import io.gardenerframework.camellia.authentication.server.main.mfa.challenge.sc
 import io.gardenerframework.camellia.authentication.server.main.mfa.utils.CompositeAuthenticationServerMfaAuthenticatorRegistry;
 import io.gardenerframework.camellia.authentication.server.main.schema.subject.principal.Principal;
 import io.gardenerframework.camellia.authentication.server.main.user.schema.User;
-import io.gardenerframework.fragrans.log.GenericLoggerStaticAccessor;
+import io.gardenerframework.fragrans.log.GenericLoggers;
 import io.gardenerframework.fragrans.log.common.schema.reason.NotFound;
 import io.gardenerframework.fragrans.log.schema.content.GenericBasicLogContent;
 import io.gardenerframework.fragrans.log.schema.details.Detail;
@@ -134,7 +134,7 @@ public class AuthenticationServerMfaChallengeResponseService extends AbstractCha
                 }
             }
             String authenticatorNameHolder = authenticatorName;
-            GenericLoggerStaticAccessor.basicLogger().warn(
+            GenericLoggers.basicLogger().warn(
                     log,
                     GenericBasicLogContent.builder()
                             .what(AuthenticationServerMfaAuthenticatorChallengeRequestFactory.class)
