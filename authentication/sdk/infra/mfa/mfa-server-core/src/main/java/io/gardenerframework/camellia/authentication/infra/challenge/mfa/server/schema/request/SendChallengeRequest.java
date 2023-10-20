@@ -2,11 +2,13 @@ package io.gardenerframework.camellia.authentication.infra.challenge.mfa.server.
 
 import io.gardenerframework.camellia.authentication.infra.challenge.mfa.server.MfaAuthenticator;
 import io.gardenerframework.camellia.authentication.infra.challenge.mfa.server.schema.request.constraints.RequestingClientSupported;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.springframework.lang.Nullable;
 
 import javax.validation.constraints.NotNull;
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -23,9 +25,8 @@ public class SendChallengeRequest {
      * <p>
      * 这个json会被{@link MfaAuthenticator}的泛型解析
      */
-    @NonNull
     @NotNull
-    private Map<String, Object> challengeRequest = new HashMap<>();
+    private Map<String, Object> challengeRequest;
     /**
      * 实际请求的客户端
      * <p>

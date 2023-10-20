@@ -1,7 +1,10 @@
 package io.gardenerframework.camellia.authentication.infra.challenge.mfa.server.schema.request;
 
 import io.gardenerframework.camellia.authentication.infra.challenge.mfa.server.schema.request.constraints.RequestingClientSupported;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.springframework.lang.Nullable;
 
 import javax.validation.constraints.NotBlank;
@@ -28,8 +31,7 @@ public class VerifyResponseRequest {
      * 执行mfa验证的场景，比如登录，比如下订单
      */
     @NotBlank
-    @NonNull
-    private String scenario = "";
+    private String scenario;
     /**
      * 挑战id
      */
