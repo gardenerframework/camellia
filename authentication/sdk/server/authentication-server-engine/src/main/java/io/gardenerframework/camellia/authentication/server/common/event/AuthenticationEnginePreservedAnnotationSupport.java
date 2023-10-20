@@ -6,7 +6,7 @@ import io.gardenerframework.camellia.authentication.server.main.event.listener.a
 import io.gardenerframework.camellia.authentication.server.main.event.schema.AuthenticationEvent;
 import io.gardenerframework.camellia.authentication.server.main.event.schema.AuthenticationFailedEvent;
 import io.gardenerframework.camellia.authentication.server.main.schema.subject.principal.Principal;
-import io.gardenerframework.fragrans.log.GenericLoggerStaticAccessor;
+import io.gardenerframework.fragrans.log.GenericLoggers;
 import io.gardenerframework.fragrans.log.common.schema.verb.Send;
 import io.gardenerframework.fragrans.log.schema.content.GenericOperationLogContent;
 import io.gardenerframework.fragrans.log.schema.details.Detail;
@@ -103,7 +103,7 @@ public class AuthenticationEnginePreservedAnnotationSupport extends ApplicationL
                 ) {
                     super.onApplicationEvent(event);
                 } else {
-                    GenericLoggerStaticAccessor.operationLogger().debug(
+                    GenericLoggers.operationLogger().debug(
                             log,
                             GenericOperationLogContent.builder()
                                     .what(Event.class)

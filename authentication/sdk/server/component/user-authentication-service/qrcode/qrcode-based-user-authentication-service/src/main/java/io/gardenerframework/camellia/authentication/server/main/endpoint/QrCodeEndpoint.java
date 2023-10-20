@@ -22,8 +22,8 @@ import javax.validation.constraints.NotBlank;
  */
 @RequiredArgsConstructor
 @AuthenticationServerRestController
-public abstract class QrCodeEndpoint<C extends CreateQrCodeRequest> {
-    private final QrCodeService<C> service;
+public abstract class QrCodeEndpoint<C extends CreateQrCodeRequest, S extends QrCodeService<C>> {
+    private final S service;
 
     /**
      * 获取二维码的state

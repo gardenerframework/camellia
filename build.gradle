@@ -177,7 +177,8 @@ allprojects {
         //获取maven仓库地址
         apply from: "${rootDir}/build-scripts/gradle/repositories/declare-artifactory-urls.gradle"
         //获取仓库凭据
-        apply from: "${rootDir}/build-scripts/gradle/credentials/artifactory-credentials.gradle"
+        apply from: "${rootDir}/build-scripts/gradle/credentials/aliyun-artifactory-credentials.gradle"
+        apply from: "${rootDir}/build-scripts/gradle/credentials/maven-central-artifactory-credentials.gradle"
         /**
          * 配置发布
          */
@@ -260,8 +261,8 @@ allprojects {
                     project.version.endsWith(SNAPSHOT_KEYWORD) ? snapshotsOnly() : releasesOnly()
                 }
                 credentials {
-                    username "${mavenRepositoryCredentials.user}"
-                    password "${mavenRepositoryCredentials.key}"
+                    username project.version.endsWith(SNAPSHOT_KEYWORD) ? "${aliyunRepositoryCredentails.user}" : "${mavenCentralRepositoryCredentials.user}"
+                    password project.version.endsWith(SNAPSHOT_KEYWORD) ? "${aliyunRepositoryCredentails.key}" : "${mavenCentralRepositoryCredentials.key}"
                 }
             }
         }

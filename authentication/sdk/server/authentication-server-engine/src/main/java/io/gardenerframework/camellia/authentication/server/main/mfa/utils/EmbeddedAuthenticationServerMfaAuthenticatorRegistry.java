@@ -9,6 +9,7 @@ import io.gardenerframework.camellia.authentication.infra.challenge.core.schema.
 import io.gardenerframework.camellia.authentication.server.common.annotation.AuthenticationServerEngineComponent;
 import io.gardenerframework.camellia.authentication.server.main.mfa.challenge.AuthenticationServerMfaAuthenticator;
 import io.gardenerframework.fragrans.log.GenericBasicLogger;
+import io.gardenerframework.fragrans.log.GenericLoggers;
 import io.gardenerframework.fragrans.log.GenericOperationLogger;
 import io.gardenerframework.fragrans.log.common.schema.reason.AlreadyExisted;
 import io.gardenerframework.fragrans.log.common.schema.reason.NotFound;
@@ -38,8 +39,8 @@ import java.util.Map;
 @Slf4j
 @AuthenticationServerEngineComponent
 public class EmbeddedAuthenticationServerMfaAuthenticatorRegistry implements AuthenticationServerMfaAuthenticatorRegistry, InitializingBean {
-    private final GenericBasicLogger basicLogger;
-    private final GenericOperationLogger operationLogger;
+    private final GenericBasicLogger basicLogger = GenericLoggers.basicLogger();
+    private final GenericOperationLogger operationLogger = GenericLoggers.operationLogger();
     /**
      * key = 认证器名称
      * <p>

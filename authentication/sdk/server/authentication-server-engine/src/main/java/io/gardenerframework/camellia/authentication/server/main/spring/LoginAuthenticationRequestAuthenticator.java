@@ -17,6 +17,7 @@ import io.gardenerframework.camellia.authentication.server.main.schema.subject.p
 import io.gardenerframework.camellia.authentication.server.main.user.UserServiceDelegate;
 import io.gardenerframework.camellia.authentication.server.main.user.schema.User;
 import io.gardenerframework.fragrans.log.GenericBasicLogger;
+import io.gardenerframework.fragrans.log.GenericLoggers;
 import io.gardenerframework.fragrans.log.GenericOperationLogger;
 import io.gardenerframework.fragrans.log.common.schema.reason.ExceptionCaught;
 import io.gardenerframework.fragrans.log.common.schema.state.Failed;
@@ -60,8 +61,8 @@ public class LoginAuthenticationRequestAuthenticator implements
     private final UserServiceDelegate userService;
     private final AuthenticationEndpointExceptionAdapter authenticationEndpointExceptionAdapter;
     private final AuthenticationEndpointAuthenticatedAuthenticationAdapter authenticationEndpointAuthenticatedAuthenticationAdapter;
-    private final GenericBasicLogger basicLogger;
-    private final GenericOperationLogger operationLogger;
+    private final GenericBasicLogger basicLogger = GenericLoggers.basicLogger();
+    private final GenericOperationLogger operationLogger = GenericLoggers.operationLogger();
     private ApplicationEventPublisher eventPublisher;
 
 

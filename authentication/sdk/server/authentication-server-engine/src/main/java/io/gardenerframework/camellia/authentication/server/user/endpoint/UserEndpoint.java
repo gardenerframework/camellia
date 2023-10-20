@@ -7,7 +7,7 @@ import io.gardenerframework.camellia.authentication.server.main.schema.UserAuthe
 import io.gardenerframework.camellia.authentication.server.main.user.schema.User;
 import io.gardenerframework.camellia.authentication.server.user.schema.response.UserAppearance;
 import io.gardenerframework.fragrans.api.standard.error.exception.client.UnauthorizedException;
-import io.gardenerframework.fragrans.log.GenericLoggerStaticAccessor;
+import io.gardenerframework.fragrans.log.GenericLoggers;
 import io.gardenerframework.fragrans.log.schema.content.GenericBasicLogContent;
 import io.gardenerframework.fragrans.log.schema.word.Word;
 import lombok.AllArgsConstructor;
@@ -52,7 +52,7 @@ public class UserEndpoint {
             response.sendRedirect(authorizationServerPathOption.getOidcUserInfoEndpoint());
             return null;
         } else {
-            GenericLoggerStaticAccessor.basicLogger().debug(
+            GenericLoggers.basicLogger().debug(
                     log,
                     GenericBasicLogContent.builder()
                             .what(authentication.getClass())

@@ -10,7 +10,8 @@ import org.gradle.api.initialization.resolve.RepositoriesMode
  */
 dependencyResolutionManagement {
     apply from: 'build-scripts/gradle/repositories/declare-dependency-repository-urls.gradle'
-    apply from: 'build-scripts/gradle/credentials/dependency-artifactory-credentials.gradle'
+    apply from: 'build-scripts/gradle/credentials/maven-central-artifactory-credentials.gradle'
+    apply from: 'build-scripts/gradle/credentials/aliyun-artifactory-credentials.gradle'
     //禁止子项目声明自己的仓库
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
@@ -22,10 +23,6 @@ dependencyResolutionManagement {
                 //仅搜索非快照版本
                 releasesOnly()
             }
-//            credentials {
-//                username "${dependencyMavenRepositoryCredentials.user}"
-//                password "${dependencyMavenRepositoryCredentials.key}"
-//            }
         }
         mavenCentral()
         maven {
@@ -37,8 +34,8 @@ dependencyResolutionManagement {
                 releasesOnly()
             }
             credentials {
-                username "${dependencyMavenRepositoryCredentials.user}"
-                password "${dependencyMavenRepositoryCredentials.key}"
+                username "${mavenCentralRepositoryCredentials.user}"
+                password "${mavenCentralRepositoryCredentials.key}"
             }
         }
         maven {
@@ -49,10 +46,10 @@ dependencyResolutionManagement {
                 //仅搜索快照版本
                 snapshotsOnly()
             }
-//            credentials {
-//                username "${dependencyMavenRepositoryCredentials.user}"
-//                password "${dependencyMavenRepositoryCredentials.key}"
-//            }
+            credentials {
+                username "${aliyunRepositoryCredentails.user}"
+                password "${aliyunRepositoryCredentails.key}"
+            }
         }
     }
 }
@@ -82,6 +79,7 @@ String[] subprojectNames = [
         'authentication:sdk:server:component:user-authentication-service:qrcode:qrcode-based-user-authentication-service',
         'authentication:sdk:server:component:user-authentication-service:qrcode:app-qrcode-user-authentication-service',
         'authentication:sdk:server:component:user-authentication-service:qrcode:wechat-mini-program-qrcode-user-authentication-service',
+        'authentication:sdk:server:component:user-authentication-service:qrcode:alipay-mini-program-qrcode-user-authentication-service',
         'authentication:sdk:server:component:user-service:ldap:ldap-user-service',
         'authentication:sdk:server:authentication-server-engine',
         'authentication:sdk:server:component:administration:user-oauth2-authorization-administration',

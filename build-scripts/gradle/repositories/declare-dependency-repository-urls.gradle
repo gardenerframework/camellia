@@ -1,7 +1,6 @@
 //包仓库声明
 ext {
-    def repository = "https://s01.oss.sonatype.org"
-    snapshots = "${repository}/content/repositories/snapshots" as String
-    staging = "${repository}/service/local/staging/deploy/maven2/" as String
+    snapshots = "https://packages.aliyun.com/maven/repository/2349328-snapshot-HNNW6R" as String
+    staging = "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/" as String
     releases = "https://maven.aliyun.com/repository/public" as String
 }

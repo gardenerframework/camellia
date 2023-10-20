@@ -14,6 +14,7 @@ import io.gardenerframework.camellia.authentication.server.main.schema.request.O
 import io.gardenerframework.camellia.authentication.server.main.utils.AuthenticationEndpointMatcher;
 import io.gardenerframework.camellia.authentication.server.main.utils.UserAuthenticationServiceRegistry;
 import io.gardenerframework.fragrans.log.GenericBasicLogger;
+import io.gardenerframework.fragrans.log.GenericLoggers;
 import io.gardenerframework.fragrans.log.GenericOperationLogger;
 import io.gardenerframework.fragrans.log.common.schema.reason.Mismatch;
 import io.gardenerframework.fragrans.log.common.schema.state.Failed;
@@ -53,8 +54,8 @@ public class LoginAuthenticationRequestConverter implements AuthenticationConver
     private final UserAuthenticationServiceRegistry userAuthenticationServiceRegistry;
     private final AuthenticationEndpointExceptionAdapter authenticationEndpointExceptionAdapter;
     private final AuthenticationEndpointMatcher authenticationEndpointMatcher;
-    private final GenericBasicLogger basicLogger;
-    private final GenericOperationLogger operationLogger;
+    private final GenericBasicLogger basicLogger = GenericLoggers.basicLogger();
+    private final GenericOperationLogger operationLogger = GenericLoggers.operationLogger();
 
     /**
      * 完成转换

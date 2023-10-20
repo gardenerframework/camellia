@@ -4,6 +4,7 @@ import io.gardenerframework.camellia.authentication.server.common.annotation.Aut
 import io.gardenerframework.camellia.authentication.server.common.annotation.AuthenticationServerEnginePreserved;
 import io.gardenerframework.camellia.authentication.server.main.UserAuthenticationService;
 import io.gardenerframework.camellia.authentication.server.main.annotation.AuthenticationType;
+import io.gardenerframework.fragrans.log.GenericLoggers;
 import io.gardenerframework.fragrans.log.GenericOperationLogger;
 import io.gardenerframework.fragrans.log.common.schema.state.Done;
 import io.gardenerframework.fragrans.log.common.schema.verb.Register;
@@ -29,7 +30,7 @@ import java.util.*;
 public class DefaultUserAuthenticationServiceRegistry implements UserAuthenticationServiceRegistry, InitializingBean {
     private final Map<String, UserAuthenticationService> registry = new LinkedHashMap<>();
     private final Collection<UserAuthenticationService> services;
-    private final GenericOperationLogger operationLogger;
+    private final GenericOperationLogger operationLogger = GenericLoggers.operationLogger();
 
     @Override
     public Collection<String> getUserAuthenticationServiceTypes(boolean ignorePreserved) {
