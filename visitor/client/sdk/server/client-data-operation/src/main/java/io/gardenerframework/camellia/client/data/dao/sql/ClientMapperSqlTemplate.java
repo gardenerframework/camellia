@@ -5,18 +5,21 @@ import io.gardenerframework.camellia.client.data.schema.criteria.ClientCriteriaT
 import io.gardenerframework.camellia.client.data.schema.entity.ClientEntityTemplate;
 import io.gardenerframework.fragrans.data.persistence.orm.statement.StatementBuilder;
 import io.gardenerframework.fragrans.data.persistence.orm.statement.annotation.TableNameUtils;
+import io.gardenerframework.fragrans.data.persistence.orm.statement.schema.criteria.DatabaseCriteria;
 import io.gardenerframework.fragrans.data.persistence.orm.statement.schema.criteria.MatchAllCriteria;
 import io.gardenerframework.fragrans.data.persistence.orm.statement.schema.statement.SelectStatement;
 import io.gardenerframework.fragrans.data.persistence.template.sql.DomainSqlTemplateBase;
 import io.gardenerframework.fragrans.data.practice.persistence.orm.statement.CommonScannerCallbacks;
 import io.gardenerframework.fragrans.data.practice.persistence.orm.statement.schema.criteria.CommonCriteria;
 import io.gardenerframework.fragrans.data.trait.security.SecurityTraits;
-import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.builder.annotation.ProviderContext;
 import org.springframework.lang.Nullable;
+import org.springframework.util.StringUtils;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * sql操作模板
@@ -124,5 +127,21 @@ public class ClientMapperSqlTemplate<E extends ClientEntityTemplate, C extends C
         //附加分页参数
         PaginationUtils.appendPagination(statement, pageNo, pageSize);
         return statement;
+    }
+
+    protected Map<Class<?>, DatabaseCriteria> buildQueryCriteria(
+            Class<?> entityType,
+            C criteria, String criteriaParameterName
+    ) {
+        Map<Class<?>, DatabaseCriteria> mappings = new HashMap<>();
+        if (StringUtils.hasText(criteria.getName())) {
+            QueryCriteriaUtils.addEqualsCriteria(
+                    mappings,
+                    entityType,
+                    criteriaParameterName,
+                    GenericTraits.Name.class
+            );
+        }
+        return mappings;
     }
 }
