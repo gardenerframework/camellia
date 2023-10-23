@@ -56,6 +56,10 @@ dependencyResolutionManagement {
 
 rootProject.name = 'camellia'
 String[] subprojectNames = [
+        //客户端管理
+        "client:sdk:server:client-data-schema",
+        "client:sdk:server:client-data-atomic-operation",
+        //认证服务器
         'authentication:sdk:common:common-toolkits',
         'authentication:sdk:common:requesting-client:requesting-client-core',
         'authentication:sdk:infra:challenge-response:challenge-response-core',

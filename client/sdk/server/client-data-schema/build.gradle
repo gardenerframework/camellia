@@ -1,0 +1,4 @@
+dependencies {
+    compileOnly "${fragrans.group}:sugar-trait"
+    annotationProcessor "${fragrans.group}:sugar-trait-apt"
+}
