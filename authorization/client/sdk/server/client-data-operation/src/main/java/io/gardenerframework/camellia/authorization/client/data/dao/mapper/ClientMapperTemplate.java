@@ -5,7 +5,6 @@ import io.gardenerframework.camellia.authorization.client.data.schema.criteria.C
 import io.gardenerframework.camellia.authorization.client.data.schema.entity.ClientEntityTemplate;
 import io.gardenerframework.fragrans.data.persistence.template.annotation.DomainDaoTemplate;
 import org.apache.ibatis.annotations.DeleteProvider;
-import org.apache.ibatis.annotations.InsertProvider;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.SelectProvider;
 import org.springframework.lang.Nullable;
@@ -57,6 +56,21 @@ public interface ClientMapperTemplate<E extends ClientEntityTemplate, C extends 
             @Nullable Collection<Class<?>> should,
             int pageNo,
             int pageSize
+    );
+
+    /**
+     * 获取找到多少行数据
+     *
+     * @param criteria 条件
+     * @param must     and 条件
+     * @param should   or 条件
+     * @return 记录数量
+     */
+    @SelectProvider(ClientMapperSqlProviderTemplate.class)
+    long countFoundRows(
+            @Param(ParameterNames.criteria) C criteria,
+            @Nullable Collection<Class<?>> must,
+            @Nullable Collection<Class<?>> should
     );
 
     /**

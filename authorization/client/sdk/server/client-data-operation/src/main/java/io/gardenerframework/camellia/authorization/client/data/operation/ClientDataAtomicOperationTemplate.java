@@ -5,6 +5,7 @@ import io.gardenerframework.camellia.authorization.client.data.schema.criteria.C
 import io.gardenerframework.camellia.authorization.client.data.schema.entity.ClientEntityTemplate;
 import io.gardenerframework.fragrans.data.practice.operation.CommonOperations;
 import io.gardenerframework.fragrans.data.practice.operation.checker.RecordChecker;
+import io.gardenerframework.fragrans.data.schema.query.GenericQueryResult;
 import io.gardenerframework.fragrans.log.GenericLoggers;
 import io.gardenerframework.fragrans.log.common.schema.verb.Create;
 import io.gardenerframework.fragrans.log.schema.content.GenericBasicLogContent;
@@ -17,6 +18,7 @@ import org.springframework.lang.Nullable;
 import org.springframework.util.DigestUtils;
 
 import java.nio.charset.StandardCharsets;
+import java.util.Collection;
 import java.util.UUID;
 import java.util.function.Function;
 
@@ -26,7 +28,7 @@ import java.util.function.Function;
  */
 @Slf4j
 @RequiredArgsConstructor
-public class ClientDataAtomicOperation<E extends ClientEntityTemplate, C extends ClientCriteriaTemplate> {
+public class ClientDataAtomicOperationTemplate<E extends ClientEntityTemplate, C extends ClientCriteriaTemplate> {
     /**
      * 数据操作模板
      * <p>
@@ -110,6 +112,29 @@ public class ClientDataAtomicOperation<E extends ClientEntityTemplate, C extends
                 () -> clientMapperTemplate.readClient(clientId, showPassword),
                 checkers
         );
+    }
+
+    /**
+     * 搜索客户端
+     *
+     * @param criteria 条件
+     * @param must     and 条件
+     * @param should   or 条件
+     * @param pageNo   页码
+     * @param pageSize 页大小
+     * @return 搜索结果
+     * @throws Exception 遇到问题抛出异常
+     */
+    public GenericQueryResult<E> searchClient(
+            @NonNull C criteria,
+            @Nullable Collection<Class<?>> must,
+            @Nullable Collection<Class<?>> should,
+            int pageNo,
+            int pageSize
+    ) throws Exception {
+        return GenericQueryResult.<E>builder().contents(clientMapperTemplate.searchClient(criteria, must, should, pageNo, pageSize))
+                .total(clientMapperTemplate.countFoundRows(criteria, must, should))
+                .build();
     }
 
     @AllArgsConstructor

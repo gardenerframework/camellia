@@ -6,6 +6,7 @@ import io.gardenerframework.camellia.authorization.client.data.schema.entity.Cli
 import io.gardenerframework.fragrans.data.persistence.criteria.support.CriteriaBuilder;
 import io.gardenerframework.fragrans.data.persistence.orm.statement.StatementBuilder;
 import io.gardenerframework.fragrans.data.persistence.orm.statement.annotation.TableNameUtils;
+import io.gardenerframework.fragrans.data.persistence.orm.statement.schema.statement.SelectStatement;
 import io.gardenerframework.fragrans.data.persistence.template.sql.DomainSqlTemplateBase;
 import io.gardenerframework.fragrans.data.practice.persistence.orm.statement.CommonScannerCallbacks;
 import io.gardenerframework.fragrans.data.practice.persistence.orm.statement.schema.criteria.CommonCriteria;
@@ -89,6 +90,44 @@ public class ClientMapperSqlProviderTemplate<E extends ClientEntityTemplate, C e
             int pageSize
     ) {
         Class<?> entityType = getDomainObjectType(context);
+        return buildSearchClientStatement(entityType, criteria, must, should)
+                .pagination(pageNo, pageSize).build();
+    }
+
+    /**
+     * 计算查到的行数
+     *
+     * @param context  上下文
+     * @param criteria 查询条件
+     * @param must     and 条件
+     * @param should   or 条件
+     * @return 语句
+     */
+    public String countFoundRows(
+            ProviderContext context,
+            C criteria,
+            @Nullable Collection<Class<?>> must,
+            @Nullable Collection<Class<?>> should
+    ) {
+        Class<?> entityType = getDomainObjectType(context);
+        return buildSearchClientStatement(entityType, criteria, must, should).countFoundRows(true).build();
+    }
+
+    /**
+     * 生成语句供查询和查询所有行数使用
+     *
+     * @param entityType 实体类型
+     * @param criteria   条件
+     * @param must       and
+     * @param should     or
+     * @return 语句
+     */
+    private SelectStatement buildSearchClientStatement(
+            Class<?> entityType,
+            C criteria,
+            @Nullable Collection<Class<?>> must,
+            @Nullable Collection<Class<?>> should
+    ) {
         return StatementBuilder.getInstance().select(
                 entityType,
                 new CommonScannerCallbacks
@@ -104,7 +143,7 @@ public class ClientMapperSqlProviderTemplate<E extends ClientEntityTemplate, C e
                 ClientMapperTemplate.ParameterNames.criteria,
                 must,
                 should
-        )).pagination(pageNo, pageSize).countFoundRows(true).build();
+        ));
     }
 
     /**
