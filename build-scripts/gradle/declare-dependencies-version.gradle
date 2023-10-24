@@ -22,7 +22,8 @@ ext {
             [group: 'org.springframework.security', name: 'spring-security-rsa', version: '1.0.11.RELEASE'],
             [group: 'com.jdcloud.sdk', name: 'core', version: "1.2.1"],
             [group: 'it.ozimov', name: 'embedded-redis', version: '0.7.3'],
-            [group: 'org.apache.commons', name: 'commons-lang3', version: '3.12.0']
+            [group: 'org.apache.commons', name: 'commons-lang3', version: '3.12.0'],
+            [group: 'mysql', name: 'mysql-connector-java', version: '8.0.32']
 
     ] as ArrayList<Properties>
 }

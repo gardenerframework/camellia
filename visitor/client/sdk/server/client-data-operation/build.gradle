@@ -1,6 +1,0 @@
-dependencies {
-    api "${fragrans.group}:data-domain-common-practice"
-    api "${fragrans.group}:data-traits-starter"
-    api "${group}:client-data-schema"
-    api "${group}:visitor-data-common"
-}
