@@ -8,6 +8,7 @@ import io.gardenerframework.fragrans.data.practice.operation.checker.RecordCheck
 import io.gardenerframework.fragrans.data.schema.query.GenericQueryResult;
 import io.gardenerframework.fragrans.log.GenericLoggers;
 import io.gardenerframework.fragrans.log.common.schema.verb.Create;
+import io.gardenerframework.fragrans.log.common.schema.verb.Delete;
 import io.gardenerframework.fragrans.log.common.schema.verb.Update;
 import io.gardenerframework.fragrans.log.schema.content.GenericBasicLogContent;
 import io.gardenerframework.fragrans.log.schema.details.Detail;
@@ -23,7 +24,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.UUID;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 /**
  * @author chris
@@ -44,6 +44,11 @@ public class ClientDataAtomicOperationTemplate<E extends ClientEntityTemplate, C
      */
     @NonNull
     private final CommonOperations commonOperations;
+    /**
+     * 什么也不做的检查器
+     */
+    @NonNull
+    private final NoopRecordChecker<E> noopRecordChecker = new NoopRecordChecker<>();
 
     /**
      * 创建客户端
@@ -87,6 +92,17 @@ public class ClientDataAtomicOperationTemplate<E extends ClientEntityTemplate, C
     /**
      * 读取给定id的客户端
      *
+     * @param clientId 客户端id
+     * @return 客户端信息
+     * @throws Exception 遇到问题抛出异常
+     */
+    public E readClient(@NonNull String clientId) throws Exception {
+        return readClient(clientId, false);
+    }
+
+    /**
+     * 读取给定id的客户端
+     *
      * @param clientId     客户端id
      * @param showPassword 是否返回密码
      * @return 客户端信息
@@ -94,9 +110,19 @@ public class ClientDataAtomicOperationTemplate<E extends ClientEntityTemplate, C
      */
     @Nullable
     public E readClient(@NonNull String clientId, boolean showPassword) throws Exception {
-        return commonOperations.readThenCheck().single(
-                () -> clientMapperTemplate.readClient(clientId, showPassword)
-        );
+        return readClient(clientId, showPassword, noopRecordChecker);
+    }
+
+    /**
+     * 读取给定id的客户端
+     *
+     * @param clientId 客户端id
+     * @param checkers 记录验证器清单
+     * @return 客户端信息
+     * @throws Exception 遇到问题抛出异常
+     */
+    public E readClient(@NonNull String clientId, RecordChecker<? super E>... checkers) throws Exception {
+        return readClient(clientId, false, checkers);
     }
 
     /**
@@ -130,8 +156,8 @@ public class ClientDataAtomicOperationTemplate<E extends ClientEntityTemplate, C
      */
     public GenericQueryResult<E> searchClient(
             @NonNull C criteria,
-            @Nullable Collection<Class<?>> must,
-            @Nullable Collection<Class<?>> should,
+            @Nullable Collection<String> must,
+            @Nullable Collection<String> should,
             int pageNo,
             int pageSize
     ) throws Exception {
@@ -145,19 +171,12 @@ public class ClientDataAtomicOperationTemplate<E extends ClientEntityTemplate, C
      *
      * @param clientId 客户端id
      * @param client   客户端数据
+     * @return 更新之前的记录
      * @throws Exception 遇到问题抛出异常
      */
-    public void updateClient(@NonNull String clientId, @NonNull E client) throws Exception {
-        clientMapperTemplate.updateClient(clientId, client);
-        //记录日志
-        GenericLoggers.basicLogger().info(
-                log,
-                GenericBasicLogContent.builder()
-                        .what(client.getClass())
-                        .how(new Update())
-                        .detail(new ClientLogDetail(clientId))
-                        .build()
-        );
+    @Nullable
+    public E overwriteClient(@NonNull String clientId, @NonNull E client) throws Exception {
+        return overwriteClient(clientId, client, noopRecordChecker);
     }
 
     /**
@@ -166,13 +185,25 @@ public class ClientDataAtomicOperationTemplate<E extends ClientEntityTemplate, C
      * @param clientId 客户端id
      * @param client   客户端
      * @param checkers 检查器
+     *                 r
      * @throws Exception 遇到问题抛出异常
      */
-    public void updateClient(@NonNull String clientId, @NonNull E client, RecordChecker<? super E>... checkers) throws Exception {
+    @Nullable
+    public E overwriteClient(@NonNull String clientId, @NonNull E client, RecordChecker<? super E>... checkers) throws Exception {
         E record = readClient(clientId, false, checkers);
         if (record != null) {
-            updateClient(clientId, client);
+            clientMapperTemplate.overwriteClient(clientId, client);
+            //记录日志
+            GenericLoggers.basicLogger().info(
+                    log,
+                    GenericBasicLogContent.builder()
+                            .what(client.getClass())
+                            .how(new Update())
+                            .detail(new ClientLogDetail(clientId))
+                            .build()
+            );
         }
+        return record;
     }
 
     /**
@@ -183,21 +214,9 @@ public class ClientDataAtomicOperationTemplate<E extends ClientEntityTemplate, C
      * @param fields   字段集合
      * @throws Exception 遇到问题抛出异常
      */
-    public void patchClient(@NonNull String clientId, @NonNull E client, Collection<String> fields) throws Exception {
-        if (!CollectionUtils.isEmpty(fields)) {
-            clientMapperTemplate.patchClient(clientId, client, fields);
-        }
-        //记录日志
-        GenericLoggers.basicLogger().info(
-                log,
-                GenericBasicLogContent.builder()
-                        .what(client.getClass())
-                        .how(new Update())
-                        .detail(new ClientLogDetail(clientId) {
-                            private final Collection<String> patchedFields = fields;
-                        })
-                        .build()
-        );
+    @Nullable
+    public E patchClient(@NonNull String clientId, @NonNull E client, @Nullable Collection<String> fields) throws Exception {
+        return patchClient(clientId, client, fields, noopRecordChecker);
     }
 
     /**
@@ -209,10 +228,69 @@ public class ClientDataAtomicOperationTemplate<E extends ClientEntityTemplate, C
      * @param checkers 检查器
      * @throws Exception 遇到问题抛出异常
      */
-    public void patchClient(@NonNull String clientId, @NonNull E client, Collection<String> fields, RecordChecker<? super E>... checkers) throws Exception {
+    @Nullable
+    public E patchClient(@NonNull String clientId, @NonNull E client, @Nullable Collection<String> fields, RecordChecker<? super E>... checkers) throws Exception {
         E record = readClient(clientId, false, checkers);
-        if (record != null) {
-            patchClient(clientId, client, fields);
+        if (record != null && !CollectionUtils.isEmpty(fields)) {
+            //本身客户端存在而且
+            clientMapperTemplate.patchClient(clientId, client, fields);
+            //记录日志
+            GenericLoggers.basicLogger().info(
+                    log,
+                    GenericBasicLogContent.builder()
+                            .what(client.getClass())
+                            .how(new Update())
+                            .detail(new ClientLogDetail(clientId) {
+                                private final Collection<String> patchedFields = fields;
+                            })
+                            .build()
+            );
+        }
+        return record;
+    }
+
+    /**
+     * 删除客户端
+     *
+     * @param clientId 客户端id
+     * @return 被删除的客户端，如果不存在则返回空
+     * @throws Exception 遇到问题抛出异常
+     */
+    @Nullable
+    public E deleteClient(@NonNull String clientId) throws Exception {
+        return deleteClient(clientId, noopRecordChecker);
+    }
+
+    /**
+     * 删除指定客户端，并在删除前执行记录检查，如是否存在，是否激活等
+     *
+     * @param clientId 客户端id
+     * @param checkers 检查器
+     * @return 被删除的客户端，如果不存在则返回空
+     * @throws Exception 遇到问题抛出异常
+     */
+    @Nullable
+    public E deleteClient(@NonNull String clientId, RecordChecker<? super E>... checkers) throws Exception {
+        E client = readClient(clientId, true, checkers);
+        if (client != null) {
+            clientMapperTemplate.deleteClient(clientId);
+            //记录日志
+            GenericLoggers.basicLogger().info(
+                    log,
+                    GenericBasicLogContent.builder()
+                            .what(client.getClass())
+                            .how(new Delete())
+                            .detail(new ClientLogDetail(clientId))
+                            .build()
+            );
+        }
+        return client;
+    }
+
+    private static class NoopRecordChecker<E> implements RecordChecker<E> {
+        @Override
+        public <T extends E> void check(@Nullable T record) {
+
         }
     }
 

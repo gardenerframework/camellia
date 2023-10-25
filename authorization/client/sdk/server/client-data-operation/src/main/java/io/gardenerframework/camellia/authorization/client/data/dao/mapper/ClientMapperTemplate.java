@@ -53,8 +53,8 @@ public interface ClientMapperTemplate<E extends ClientEntityTemplate, C extends 
     @SelectProvider(ClientMapperSqlProviderTemplate.class)
     Collection<E> searchClient(
             @Param(ParameterNames.criteria) C criteria,
-            @Nullable Collection<Class<?>> must,
-            @Nullable Collection<Class<?>> should,
+            @Nullable Collection<String> must,
+            @Nullable Collection<String> should,
             int pageNo,
             int pageSize
     );
@@ -70,8 +70,8 @@ public interface ClientMapperTemplate<E extends ClientEntityTemplate, C extends 
     @SelectProvider(ClientMapperSqlProviderTemplate.class)
     long countFoundRows(
             @Param(ParameterNames.criteria) C criteria,
-            @Nullable Collection<Class<?>> must,
-            @Nullable Collection<Class<?>> should
+            @Nullable Collection<String> must,
+            @Nullable Collection<String> should
     );
 
     /**
@@ -81,7 +81,7 @@ public interface ClientMapperTemplate<E extends ClientEntityTemplate, C extends 
      * @param client   客户端数据
      */
     @UpdateProvider(ClientMapperSqlProviderTemplate.class)
-    void updateClient(@Param(ParameterNames.clientId) String clientId, @Param(ParameterNames.client) E client);
+    void overwriteClient(@Param(ParameterNames.clientId) String clientId, @Param(ParameterNames.client) E client);
 
     /**
      * 按patch修改客户端的字段

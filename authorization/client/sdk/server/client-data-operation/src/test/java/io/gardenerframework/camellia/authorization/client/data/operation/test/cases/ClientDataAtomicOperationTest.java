@@ -8,6 +8,7 @@ import io.gardenerframework.camellia.authorization.client.data.operation.test.be
 import io.gardenerframework.fragrans.data.practice.operation.checker.RecordChecker;
 import io.gardenerframework.fragrans.data.schema.query.GenericQueryResult;
 import io.gardenerframework.fragrans.data.trait.generic.GenericTraits;
+import io.gardenerframework.fragrans.sugar.trait.utils.TraitUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Mapper;
@@ -67,7 +68,7 @@ public class ClientDataAtomicOperationTest {
         Assertions.assertNotNull(saved);
         GenericQueryResult<TestClientEntity> queryResult = testClientDataAtomicOperation.searchClient(
                 TestClientCriteria.builder().build(),
-                Collections.singleton(GenericTraits.LiteralTraits.Name.class),
+                Collections.singleton(TraitUtils.getTraitFieldNames(GenericTraits.LiteralTraits.Name.class).stream().findFirst().get()),
                 null,
                 1,
                 10
@@ -77,7 +78,7 @@ public class ClientDataAtomicOperationTest {
         Assertions.assertEquals(1, queryResult.getTotal());
         //测试更新
         recordToSave.setName(UUID.randomUUID().toString());
-        testClientDataAtomicOperation.updateClient(clientId, recordToSave, new RecordChecker<TestClientEntity>() {
+        testClientDataAtomicOperation.overwriteClient(clientId, recordToSave, new RecordChecker<TestClientEntity>() {
             @Override
             public <T extends TestClientEntity> void check(@Nullable T record) {
                 Assertions.assertNotNull(record);
@@ -112,12 +113,14 @@ public class ClientDataAtomicOperationTest {
         log.info(Instant.now().toString());
         testClientDataAtomicOperation.searchClient(
                 TestClientCriteria.builder().name(recordToSave.getName()).build(),
-                Collections.singleton(GenericTraits.LiteralTraits.Name.class),
+                Collections.singleton(TraitUtils.getTraitFieldNames(GenericTraits.LiteralTraits.Name.class).stream().findFirst().get()),
                 null,
                 1,
                 10
         );
         log.info(Instant.now().toString());
+        testClientDataAtomicOperation.deleteClient(clientId);
+        Assertions.assertNull(testClientDataAtomicOperation.readClient(clientId));
     }
 
     @Mapper

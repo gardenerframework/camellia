@@ -2,7 +2,6 @@ package io.gardenerframework.camellia.authorization.client.data.schema.entity;
 
 import io.gardenerframework.camellia.client.data.schema.ClientTraits;
 import io.gardenerframework.fragrans.data.persistence.template.annotation.DomainObjectTemplate;
-import io.gardenerframework.fragrans.data.schema.annotation.SkipInGenericUpdateOperation;
 import io.gardenerframework.fragrans.data.schema.entity.BasicOperationTraceableEntity;
 import io.gardenerframework.fragrans.data.trait.application.ApplicationTraits;
 import io.gardenerframework.fragrans.data.trait.generic.GenericTraits;
@@ -56,36 +55,29 @@ public class ClientEntityTemplate extends BasicOperationTraceableEntity<String> 
     /**
      * 客户端凭据
      */
-    @SkipInGenericUpdateOperation
     private String password;
     /**
      * 批准的授权形式
      */
-    @SkipInGenericUpdateOperation
     private Collection<String> grantType;
     /**
      * 授权的访问范围
      */
-    @SkipInGenericUpdateOperation
     private Collection<String> scope;
     /**
      * 授权的重定向地址
      */
-    @SkipInGenericUpdateOperation
     private Collection<String> redirectUrl;
     /**
      * 默认的访问令牌ttl，秒为单位
      */
-    @SkipInGenericUpdateOperation
     private int accessTokenTtl;
     /**
      * 默认的刷新令牌ttl，秒为单位
      */
-    @SkipInGenericUpdateOperation
     private int refreshTokenTtl;
     /**
      * 客户端是否在authorization_code授权下跳过客户批准环节
      */
-    @SkipInGenericUpdateOperation
     private boolean requireConsent;
 }

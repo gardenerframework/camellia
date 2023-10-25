@@ -86,8 +86,8 @@ public class ClientMapperSqlProviderTemplate<E extends ClientEntityTemplate, C e
     public String searchClient(
             ProviderContext context,
             C criteria,
-            @Nullable Collection<Class<?>> must,
-            @Nullable Collection<Class<?>> should,
+            @Nullable Collection<String> must,
+            @Nullable Collection<String> should,
             int pageNo,
             int pageSize
     ) {
@@ -108,8 +108,8 @@ public class ClientMapperSqlProviderTemplate<E extends ClientEntityTemplate, C e
     public String countFoundRows(
             ProviderContext context,
             C criteria,
-            @Nullable Collection<Class<?>> must,
-            @Nullable Collection<Class<?>> should
+            @Nullable Collection<String> must,
+            @Nullable Collection<String> should
     ) {
         Class<?> entityType = getDomainObjectType(context);
         return buildSearchClientStatement(entityType, criteria, must, should).countFoundRows(true).build();
@@ -123,10 +123,10 @@ public class ClientMapperSqlProviderTemplate<E extends ClientEntityTemplate, C e
      * @param client   客户端
      * @return 语句
      */
-    public String updateClient(ProviderContext context, String clientId, E client) {
+    public String overwriteClient(ProviderContext context, String clientId, E client) {
         return StatementBuilder.getInstance().update(
                 getDomainObjectType(context),
-                new CommonScannerCallbacks.UpdateStatementIgnoredAnnotations(),
+                new CommonScannerCallbacks.UpdateStatementIgnoredAnnotations(false),
                 ClientMapperTemplate.ParameterNames.client
         ).where(new CommonCriteria.QueryByIdCriteria(ClientMapperTemplate.ParameterNames.clientId)).build();
     }
@@ -164,6 +164,20 @@ public class ClientMapperSqlProviderTemplate<E extends ClientEntityTemplate, C e
     }
 
     /**
+     * 生成删除客户端的语句
+     *
+     * @param context  上下文
+     * @param clientId 客户端id
+     * @return 语句
+     */
+    public String deleteClient(ProviderContext context, String clientId) {
+        return StatementBuilder.getInstance()
+                .delete(getDomainObjectType(context))
+                .where(new CommonCriteria.QueryByIdCriteria(ClientMapperTemplate.ParameterNames.clientId))
+                .build();
+    }
+
+    /**
      * 生成语句供查询和查询所有行数使用
      *
      * @param entityType 实体类型
@@ -175,8 +189,8 @@ public class ClientMapperSqlProviderTemplate<E extends ClientEntityTemplate, C e
     private SelectStatement buildSearchClientStatement(
             Class<?> entityType,
             C criteria,
-            @Nullable Collection<Class<?>> must,
-            @Nullable Collection<Class<?>> should
+            @Nullable Collection<String> must,
+            @Nullable Collection<String> should
     ) {
         return StatementBuilder.getInstance().select(
                 entityType,
@@ -194,19 +208,5 @@ public class ClientMapperSqlProviderTemplate<E extends ClientEntityTemplate, C e
                 must,
                 should
         ));
-    }
-
-    /**
-     * 生成删除客户端的语句
-     *
-     * @param context  上下文
-     * @param clientId 客户端id
-     * @return 语句
-     */
-    public String deleteClient(ProviderContext context, String clientId) {
-        return StatementBuilder.getInstance()
-                .delete(getDomainObjectType(context))
-                .where(new CommonCriteria.QueryByIdCriteria(ClientMapperTemplate.ParameterNames.clientId))
-                .build();
     }
 }
