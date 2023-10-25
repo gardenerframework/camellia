@@ -10,6 +10,7 @@ import io.gardenerframework.fragrans.data.persistence.orm.statement.schema.state
 import io.gardenerframework.fragrans.data.persistence.template.sql.DomainSqlTemplateBase;
 import io.gardenerframework.fragrans.data.practice.persistence.orm.statement.CommonScannerCallbacks;
 import io.gardenerframework.fragrans.data.practice.persistence.orm.statement.schema.criteria.CommonCriteria;
+import io.gardenerframework.fragrans.data.schema.annotation.ImmutableField;
 import io.gardenerframework.fragrans.data.trait.security.SecurityTraits;
 import org.apache.ibatis.builder.annotation.ProviderContext;
 import org.apache.ibatis.builder.annotation.ProviderMethodResolver;
@@ -62,12 +63,10 @@ public class ClientMapperSqlProviderTemplate<E extends ClientEntityTemplate, C e
                     new CommonScannerCallbacks.UsingTraits(Collections.singletonList(SecurityTraits.SecretTraits.Password.class))
             );
         }
-        return StatementBuilder.getInstance().select(
-                getDomainObjectType(context),
-                compositeCallbacks
-        ).where(new CommonCriteria.QueryByIdCriteria(
-                ClientMapperTemplate.ParameterNames.clientId
-        )).build();
+        return StatementBuilder.getInstance()
+                .select(getDomainObjectType(context), compositeCallbacks)
+                .where(new CommonCriteria.QueryByIdCriteria(ClientMapperTemplate.ParameterNames.clientId))
+                .build();
     }
 
     /**
@@ -114,6 +113,43 @@ public class ClientMapperSqlProviderTemplate<E extends ClientEntityTemplate, C e
     }
 
     /**
+     * 生成更新客户端数据的语句
+     *
+     * @param context  上下文
+     * @param clientId 客户端id
+     * @param client   客户端
+     * @return 语句
+     */
+    public String updateClient(ProviderContext context, String clientId, E client) {
+        return StatementBuilder.getInstance().update(
+                getDomainObjectType(context),
+                new CommonScannerCallbacks.UpdateStatementIgnoredAnnotations(),
+                ClientMapperTemplate.ParameterNames.client
+        ).where(new CommonCriteria.QueryByIdCriteria(ClientMapperTemplate.ParameterNames.clientId)).build();
+    }
+
+    /**
+     * 生成修改客户端的指定字段的语句
+     *
+     * @param context  上下文
+     * @param clientId 客户端id
+     * @param client   客户端数据
+     * @param fields   字段清单
+     * @return 语句
+     */
+    public String patchClient(ProviderContext context, String clientId, E client, Collection<Class<?>> fields) {
+        return StatementBuilder.getInstance().update(
+                getDomainObjectType(context),
+                new CommonScannerCallbacks.CompositeCallbacks()
+                        //保留所有列
+                        .include((fieldScanner, aClass) -> fieldScanner.columns(aClass, fields))
+                        //除去被标记为不可变化的列
+                        .exclude((fieldScanner, aClass) -> fieldScanner.columns(aClass, Collections.singleton(ImmutableField.class), true)),
+                ClientMapperTemplate.ParameterNames.client
+        ).where(new CommonCriteria.QueryByIdCriteria(ClientMapperTemplate.ParameterNames.clientId)).build();
+    }
+
+    /**
      * 生成语句供查询和查询所有行数使用
      *
      * @param entityType 实体类型
@@ -154,9 +190,9 @@ public class ClientMapperSqlProviderTemplate<E extends ClientEntityTemplate, C e
      * @return 语句
      */
     public String deleteClient(ProviderContext context, String clientId) {
-        return StatementBuilder.getInstance().delete(getDomainObjectType(context))
-                .where(new CommonCriteria.QueryByIdCriteria(
-                        ClientMapperTemplate.ParameterNames.clientId
-                )).build();
+        return StatementBuilder.getInstance()
+                .delete(getDomainObjectType(context))
+                .where(new CommonCriteria.QueryByIdCriteria(ClientMapperTemplate.ParameterNames.clientId))
+                .build();
     }
 }

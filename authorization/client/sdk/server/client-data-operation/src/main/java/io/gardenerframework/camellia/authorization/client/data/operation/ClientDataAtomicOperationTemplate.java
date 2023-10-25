@@ -8,6 +8,7 @@ import io.gardenerframework.fragrans.data.practice.operation.checker.RecordCheck
 import io.gardenerframework.fragrans.data.schema.query.GenericQueryResult;
 import io.gardenerframework.fragrans.log.GenericLoggers;
 import io.gardenerframework.fragrans.log.common.schema.verb.Create;
+import io.gardenerframework.fragrans.log.common.schema.verb.Update;
 import io.gardenerframework.fragrans.log.schema.content.GenericBasicLogContent;
 import io.gardenerframework.fragrans.log.schema.details.Detail;
 import lombok.AllArgsConstructor;
@@ -15,12 +16,14 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.lang.Nullable;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.DigestUtils;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.UUID;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * @author chris
@@ -135,6 +138,82 @@ public class ClientDataAtomicOperationTemplate<E extends ClientEntityTemplate, C
         return GenericQueryResult.<E>builder().contents(clientMapperTemplate.searchClient(criteria, must, should, pageNo, pageSize))
                 .total(clientMapperTemplate.countFoundRows(criteria, must, should))
                 .build();
+    }
+
+    /**
+     * 更新客户端
+     *
+     * @param clientId 客户端id
+     * @param client   客户端数据
+     * @throws Exception 遇到问题抛出异常
+     */
+    public void updateClient(@NonNull String clientId, @NonNull E client) throws Exception {
+        clientMapperTemplate.updateClient(clientId, client);
+        //记录日志
+        GenericLoggers.basicLogger().info(
+                log,
+                GenericBasicLogContent.builder()
+                        .what(client.getClass())
+                        .how(new Update())
+                        .detail(new ClientLogDetail(clientId))
+                        .build()
+        );
+    }
+
+    /**
+     * 更新客户端，并在更新前执行记录检查，如是否存在，是否激活等
+     *
+     * @param clientId 客户端id
+     * @param client   客户端
+     * @param checkers 检查器
+     * @throws Exception 遇到问题抛出异常
+     */
+    public void updateClient(@NonNull String clientId, @NonNull E client, RecordChecker<? super E>... checkers) throws Exception {
+        E record = readClient(clientId, false, checkers);
+        if (record != null) {
+            updateClient(clientId, client);
+        }
+    }
+
+    /**
+     * 更新客户端
+     *
+     * @param clientId 客户端id
+     * @param client   客户端
+     * @param fields   字段集合
+     * @throws Exception 遇到问题抛出异常
+     */
+    public void patchClient(@NonNull String clientId, @NonNull E client, Collection<Class<?>> fields) throws Exception {
+        if (!CollectionUtils.isEmpty(fields)) {
+            clientMapperTemplate.patchClient(clientId, client, fields);
+        }
+        //记录日志
+        GenericLoggers.basicLogger().info(
+                log,
+                GenericBasicLogContent.builder()
+                        .what(client.getClass())
+                        .how(new Update())
+                        .detail(new ClientLogDetail(clientId) {
+                            private final Collection<String> patchedFields = fields.stream().map(Class::getSimpleName).collect(Collectors.toList());
+                        })
+                        .build()
+        );
+    }
+
+    /**
+     * 更新客户端，并在更新前执行记录检查，如是否存在，是否激活等
+     *
+     * @param clientId 客户端id
+     * @param client   客户端
+     * @param fields   字段集合
+     * @param checkers 检查器
+     * @throws Exception 遇到问题抛出异常
+     */
+    public void patchClient(@NonNull String clientId, @NonNull E client, Collection<Class<?>> fields, RecordChecker<? super E>... checkers) throws Exception {
+        E record = readClient(clientId, false, checkers);
+        if (record != null) {
+            patchClient(clientId, client, fields);
+        }
     }
 
     @AllArgsConstructor

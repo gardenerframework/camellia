@@ -5,4 +5,4 @@ spring:
     password: 1qAz2WSX2020
 logging:
   level:
-    root: info
+    root: debug

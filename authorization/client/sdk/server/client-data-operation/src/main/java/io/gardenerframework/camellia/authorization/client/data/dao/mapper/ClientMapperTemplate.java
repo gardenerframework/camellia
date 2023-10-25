@@ -7,6 +7,7 @@ import io.gardenerframework.fragrans.data.persistence.template.annotation.Domain
 import org.apache.ibatis.annotations.DeleteProvider;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.SelectProvider;
+import org.apache.ibatis.annotations.UpdateProvider;
 import org.springframework.lang.Nullable;
 
 import java.util.Collection;
@@ -72,6 +73,25 @@ public interface ClientMapperTemplate<E extends ClientEntityTemplate, C extends 
             @Nullable Collection<Class<?>> must,
             @Nullable Collection<Class<?>> should
     );
+
+    /**
+     * 修改客户端中允许直接覆盖更新的字段
+     *
+     * @param clientId 客户端id
+     * @param client   客户端数据
+     */
+    @UpdateProvider(ClientMapperSqlProviderTemplate.class)
+    void updateClient(@Param(ParameterNames.clientId) String clientId, @Param(ParameterNames.client) E client);
+
+    /**
+     * 按patch修改客户端的字段
+     *
+     * @param clientId 客户端 id
+     * @param client   客户端
+     * @param fields   要修改的字段
+     */
+    @UpdateProvider(ClientMapperSqlProviderTemplate.class)
+    void patchClient(@Param(ParameterNames.clientId) String clientId, @Param(ParameterNames.client) E client, Collection<Class<?>> fields);
 
     /**
      * 删除客户端

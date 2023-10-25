@@ -5,8 +5,10 @@ import io.gardenerframework.camellia.authorization.client.data.operation.test.Cl
 import io.gardenerframework.camellia.authorization.client.data.operation.test.bean.TestClientCriteria;
 import io.gardenerframework.camellia.authorization.client.data.operation.test.bean.TestClientDataAtomicOperation;
 import io.gardenerframework.camellia.authorization.client.data.operation.test.bean.TestClientEntity;
+import io.gardenerframework.fragrans.data.practice.operation.checker.RecordChecker;
 import io.gardenerframework.fragrans.data.schema.query.GenericQueryResult;
 import io.gardenerframework.fragrans.data.trait.generic.GenericTraits;
+import io.gardenerframework.fragrans.data.trait.security.SecurityTraits;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Mapper;
@@ -16,6 +18,8 @@ import org.junit.jupiter.api.Test;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.jdbc.BadSqlGrammarException;
+import org.springframework.lang.Nullable;
 import org.springframework.util.CollectionUtils;
 
 import java.time.Instant;
@@ -72,8 +76,31 @@ public class ClientDataAtomicOperationTest {
         Assertions.assertNotNull(queryResult);
         Assertions.assertFalse(CollectionUtils.isEmpty(queryResult.getContents()));
         Assertions.assertEquals(1, queryResult.getTotal());
+        //测试更新
+        recordToSave.setName(UUID.randomUUID().toString());
+        testClientDataAtomicOperation.updateClient(clientId, recordToSave, new RecordChecker<TestClientEntity>() {
+            @Override
+            public <T extends TestClientEntity> void check(@Nullable T record) {
+                Assertions.assertNotNull(record);
+            }
+        });
+        saved = testClientDataAtomicOperation.readClient(clientId, false);
+        Assertions.assertNotNull(saved);
+        Assertions.assertEquals(recordToSave.getName(), saved.getName());
+        //测试补丁
+        recordToSave.setPassword(UUID.randomUUID().toString());
+        testClientDataAtomicOperation.patchClient(clientId, recordToSave, Collections.singleton(SecurityTraits.SecretTraits.Password.class));
+        saved = testClientDataAtomicOperation.readClient(clientId, true);
+        Assertions.assertNotNull(saved);
+        Assertions.assertEquals(recordToSave.getPassword(), saved.getPassword());
+        //测试id不可变
+        recordToSave.setId(UUID.randomUUID().toString());
+        //这里无法生成sql语句
+        Assertions.assertThrows(
+                BadSqlGrammarException.class,
+                () -> testClientDataAtomicOperation.patchClient(clientId, recordToSave, Collections.singleton(GenericTraits.IdentifierTraits.Id.class)));
         //测试一下性能
-        for(int i = 0; i < 10000; i++) {
+        for (int i = 0; i < 10000; i++) {
             recordToSave.setName(UUID.randomUUID().toString());
             testClientDataAtomicOperation.createClient(recordToSave);
             log.info(String.valueOf(i));
