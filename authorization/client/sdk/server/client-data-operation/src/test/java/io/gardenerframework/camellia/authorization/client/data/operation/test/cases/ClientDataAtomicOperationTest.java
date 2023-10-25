@@ -8,7 +8,6 @@ import io.gardenerframework.camellia.authorization.client.data.operation.test.be
 import io.gardenerframework.fragrans.data.practice.operation.checker.RecordChecker;
 import io.gardenerframework.fragrans.data.schema.query.GenericQueryResult;
 import io.gardenerframework.fragrans.data.trait.generic.GenericTraits;
-import io.gardenerframework.fragrans.data.trait.security.SecurityTraits;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Mapper;
@@ -89,7 +88,7 @@ public class ClientDataAtomicOperationTest {
         Assertions.assertEquals(recordToSave.getName(), saved.getName());
         //测试补丁
         recordToSave.setPassword(UUID.randomUUID().toString());
-        testClientDataAtomicOperation.patchClient(clientId, recordToSave, Collections.singleton(SecurityTraits.SecretTraits.Password.class));
+        testClientDataAtomicOperation.patchClient(clientId, recordToSave, Collections.singleton("password"));
         saved = testClientDataAtomicOperation.readClient(clientId, true);
         Assertions.assertNotNull(saved);
         Assertions.assertEquals(recordToSave.getPassword(), saved.getPassword());
@@ -98,7 +97,12 @@ public class ClientDataAtomicOperationTest {
         //这里无法生成sql语句
         Assertions.assertThrows(
                 BadSqlGrammarException.class,
-                () -> testClientDataAtomicOperation.patchClient(clientId, recordToSave, Collections.singleton(GenericTraits.IdentifierTraits.Id.class)));
+                () -> testClientDataAtomicOperation.patchClient(clientId, recordToSave, Collections.singleton("id")));
+        //测试多个词的列
+        testClientDataAtomicOperation.patchClient(clientId, recordToSave, Collections.singleton("accessTokenTtl"));
+        saved = testClientDataAtomicOperation.readClient(clientId, true);
+        Assertions.assertNotNull(saved);
+        Assertions.assertEquals(recordToSave.getAccessTokenTtl(), saved.getAccessTokenTtl());
         //测试一下性能
         for (int i = 0; i < 10000; i++) {
             recordToSave.setName(UUID.randomUUID().toString());

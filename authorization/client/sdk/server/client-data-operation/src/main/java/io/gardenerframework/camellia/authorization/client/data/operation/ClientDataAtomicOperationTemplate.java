@@ -183,7 +183,7 @@ public class ClientDataAtomicOperationTemplate<E extends ClientEntityTemplate, C
      * @param fields   字段集合
      * @throws Exception 遇到问题抛出异常
      */
-    public void patchClient(@NonNull String clientId, @NonNull E client, Collection<Class<?>> fields) throws Exception {
+    public void patchClient(@NonNull String clientId, @NonNull E client, Collection<String> fields) throws Exception {
         if (!CollectionUtils.isEmpty(fields)) {
             clientMapperTemplate.patchClient(clientId, client, fields);
         }
@@ -194,7 +194,7 @@ public class ClientDataAtomicOperationTemplate<E extends ClientEntityTemplate, C
                         .what(client.getClass())
                         .how(new Update())
                         .detail(new ClientLogDetail(clientId) {
-                            private final Collection<String> patchedFields = fields.stream().map(Class::getSimpleName).collect(Collectors.toList());
+                            private final Collection<String> patchedFields = fields;
                         })
                         .build()
         );
@@ -209,7 +209,7 @@ public class ClientDataAtomicOperationTemplate<E extends ClientEntityTemplate, C
      * @param checkers 检查器
      * @throws Exception 遇到问题抛出异常
      */
-    public void patchClient(@NonNull String clientId, @NonNull E client, Collection<Class<?>> fields, RecordChecker<? super E>... checkers) throws Exception {
+    public void patchClient(@NonNull String clientId, @NonNull E client, Collection<String> fields, RecordChecker<? super E>... checkers) throws Exception {
         E record = readClient(clientId, false, checkers);
         if (record != null) {
             patchClient(clientId, client, fields);

@@ -91,7 +91,11 @@ public interface ClientMapperTemplate<E extends ClientEntityTemplate, C extends 
      * @param fields   要修改的字段
      */
     @UpdateProvider(ClientMapperSqlProviderTemplate.class)
-    void patchClient(@Param(ParameterNames.clientId) String clientId, @Param(ParameterNames.client) E client, Collection<Class<?>> fields);
+    void patchClient(
+            @Param(ParameterNames.clientId) String clientId,
+            @Param(ParameterNames.client) E client,
+            Collection<String> fields
+    );
 
     /**
      * 删除客户端

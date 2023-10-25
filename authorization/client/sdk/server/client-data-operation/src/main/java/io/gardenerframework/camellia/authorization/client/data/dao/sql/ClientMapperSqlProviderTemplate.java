@@ -4,13 +4,13 @@ import io.gardenerframework.camellia.authorization.client.data.dao.mapper.Client
 import io.gardenerframework.camellia.authorization.client.data.schema.criteria.ClientCriteriaTemplate;
 import io.gardenerframework.camellia.authorization.client.data.schema.entity.ClientEntityTemplate;
 import io.gardenerframework.fragrans.data.persistence.criteria.support.CriteriaBuilder;
+import io.gardenerframework.fragrans.data.persistence.orm.entity.FieldScanner;
 import io.gardenerframework.fragrans.data.persistence.orm.statement.StatementBuilder;
 import io.gardenerframework.fragrans.data.persistence.orm.statement.annotation.TableNameUtils;
 import io.gardenerframework.fragrans.data.persistence.orm.statement.schema.statement.SelectStatement;
 import io.gardenerframework.fragrans.data.persistence.template.sql.DomainSqlTemplateBase;
 import io.gardenerframework.fragrans.data.practice.persistence.orm.statement.CommonScannerCallbacks;
 import io.gardenerframework.fragrans.data.practice.persistence.orm.statement.schema.criteria.CommonCriteria;
-import io.gardenerframework.fragrans.data.schema.annotation.ImmutableField;
 import io.gardenerframework.fragrans.data.trait.security.SecurityTraits;
 import org.apache.ibatis.builder.annotation.ProviderContext;
 import org.apache.ibatis.builder.annotation.ProviderMethodResolver;
@@ -18,6 +18,9 @@ import org.springframework.lang.Nullable;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * sql操作模板
@@ -137,16 +140,27 @@ public class ClientMapperSqlProviderTemplate<E extends ClientEntityTemplate, C e
      * @param fields   字段清单
      * @return 语句
      */
-    public String patchClient(ProviderContext context, String clientId, E client, Collection<Class<?>> fields) {
-        return StatementBuilder.getInstance().update(
-                getDomainObjectType(context),
-                new CommonScannerCallbacks.CompositeCallbacks()
-                        //保留所有列
-                        .include((fieldScanner, aClass) -> fieldScanner.columns(aClass, fields))
-                        //除去被标记为不可变化的列
-                        .exclude((fieldScanner, aClass) -> fieldScanner.columns(aClass, Collections.singleton(ImmutableField.class), true)),
-                ClientMapperTemplate.ParameterNames.client
-        ).where(new CommonCriteria.QueryByIdCriteria(ClientMapperTemplate.ParameterNames.clientId)).build();
+    public String patchClient(
+            ProviderContext context,
+            String clientId, E client,
+            Collection<String> fields
+    ) {
+        Class<?> entityType = getDomainObjectType(context);
+        Set<String> patchedColumns = new HashSet<>(
+                new CommonScannerCallbacks
+                        //扫描所有列(除去标记为不可变的列)
+                        .UpdateStatementIgnoredAnnotations(false)
+                        .apply(FieldScanner.getInstance(), entityType));
+        //和参数中说明的要求变更的列进行交集
+        patchedColumns.retainAll(fields
+                .stream()
+                .map(field -> FieldScanner.getInstance().getConverter(entityType).
+                        fieldToColumn(field))
+                .collect(Collectors.toList())
+        );
+        return StatementBuilder.getInstance()
+                .update(entityType)
+                .columns(patchedColumns, ClientMapperTemplate.ParameterNames.client).where(new CommonCriteria.QueryByIdCriteria(ClientMapperTemplate.ParameterNames.clientId)).build();
     }
 
     /**
