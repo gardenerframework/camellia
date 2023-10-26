@@ -22,7 +22,6 @@ import org.springframework.jdbc.BadSqlGrammarException;
 import org.springframework.lang.Nullable;
 import org.springframework.util.CollectionUtils;
 
-import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.UUID;
@@ -104,21 +103,21 @@ public class ClientDataAtomicOperationTest {
         saved = testClientDataAtomicOperation.readClient(clientId, true);
         Assertions.assertNotNull(saved);
         Assertions.assertEquals(recordToSave.getAccessTokenTtl(), saved.getAccessTokenTtl());
-        //测试一下性能
-        for (int i = 0; i < 10000; i++) {
-            recordToSave.setName(UUID.randomUUID().toString());
-            testClientDataAtomicOperation.createClient(recordToSave);
-            log.info(String.valueOf(i));
-        }
-        log.info(Instant.now().toString());
-        testClientDataAtomicOperation.searchClient(
-                TestClientCriteria.builder().name(recordToSave.getName()).build(),
-                Collections.singleton(TraitUtils.getTraitFieldNames(GenericTraits.LiteralTraits.Name.class).stream().findFirst().get()),
-                null,
-                1,
-                10
-        );
-        log.info(Instant.now().toString());
+//        //测试一下性能
+//        for (int i = 0; i < 10000; i++) {
+//            recordToSave.setName(UUID.randomUUID().toString());
+//            testClientDataAtomicOperation.createClient(recordToSave);
+//            log.info(String.valueOf(i));
+//        }
+//        log.info(Instant.now().toString());
+//        testClientDataAtomicOperation.searchClient(
+//                TestClientCriteria.builder().name(recordToSave.getName()).build(),
+//                Collections.singleton(TraitUtils.getTraitFieldNames(GenericTraits.LiteralTraits.Name.class).stream().findFirst().get()),
+//                null,
+//                1,
+//                10
+//        );
+//        log.info(Instant.now().toString());
         testClientDataAtomicOperation.deleteClient(clientId);
         Assertions.assertNull(testClientDataAtomicOperation.readClient(clientId));
     }
